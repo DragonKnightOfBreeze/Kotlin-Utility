@@ -21,7 +21,6 @@
     <kotlin.compiler.jvmTarget>11</kotlin.compiler.jvmTarget>
     <kotlin.compiler.sourceDirs>src/main/kotlin</kotlin.compiler.sourceDirs>
     <kotlin.compiler.incremental>true</kotlin.compiler.incremental>
-    <dokka.version>0.9.18</dokka.version>
   </properties>
 
   <dependencies>
@@ -68,19 +67,6 @@
   <build>
     <sourceDirectory>src/main/kotlin</sourceDirectory>
     <plugins>
-      <plugin>
-        <groupId>org.jetbrains.dokka</groupId>
-        <artifactId>dokka-maven-plugin</artifactId>
-        <version>${dokka.version}</version>
-        <executions>
-          <execution>
-            <phase>pre-site</phase>
-            <goals>
-              <goal>dokka</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
       <plugin>
         <groupId>org.jetbrains.kotlin</groupId>
         <artifactId>kotlin-maven-plugin</artifactId>
@@ -138,12 +124,4 @@
       </plugin>
     </plugins>
   </build>
-
-  <pluginRepositories>
-    <pluginRepository>
-      <id>jcenter</id>
-      <name>JCenter</name>
-      <url>https://jcenter.bintray.com/</url>
-    </pluginRepository>
-  </pluginRepositories>
 </project>
