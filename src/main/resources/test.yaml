@@ -1,84 +1,37 @@
+$schema: "http://json-schema.org/draft-07/schema"
+
 definitions:
-  Race:
+  Setting:
     type: object
     properties:
       Name:
-        $ref: "./Schema.json/#/Force/definitions/properties/Name"
-        generatedFrom: "/{Category}/{Element}/Name"
+        description: 名字。
+        type: string
 
       Category:
-        $ref: "./Schema.json/#/Force/definitions/properties/Category"
-        enumSchema:
-        - value: 普通种族
-          description: 这个种族属于寻常种族，是为芸芸众生的一份子。
-        - value: 魔族
-          description: 这个种族有别于寻常种族——他们从黑暗与深渊中而来，是不该存在于凡世的种族。
-        - value: 超凡种族
-          description: 这个种族有别于寻常种族——他们超凡脱俗，不受大部分自然法则的拘束，甚至拥有永生的能力。
+        description: 分类。
+        type: string
 
       Tags:
-        $ref: "./Schema.json/#/Force/definitions/properties/Tags"
-        items:
-          enumSchema:
-          - value: 已灭亡
-            description: 这个种族已经不复存在，迷失于历史长河之中。
-          - value: 远古
-            description: 这个种族自远古时期就已经存在。
-          - value: 太古
-            description: 这个种族自太古时期就已经存在。
-          - value: 外界
-            description: 这个种族来自并主要居住于其他世界——故事主要发生地之外的其他星球，乃至其他宇宙。
-          - value: 异界
-            description: 这个种族来自并主要居住于其他世界——寻常种族无法接触到的其他宇宙。
-          - value: 假想
-            description: 对于多数种族来说，这个种族的存在并未被证实，尽管故事传说中可能多有提及。
+        description: 附加标签。
+        type: array
 
       Summary:
-        $ref: "./Schema.json/#/Force/definitions/properties/Summary"
+        description: 概述。
+        type: string
+        language: Markdown
+        default: ……
 
       Description:
-        $ref: "./Schema.json/#/Force/definitions/properties/Description"
+        description: 描述。
+        type: string
+        language: Markdown
+        default: ……
 
       IntelligenceInfo:
-        $ref: "./Schema.json/#/Force/definitions/properties/IntelligenceInfo"
-        properties:
-          ExistForms:
-            description: 存在形式。
-            $ref: "../_Global/Enum.Schema.json/#/definitions/ExistForms"
-          LifeSpan:
-            description: 平均寿命。
-            type: string
-          PhysiologyRate:
-            description: 生理适应性。
-            type: string
-          MagicRate:
-            description: 魔法适应性。
-            type: string
-          GeneralCharacter:
-            description: 一般性格。
-            type: string
-          GeneralHabit:
-            description: 一般习性。
-            type: string
+        description: 情报信息。
+        type: object
 
       PropertyInfo:
-        $ref: "./Schema.json/#/Force/definitions/properties/PropertyInfo"
-        properties:
-          NatureList:
-            description: 天赋列表。
-            type: array
-            items:
-              $ref: "../Effect/Nature.Schema.json/#/definitions/Element/properties/Name"
-
-type: object
-propertyNames:
-  $ref: "#/definitions/Race/properties/Category"
-patternProperties:
-  ".*":
-    type: object
-    propertyNames:
-      $ref: "#/definitions/Race/properties/Name"
-    patternProperties:
-      ".*":
-        $ref: "#/definitions/Race"
-
+        description: 属性信息。
+        type: object
