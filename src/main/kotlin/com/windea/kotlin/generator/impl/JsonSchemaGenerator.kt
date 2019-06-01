@@ -50,8 +50,8 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		return this
 	}
 	
-	private fun addDefaultRules(): Map<String, JsonSchemaRule> {
-		return mutableMapOf(
+	private fun addDefaultRules() {
+		ruleMap.putAll(mutableMapOf(
 			"language" to { (_, value) ->
 				//更改为Idea扩展规则
 				mapOf("x-intellij-language-injection" to value)
@@ -78,7 +78,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 				//NOTE 不生成对应的附加约束，将其归为特殊注释
 				mapOf()
 			}
-		)
+		))
 	}
 	
 	//递归遍历整个约束映射的深复制，处理原本的约束映射
