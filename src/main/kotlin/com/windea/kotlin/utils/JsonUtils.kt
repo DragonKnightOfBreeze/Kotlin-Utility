@@ -4,10 +4,10 @@ package com.windea.kotlin.utils
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonWriter
 import java.io.FileReader
-import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.Path
+
 
 /**
  * Json文件的工具类。
@@ -61,18 +61,7 @@ object JsonUtils {
 	 */
 	@Throws(Exception::class)
 	fun <T> toFile(data: T, path: String) {
-		toFile(data, path, 2)
-	}
-	
-	/**
-	 * 将指定的泛型对象 [data] 写入指定路径 [path] 的json文件。指定缩进 [indent]。
-	 */
-	@Throws(Exception::class)
-	fun <T> toFile(data: T, path: String, indent: Int) {
-		val writer = JsonWriter(FileWriter(path))
-		val type = object : TypeToken<T>() {}.type
-		writer.setIndent(" ".repeat(indent))
-		json().toJson(data, type, writer)
+		Files.writeString(Path.of(path), json().toJson(data))
 	}
 	
 	/**
