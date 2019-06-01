@@ -15,6 +15,8 @@ import java.util.*
  * Yaml文件的工具类。
  */
 object YamlUtils {
+	private val constructor = Constructor()
+	private val representer = Representer()
 	private var loaderOptions = LoaderOptions()
 	private var dumperOptions = DumperOptions()
 	
@@ -28,16 +30,19 @@ object YamlUtils {
 	}
 	
 	
-	fun setLoaderOptions(options: LoaderOptions) {
-		loaderOptions = options
+	fun configureLoaderOptions(handler: (options: LoaderOptions) -> Unit): YamlUtils {
+		handler.invoke(loaderOptions)
+		return this
 	}
 	
-	fun setDumperOptions(options: DumperOptions) {
-		dumperOptions = options
+	fun configureDumperOptions(handler: (options: DumperOptions) -> Unit): YamlUtils {
+		handler.invoke(dumperOptions)
+		return this
 	}
 	
-	fun setTags(tagMap: Map<String, String>) {
-		dumperOptions.tags = tagMap
+	fun addTags(tagMap: Map<String, String>): YamlUtils {
+		dumperOptions.tags.putAll(tagMap)
+		return this
 	}
 	
 	/**
@@ -129,8 +134,6 @@ object YamlUtils {
 	
 	
 	private fun yaml(): Yaml {
-		val constructor = Constructor()
-		val representer = Representer()
 		return Yaml(constructor, representer, dumperOptions, loaderOptions)
 	}
 }

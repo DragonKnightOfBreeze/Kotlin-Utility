@@ -3,9 +3,9 @@
 package com.windea.kotlin.utils
 
 import com.google.gson.Gson
+import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.google.gson.stream.JsonWriter
-
 import java.io.FileReader
 import java.io.FileWriter
 
@@ -13,6 +13,18 @@ import java.io.FileWriter
  * Json文件的工具类。
  */
 object JsonUtils {
+	private var gsonBuilder = GsonBuilder()
+	
+	init {
+		gsonBuilder.serializeNulls().setPrettyPrinting()
+	}
+	
+	
+	fun configureGsonBuidler(handler: (gsonBuilder: GsonBuilder) -> Unit): JsonUtils {
+		handler.invoke(gsonBuilder)
+		return this
+	}
+	
 	/**
 	 * 从指定的文件路径 [path] 读取json数据，返回一个映射。
 	 */
@@ -72,6 +84,6 @@ object JsonUtils {
 	
 	
 	private fun json(): Gson {
-		return Gson()
+		return gsonBuilder.create()
 	}
 }
