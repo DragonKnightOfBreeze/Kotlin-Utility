@@ -88,9 +88,8 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	//使用并发映射解决java.util.ConcurrentModificationException
 	private fun convertRules(map: MutableMap<String, Any?>) {
 		val concurrentMap = ConcurrentHashMap(map)
-		for(key in concurrentMap.keys) {
+		for((key, value) in concurrentMap) {
 			//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
-			val value = map[key]
 			if(value is MutableMap<*, *>) {
 				convertRules(value as ConcurrentMap<String, Any?>)
 			} else {
