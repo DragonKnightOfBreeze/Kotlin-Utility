@@ -9,13 +9,14 @@ import com.windea.kotlin.utils.JsonUtils
 import com.windea.kotlin.utils.YamlUtils
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Intellij IDEA动态模版配置文件的生成器。
  */
 @Tested
 class LiveTemplateConfigGenerator : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
+	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
 	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze. -->\n"
 	private var configName = "Custom Template"
 	
@@ -94,7 +95,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		@JvmStatic
 		fun fromJsonSchema(inputPath: String): LiveTemplateConfigGenerator {
 			val generator = LiveTemplateConfigGenerator()
-			generator.inputMap = JsonUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += JsonUtils.fromFile(inputPath)
 			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}
@@ -105,7 +106,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		@JvmStatic
 		fun fromYamlSchema(inputPath: String): LiveTemplateConfigGenerator {
 			val generator = LiveTemplateConfigGenerator()
-			generator.inputMap = YamlUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += YamlUtils.fromFile(inputPath)
 			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}

@@ -3,29 +3,29 @@
 package com.windea.kotlin.generator.impl
 
 import com.windea.kotlin.annotation.NotTested
+import com.windea.kotlin.extension.pathSplit
 import com.windea.kotlin.extension.query
 import com.windea.kotlin.generator.ITextGenerator
 import com.windea.kotlin.generator.JsonSchemaRule
 import com.windea.kotlin.utils.JsonUtils
 import com.windea.kotlin.utils.YamlUtils
 import java.util.concurrent.ConcurrentHashMap
-import java.util.concurrent.ConcurrentMap
 
 /**
  * Json Schema的生成器。
  */
 @NotTested
 class JsonSchemaGenerator private constructor() : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
-	private var dataMap = mutableMapOf<String, Any?>()
-	private var ruleMap = mutableMapOf<String, JsonSchemaRule>()
+	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
+	private val dataMap: MutableMap<String, Any?> = HashMap()
+	private val ruleMap: MutableMap<String, JsonSchemaRule> = HashMap()
 	
 	
 	/**
 	 * 从指定路径 [dataPath]的yaml文件读取数据映射。读取失败时返回空映射。
 	 */
 	fun loadDataMapFromYaml(dataPath: String): JsonSchemaGenerator {
-		dataMap = runCatching { YamlUtils.fromFile(dataPath).toMutableMap() }.getOrDefault(mutableMapOf())
+		dataMap += runCatching { YamlUtils.fromFile(dataPath) }.getOrDefault(mapOf())
 		return this
 	}
 	
@@ -33,7 +33,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	 * 从指定路径 [dataPath]的json文件读取数据映射。读取失败时返回空映射。
 	 */
 	fun loadDataMapFromJson(dataPath: String): JsonSchemaGenerator {
-		dataMap = runCatching { JsonUtils.fromFile(dataPath).toMutableMap() }.getOrDefault(mutableMapOf())
+		dataMap += runCatching { JsonUtils.fromFile(dataPath) }.getOrDefault(mapOf())
 		return this
 	}
 	
@@ -48,7 +48,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	
 	override fun execute(): JsonSchemaGenerator {
 		addDefaultRules()
-		convertRules(dataMap)
+		convertRules(inputMap)
 		return this
 	}
 	
@@ -87,18 +87,17 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	//如果找到了自定义规则，则替换成规则集合中指定的官方规则
 	//使用并发映射解决java.util.ConcurrentModificationException
 	private fun convertRules(map: MutableMap<String, Any?>) {
-		val concurrentMap = ConcurrentHashMap(map)
-		for((key, value) in concurrentMap) {
+		for((key, value) in map) {
 			//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
-			if(value is MutableMap<*, *>) {
-				convertRules(value as ConcurrentMap<String, Any?>)
+			if(value is Map<*, *>) {
+				convertRules(value as MutableMap<String, Any?>)
 			} else {
 				//如果找到了对应规则名的规则，则执行规则并替换
 				ruleMap[key]?.let {
 					val newRule = it.invoke(Pair(key, value))
 					//居然还能直接这样写？
-					concurrentMap -= key
-					concurrentMap += newRule
+					map -= key
+					map += newRule
 				}
 			}
 		}
@@ -116,7 +115,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromExtJsonSchema(inputPath: String): JsonSchemaGenerator {
 			val generator = JsonSchemaGenerator()
-			generator.inputMap = JsonUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += JsonUtils.fromFile(inputPath)
 			return generator
 		}
 		
@@ -126,8 +125,23 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromExtYamlSchema(inputPath: String): JsonSchemaGenerator {
 			val generator = JsonSchemaGenerator()
-			generator.inputMap = YamlUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += YamlUtils.fromFile(inputPath)
 			return generator
 		}
 	}
+}
+
+fun main(args: Array<String>) {
+	// println(args[0] + "\t" + args[1])
+	
+	// val inputPath = args[0]
+	// val dataPath = args[1]
+	val inputPath = "D:\\My Documents\\My Projects\\Java Projects\\Utility\\Kotlin Utility\\src\\main\\resources\\test.yml"
+	val dataPath = ""
+	val outputPath = inputPath.pathSplit().changeFileExt(".json", true)
+	
+	JsonSchemaGenerator.fromExtYamlSchema(inputPath).loadDataMapFromYaml(dataPath)
+		.execute().generate(outputPath)
+	//
+	// JsonUtils.toFile(mapOf("a" to 1),"D:\\My Documents\\My Projects\\［Dreaming Projects］\\Promise Of Maple\\IdeaPlus\\Setting\\Schema\\Force\\Race.Schema.json")
 }

@@ -5,12 +5,13 @@ import com.windea.kotlin.utils.JsonUtils
 import com.windea.kotlin.utils.YamlUtils
 import java.nio.file.Files
 import java.nio.file.Path
+import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Plant Uml代码的生成器。
  */
 class PumlGenerator private constructor() : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
+	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
 	private var outputText = "Generated from kotlin script written by DragonKnightOfBreeze.\n"
 	
 	
@@ -30,7 +31,7 @@ class PumlGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromJson(inputPath: String): PumlGenerator {
 			val generator = PumlGenerator()
-			generator.inputMap = JsonUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += JsonUtils.fromFile(inputPath)
 			return generator
 		}
 		
@@ -40,7 +41,7 @@ class PumlGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromYaml(inputPath: String): PumlGenerator {
 			val generator = PumlGenerator()
-			generator.inputMap = YamlUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += YamlUtils.fromFile(inputPath)
 			return generator
 		}
 	}

@@ -1,0 +1,98 @@
+{
+  "patternProperties": {
+    ".*": {
+      "type": "object",
+      "propertyNames": {
+        "$ref": "#/definitions/Race/properties/Name"
+      },
+      "patternProperties": {
+        ".*": {
+          "$ref": "#/definitions/Race"
+        }
+      }
+    }
+  },
+  "propertyNames": {
+    "$ref": "#/definitions/Race/properties/Category"
+  },
+  "type": "object",
+  "definitions": {
+    "Race": {
+      "type": "object",
+      "properties": {
+        "Name": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/Name",
+          "enum": []
+        },
+        "Category": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/Category",
+          "enum": [
+            "普通种族",
+            "魔族",
+            "超凡种族"
+          ]
+        },
+        "Tags": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/Tags",
+          "items": {
+            "enum": [
+              "已灭亡",
+              "远古",
+              "太古",
+              "外界",
+              "异界",
+              "假想"
+            ]
+          }
+        },
+        "Summary": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/Summary"
+        },
+        "Description": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/Description"
+        },
+        "IntelligenceInfo": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/IntelligenceInfo",
+          "properties": {
+            "ExistForms": {
+              "description": "存在形式。",
+              "$ref": "../_Global/Enum.Schema.json/#/definitions/ExistForms"
+            },
+            "LifeSpan": {
+              "description": "平均寿命。",
+              "type": "string"
+            },
+            "PhysiologyRate": {
+              "description": "生理适应性。",
+              "type": "string"
+            },
+            "MagicRate": {
+              "description": "魔法适应性。",
+              "type": "string"
+            },
+            "GeneralCharacter": {
+              "description": "一般性格。",
+              "type": "string"
+            },
+            "GeneralHabit": {
+              "description": "一般习性。",
+              "type": "string"
+            }
+          }
+        },
+        "PropertyInfo": {
+          "$ref": "./Schema.json/#/Force/definitions/properties/PropertyInfo",
+          "properties": {
+            "NatureList": {
+              "description": "天赋列表。",
+              "type": "array",
+              "items": {
+                "$ref": "../Effect/Nature.Schema.json/#/definitions/Element/properties/Name"
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+}
