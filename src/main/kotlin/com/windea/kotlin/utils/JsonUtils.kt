@@ -61,7 +61,7 @@ object JsonUtils {
 	 */
 	@Throws(Exception::class)
 	fun <T> toFile(data: T, path: String) {
-		Files.writeString(Path.of(path), json().toJson(data).replace("\n", "\r\n"))
+		Files.writeString(Path.of(path), json().toJson(data))
 	}
 	
 	/**

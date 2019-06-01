@@ -3,13 +3,12 @@ package com.windea.kotlin.generator.impl
 import com.windea.kotlin.generator.ITextGenerator
 import java.nio.file.Files
 import java.nio.file.Path
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Markdown文本的生成器。
  */
 class MarkdownGenerator private constructor() : ITextGenerator {
-	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
+	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze.\n -->"
 	
 	

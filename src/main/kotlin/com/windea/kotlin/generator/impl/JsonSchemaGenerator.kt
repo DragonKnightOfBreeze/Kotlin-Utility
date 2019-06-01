@@ -3,7 +3,6 @@
 package com.windea.kotlin.generator.impl
 
 import com.windea.kotlin.annotation.NotTested
-import com.windea.kotlin.extension.pathSplit
 import com.windea.kotlin.extension.query
 import com.windea.kotlin.generator.ITextGenerator
 import com.windea.kotlin.generator.JsonSchemaRule
@@ -16,9 +15,9 @@ import java.util.concurrent.ConcurrentHashMap
  */
 @NotTested
 class JsonSchemaGenerator private constructor() : ITextGenerator {
-	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
-	private val dataMap: MutableMap<String, Any?> = HashMap()
-	private val ruleMap: MutableMap<String, JsonSchemaRule> = HashMap()
+	private val inputMap = mutableMapOf<String, Any?>()
+	private val dataMap = mutableMapOf<String, Any?>()
+	private val ruleMap = mutableMapOf<String, JsonSchemaRule>()
 	
 	
 	/**
@@ -74,11 +73,10 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 			"generatedFrom" to { (_, value) ->
 				//提取$dataMap中的路径`$value`对应的值列表
 				val enumConsts = dataMap.query(value as String)
-				mapOf("enum" to enumConsts)
-			},
-			"allowedAnnotation" to { (_, _) ->
-				//NOTE 不生成对应的附加约束，将其归为特殊注释
-				mapOf()
+				when {
+					enumConsts.isNotEmpty() -> mapOf("enum" to enumConsts)
+					else -> mapOf()
+				}
 			}
 		))
 	}
@@ -87,7 +85,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	//如果找到了自定义规则，则替换成规则集合中指定的官方规则
 	//使用并发映射解决java.util.ConcurrentModificationException
 	private fun convertRules(map: MutableMap<String, Any?>) {
-		for((key, value) in map) {
+		for((key, value) in ConcurrentHashMap<String, Any?>(map)) {
 			//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
 			if(value is Map<*, *>) {
 				convertRules(value as MutableMap<String, Any?>)
@@ -129,19 +127,4 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 			return generator
 		}
 	}
-}
-
-fun main(args: Array<String>) {
-	// println(args[0] + "\t" + args[1])
-	
-	// val inputPath = args[0]
-	// val dataPath = args[1]
-	val inputPath = "D:\\My Documents\\My Projects\\Java Projects\\Utility\\Kotlin Utility\\src\\main\\resources\\test.yml"
-	val dataPath = ""
-	val outputPath = inputPath.pathSplit().changeFileExt(".json", true)
-	
-	JsonSchemaGenerator.fromExtYamlSchema(inputPath).loadDataMapFromYaml(dataPath)
-		.execute().generate(outputPath)
-	//
-	// JsonUtils.toFile(mapOf("a" to 1),"D:\\My Documents\\My Projects\\［Dreaming Projects］\\Promise Of Maple\\IdeaPlus\\Setting\\Schema\\Force\\Race.Schema.json")
 }

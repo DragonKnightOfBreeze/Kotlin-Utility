@@ -1,96 +1,43 @@
 {
-  "patternProperties": {
-    ".*": {
-      "type": "object",
-      "propertyNames": {
-        "$ref": "#/definitions/Race/properties/Name"
-      },
-      "patternProperties": {
-        ".*": {
-          "$ref": "#/definitions/Race"
-        }
-      }
-    }
-  },
-  "propertyNames": {
-    "$ref": "#/definitions/Race/properties/Category"
-  },
-  "type": "object",
+  "$schema": "http://json-schema.org/draft-07/schema",
   "definitions": {
-    "Race": {
+    "Setting": {
       "type": "object",
       "properties": {
         "Name": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/Name",
-          "enum": []
-        },
-        "Category": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/Category",
+          "description": "名字。",
+          "type": "string",
           "enum": [
-            "普通种族",
-            "魔族",
-            "超凡种族"
+            null
           ]
         },
+        "Category": {
+          "description": "分类。",
+          "type": "string"
+        },
         "Tags": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/Tags",
-          "items": {
-            "enum": [
-              "已灭亡",
-              "远古",
-              "太古",
-              "外界",
-              "异界",
-              "假想"
-            ]
-          }
+          "description": "附加标签。",
+          "type": "array"
         },
         "Summary": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/Summary"
+          "description": "概述。",
+          "type": "string",
+          "default": "……",
+          "x-intellij-language-injection": "Markdown"
         },
         "Description": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/Description"
+          "description": "描述。",
+          "type": "string",
+          "default": "……",
+          "x-intellij-language-injection": "Markdown"
         },
         "IntelligenceInfo": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/IntelligenceInfo",
-          "properties": {
-            "ExistForms": {
-              "description": "存在形式。",
-              "$ref": "../_Global/Enum.Schema.json/#/definitions/ExistForms"
-            },
-            "LifeSpan": {
-              "description": "平均寿命。",
-              "type": "string"
-            },
-            "PhysiologyRate": {
-              "description": "生理适应性。",
-              "type": "string"
-            },
-            "MagicRate": {
-              "description": "魔法适应性。",
-              "type": "string"
-            },
-            "GeneralCharacter": {
-              "description": "一般性格。",
-              "type": "string"
-            },
-            "GeneralHabit": {
-              "description": "一般习性。",
-              "type": "string"
-            }
-          }
+          "description": "情报信息。",
+          "type": "object"
         },
         "PropertyInfo": {
-          "$ref": "./Schema.json/#/Force/definitions/properties/PropertyInfo",
-          "properties": {
-            "NatureList": {
-              "description": "天赋列表。",
-              "type": "array",
-              "items": {
-                "$ref": "../Effect/Nature.Schema.json/#/definitions/Element/properties/Name"
-              }
-            }
-          }
+          "description": "属性信息。",
+          "type": "object"
         }
       }
     }

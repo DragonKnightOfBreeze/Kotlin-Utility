@@ -10,14 +10,13 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.ConcurrentHashMap
 
 /**
  * Sql语句的生成器。
  */
 @NotTested
 class SqlGenerator private constructor() : ITextGenerator {
-	private val inputMap: MutableMap<String, Any?> = ConcurrentHashMap()
+	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "-- Generated from kotlin script written by DragonKnightOfBreeze.\n"
 	
 	
