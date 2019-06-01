@@ -83,13 +83,12 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	
 	//递归遍历整个约束映射的深复制，处理原本的约束映射
 	//如果找到了自定义规则，则替换成规则集合中指定的官方规则
-	//标记为尾部调用以增强性能
-	private tailrec fun convertRules(map: MutableMap<String, Any?>) {
+	private fun convertRules(map: MutableMap<String, Any?>) {
 		for(key in map.keys) {
 			//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
 			val value = map[key]
 			if(value is MutableMap<*, *>) {
-				return convertRules(value as MutableMap<String, Any?>)
+				convertRules(value as MutableMap<String, Any?>)
 			} else {
 				//如果找到了对应规则名的规则，则执行规则并替换
 				ruleMap[key]?.let {
