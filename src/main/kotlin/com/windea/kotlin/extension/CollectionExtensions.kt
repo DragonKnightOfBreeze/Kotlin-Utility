@@ -21,7 +21,7 @@ fun <E> List<E>.query(path: String): List<Any?> = queryInCollection(this, path)
 /**
  * 根据指定路径 [path] 查询当前集合，返回匹配的值列表。
  *
- * 示例： `#/Data/{Category}/[1]/Name`。
+ * 示例： `#/Data/{Category}/1/Name`。
  *
  * 允许的子路径格式：
  * * `[]` 表示一个列表。
