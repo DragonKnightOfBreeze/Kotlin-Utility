@@ -53,9 +53,13 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	
 	private fun addDefaultRules() {
 		ruleMap.putAll(mutableMapOf(
+			"\$ref" to { (_, value) ->
+				//将对yaml schema文件的引用改为对json schema文件的引用
+				mapOf("\$ref" to (value as String).replace(".yml", ".json").replace(".yaml", ".json"))
+			},
 			"language" to { (_, value) ->
 				//更改为Idea扩展规则
-				mapOf("x-intellij-language-injection" to value)
+				mapOf("x-intellij-language-injection" to value as String)
 			},
 			"deprecated" to { (_, value) ->
 				//更改为Idea扩展规则
@@ -68,7 +72,10 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 			"enumSchema" to { (_, value) ->
 				//提取路径`enumSchema/value`对应的值列表
 				val enumConsts = (value as List<Map<String, Any?>>).map { it["value"] }
-				mapOf("enum" to enumConsts)
+				when {
+					enumConsts.isNotEmpty() -> mapOf("enum" to enumConsts)
+					else -> mapOf()
+				}
 			},
 			"generatedFrom" to { (_, value) ->
 				//提取$dataMap中的路径`$value`对应的值列表
