@@ -21,7 +21,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	
 	
 	/**
-	 * 从指定路径 [dataPath]的yaml文件读取数据映射。读取失败时返回空映射。
+	 * 从指定路径 [dataPath] 的yaml文件读取数据映射。读取失败时返回空映射。
 	 */
 	fun loadDataMapFromYaml(dataPath: String): JsonSchemaGenerator {
 		dataMap += runCatching { YamlUtils.fromFile(dataPath) }.getOrDefault(mapOf())
@@ -29,7 +29,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	}
 	
 	/**
-	 * 从指定路径 [dataPath]的json文件读取数据映射。读取失败时返回空映射。
+	 * 从指定路径 [dataPath] 的json文件读取数据映射。读取失败时返回空映射。
 	 */
 	fun loadDataMapFromJson(dataPath: String): JsonSchemaGenerator {
 		dataMap += runCatching { JsonUtils.fromFile(dataPath) }.getOrDefault(mapOf())
@@ -55,7 +55,8 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		ruleMap.putAll(mutableMapOf(
 			"\$ref" to { (_, value) ->
 				//将对yaml schema文件的引用改为对json schema文件的引用
-				mapOf("\$ref" to (value as String).replace(".yml", ".json").replace(".yaml", ".json"))
+				val newValue = (value as String).replace(".yml", ".json").replace(".yaml", ".json")
+				mapOf("\$ref" to newValue)
 			},
 			"language" to { (_, value) ->
 				//更改为Idea扩展规则
@@ -71,17 +72,17 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 			},
 			"enumSchema" to { (_, value) ->
 				//提取路径`enumSchema/value`对应的值列表
-				val enumConsts = (value as List<Map<String, Any?>>).map { it["value"] }
+				val newValue = (value as List<Map<String, Any?>>).map { it["value"] }
 				when {
-					enumConsts.isNotEmpty() -> mapOf("enum" to enumConsts)
+					newValue.isNotEmpty() -> mapOf("enum" to newValue)
 					else -> mapOf()
 				}
 			},
 			"generatedFrom" to { (_, value) ->
 				//提取$dataMap中的路径`$value`对应的值列表
-				val enumConsts = dataMap.query(value as String)
+				val newValue = dataMap.query(value as String)
 				when {
-					enumConsts.isNotEmpty() -> mapOf("enum" to enumConsts)
+					newValue.isNotEmpty() -> mapOf("enum" to newValue)
 					else -> mapOf()
 				}
 			}
@@ -93,13 +94,18 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	//使用并发映射解决java.util.ConcurrentModificationException
 	private fun convertRules(map: MutableMap<String, Any?>) {
 		for((key, value) in ConcurrentHashMap<String, Any?>(map)) {
-			//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
-			if(value is Map<*, *>) {
-				convertRules(value as MutableMap<String, Any?>)
-			} else {
+			when(value) {
+				//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
+				is Map<*, *> -> convertRules(value as MutableMap<String, Any?>)
+				//考虑oneOf，allOf等情况
+				is List<*> -> for(elem in value) {
+					if(elem is Map<*, *>) {
+						convertRules(value as MutableMap<String, Any?>)
+					}
+				}
 				//如果找到了对应规则名的规则，则执行规则并替换
-				ruleMap[key]?.let {
-					val newRule = it.invoke(Pair(key, value))
+				else -> ruleMap[key]?.run {
+					val newRule = this.invoke(Pair(key, value))
 					//居然还能直接这样写？
 					map -= key
 					map += newRule
