@@ -8,6 +8,7 @@ import com.windea.kotlin.generator.ITextGenerator
 import com.windea.kotlin.generator.JsonSchemaRule
 import com.windea.kotlin.utils.JsonUtils
 import com.windea.kotlin.utils.YamlUtils
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 
 /**
@@ -18,6 +19,8 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()
 	private val ruleMap = mutableMapOf<String, JsonSchemaRule>()
+	
+	private val multiSchemaRuleNames = listOf("oneOf","allOf","anyOf")
 	
 	
 	/**
@@ -93,19 +96,18 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	//如果找到了自定义规则，则替换成规则集合中指定的官方规则
 	//使用并发映射解决java.util.ConcurrentModificationException
 	private fun convertRules(map: MutableMap<String, Any?>) {
-		for((key, value) in ConcurrentHashMap<String, Any?>(map)) {
-			when(value) {
+		//过滤掉值为null的键值对，防止NPE
+		for((key, value) in ConcurrentHashMap<String, Any?>(map.filterValues { it != null })) {
+			when {
 				//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
-				is Map<*, *> -> convertRules(value as MutableMap<String, Any?>)
+				value is Map<*, *> -> convertRules(value as MutableMap<String, Any?>)
 				//考虑oneOf，allOf等情况
-				is List<*> -> for(elem in value) {
-					if(elem is Map<*, *>) {
-						convertRules(value as MutableMap<String, Any?>)
-					}
+				key in multiSchemaRuleNames -> for(elem in value as List<MutableMap<String,Any?>>) {
+					convertRules(elem)
 				}
 				//如果找到了对应规则名的规则，则执行规则并替换
-				else -> ruleMap[key]?.run {
-					val newRule = this.invoke(Pair(key, value))
+				else -> ruleMap[key]?.let {
+					val newRule = it.invoke(Pair(key, value))
 					//居然还能直接这样写？
 					map -= key
 					map += newRule
