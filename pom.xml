@@ -13,6 +13,12 @@
   <description>Kotlin实用代码整理。</description>
   <url>https://github.com/DragonKnightOfBreeze/Kotlin-Utility</url>
 
+  <scm>
+    <connection>scm:git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</connection>
+    <developerConnection>scm:git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</developerConnection>
+    <url>git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</url>
+  </scm>
+
   <properties>
     <java.version>11</java.version>
     <maven.compiler.source>11</maven.compiler.source>
