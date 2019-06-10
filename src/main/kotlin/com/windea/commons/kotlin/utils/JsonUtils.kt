@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package com.windea.kotlin.utils
+package com.windea.commons.kotlin.utils
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder

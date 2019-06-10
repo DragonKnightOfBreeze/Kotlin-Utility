@@ -1,6 +1,6 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package com.windea.kotlin.extension
+package com.windea.commons.kotlin.extension
 
 //路径查找方法
 

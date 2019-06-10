@@ -1,4 +1,4 @@
-package com.windea.kotlin.utils
+package com.windea.commons.kotlin.utils
 
 import org.apache.commons.logging.Log
 import org.apache.commons.logging.LogFactory

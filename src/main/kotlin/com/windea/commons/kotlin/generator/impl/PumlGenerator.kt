@@ -1,8 +1,8 @@
-package com.windea.kotlin.generator.impl
+package com.windea.commons.kotlin.generator.impl
 
-import com.windea.kotlin.generator.ITextGenerator
-import com.windea.kotlin.utils.JsonUtils
-import com.windea.kotlin.utils.YamlUtils
+import com.windea.commons.kotlin.generator.ITextGenerator
+import com.windea.commons.kotlin.utils.JsonUtils
+import com.windea.commons.kotlin.utils.YamlUtils
 import java.nio.file.Files
 import java.nio.file.Path
 

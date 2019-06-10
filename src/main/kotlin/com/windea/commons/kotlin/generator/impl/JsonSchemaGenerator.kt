@@ -1,14 +1,13 @@
 @file:Suppress("UNCHECKED_CAST")
 
-package com.windea.kotlin.generator.impl
+package com.windea.commons.kotlin.generator.impl
 
-import com.windea.kotlin.annotation.NotTested
-import com.windea.kotlin.extension.query
-import com.windea.kotlin.generator.ITextGenerator
-import com.windea.kotlin.generator.JsonSchemaRule
-import com.windea.kotlin.utils.JsonUtils
-import com.windea.kotlin.utils.YamlUtils
-import java.util.*
+import com.windea.commons.kotlin.annotation.NotTested
+import com.windea.commons.kotlin.extension.query
+import com.windea.commons.kotlin.generator.ITextGenerator
+import com.windea.commons.kotlin.generator.JsonSchemaRule
+import com.windea.commons.kotlin.utils.JsonUtils
+import com.windea.commons.kotlin.utils.YamlUtils
 import java.util.concurrent.ConcurrentHashMap
 
 /**

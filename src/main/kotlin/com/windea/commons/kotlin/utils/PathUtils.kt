@@ -1,4 +1,4 @@
-package com.windea.kotlin.utils
+package com.windea.commons.kotlin.utils
 
 import java.util.*
 

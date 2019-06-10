@@ -1,4 +1,4 @@
-package com.windea.kotlin.annotation
+package com.windea.commons.kotlin.annotation
 
 
 /**

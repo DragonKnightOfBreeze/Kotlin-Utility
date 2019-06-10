@@ -1,4 +1,4 @@
-package com.windea.kotlin.generator
+package com.windea.commons.kotlin.generator
 
 /**
  * 文本生成器的接口。

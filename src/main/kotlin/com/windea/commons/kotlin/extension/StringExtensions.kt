@@ -1,4 +1,4 @@
-package com.windea.kotlin.extension
+package com.windea.commons.kotlin.extension
 
 import java.util.function.Predicate
 

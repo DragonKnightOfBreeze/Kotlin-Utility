@@ -1,6 +1,6 @@
-package com.windea.kotlin.generator.impl
+package com.windea.commons.kotlin.generator.impl
 
-import com.windea.kotlin.generator.ITextGenerator
+import com.windea.commons.kotlin.generator.ITextGenerator
 import java.nio.file.Files
 import java.nio.file.Path
 

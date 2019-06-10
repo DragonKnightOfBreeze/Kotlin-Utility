@@ -1,4 +1,4 @@
-package com.windea.kotlin.utils
+package com.windea.commons.kotlin.utils
 
 /**
  * Json文件和Yaml文件的工具类。用于相互之间的转换。

@@ -1,4 +1,4 @@
-package com.windea.kotlin.annotation
+package com.windea.commons.kotlin.annotation
 
 /**
  * 已通过测试的代码的注解。
