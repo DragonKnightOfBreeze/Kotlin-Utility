@@ -16,7 +16,7 @@ import java.util.*
  */
 @NotTested
 class SqlGenerator private constructor() : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
+	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "-- Generated from kotlin script written by DragonKnightOfBreeze.\n"
 	
 	
@@ -78,7 +78,7 @@ class SqlGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromJson(inputPath: String): SqlGenerator {
 			val generator = SqlGenerator()
-			generator.inputMap = JsonUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += JsonUtils.fromFile(inputPath)
 			return generator
 		}
 		
@@ -90,7 +90,7 @@ class SqlGenerator private constructor() : ITextGenerator {
 		@JvmStatic
 		fun fromYaml(inputPath: String): SqlGenerator {
 			val generator = SqlGenerator()
-			generator.inputMap = YamlUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += YamlUtils.fromFile(inputPath)
 			return generator
 		}
 	}

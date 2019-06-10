@@ -8,7 +8,7 @@ import java.nio.file.Path
  * Markdown文本的生成器。
  */
 class MarkdownGenerator private constructor() : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
+	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze.\n -->"
 	
 	

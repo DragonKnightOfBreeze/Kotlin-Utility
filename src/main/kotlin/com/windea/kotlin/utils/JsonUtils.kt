@@ -3,16 +3,28 @@
 package com.windea.kotlin.utils
 
 import com.google.gson.Gson
-import com.google.gson.reflect.TypeToken
-import com.google.gson.stream.JsonWriter
-
+import com.google.gson.GsonBuilder
 import java.io.FileReader
-import java.io.FileWriter
+import java.nio.file.Files
+import java.nio.file.Path
+
 
 /**
  * Json文件的工具类。
  */
 object JsonUtils {
+	private var gsonBuilder = GsonBuilder()
+	
+	init {
+		gsonBuilder.serializeNulls().setPrettyPrinting()
+	}
+	
+	
+	fun configureGsonBuidler(handler: (gsonBuilder: GsonBuilder) -> Unit): JsonUtils {
+		handler.invoke(gsonBuilder)
+		return this
+	}
+	
 	/**
 	 * 从指定的文件路径 [path] 读取json数据，返回一个映射。
 	 */
@@ -49,18 +61,7 @@ object JsonUtils {
 	 */
 	@Throws(Exception::class)
 	fun <T> toFile(data: T, path: String) {
-		toFile(data, path, 2)
-	}
-	
-	/**
-	 * 将指定的泛型对象 [data] 写入指定路径 [path] 的json文件。指定缩进 [indent]。
-	 */
-	@Throws(Exception::class)
-	fun <T> toFile(data: T, path: String, indent: Int) {
-		val writer = JsonWriter(FileWriter(path))
-		val type = object : TypeToken<T>() {}.type
-		writer.setIndent(" ".repeat(indent))
-		json().toJson(data, type, writer)
+		Files.writeString(Path.of(path), json().toJson(data))
 	}
 	
 	/**
@@ -72,6 +73,6 @@ object JsonUtils {
 	
 	
 	private fun json(): Gson {
-		return Gson()
+		return gsonBuilder.create()
 	}
 }

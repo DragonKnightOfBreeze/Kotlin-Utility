@@ -15,7 +15,7 @@ import java.nio.file.Path
  */
 @Tested
 class LiveTemplateConfigGenerator : ITextGenerator {
-	private var inputMap = mutableMapOf<String, Any?>()
+	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze. -->\n"
 	private var configName = "Custom Template"
 	
@@ -32,15 +32,15 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		|<templateSet group = "$configName">
 		|${definitions.map { (templateName, template) ->
 			val description = template["description"]
-			val params = if(template.containsKey("properties"))
-				template["properties"] as Map<String, Map<String, Any?>>
-			else
-				mapOf()
+			val params = when {
+				"properties" in template -> template["properties"] as Map<String, Map<String, Any?>>
+				else -> mapOf()
+			}
 			//TODO 允许自定义格式
-			val paramSnippet = if(params.isNotEmpty())
-				": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
-			else
-				""
+			val paramSnippet = when {
+				params.isNotEmpty() -> ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
+				else -> ""
+			}
 			
 			//value的格式示例：@Scope: {scope: $scope$, ...}
 			"""
@@ -94,7 +94,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		@JvmStatic
 		fun fromJsonSchema(inputPath: String): LiveTemplateConfigGenerator {
 			val generator = LiveTemplateConfigGenerator()
-			generator.inputMap = JsonUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += JsonUtils.fromFile(inputPath)
 			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}
@@ -105,7 +105,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		@JvmStatic
 		fun fromYamlSchema(inputPath: String): LiveTemplateConfigGenerator {
 			val generator = LiveTemplateConfigGenerator()
-			generator.inputMap = YamlUtils.fromFile(inputPath).toMutableMap()
+			generator.inputMap += YamlUtils.fromFile(inputPath)
 			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}
