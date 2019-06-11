@@ -2,7 +2,6 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.utils.JsonUtils
 import com.windea.commons.kotlin.utils.YamlUtils
@@ -14,7 +13,6 @@ import java.util.*
 /**
  * Sql语句的生成器。
  */
-@NotTested
 class SqlGenerator private constructor() : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "-- Generated from kotlin script written by DragonKnightOfBreeze.\n"

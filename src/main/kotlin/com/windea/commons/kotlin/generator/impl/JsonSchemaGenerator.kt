@@ -2,7 +2,6 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.extension.query
 import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.generator.JsonSchemaRule
@@ -13,13 +12,12 @@ import java.util.concurrent.ConcurrentHashMap
 /**
  * Json Schema的生成器。
  */
-@NotTested
 class JsonSchemaGenerator private constructor() : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()
 	private val ruleMap = mutableMapOf<String, JsonSchemaRule>()
 	
-	private val multiSchemaRuleNames = listOf("oneOf","allOf","anyOf")
+	private val multiSchemaRuleNames = listOf("oneOf", "allOf", "anyOf")
 	
 	
 	/**
@@ -48,17 +46,24 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	}
 	
 	override fun execute(): JsonSchemaGenerator {
-		addDefaultRules()
 		convertRules(inputMap)
 		return this
 	}
 	
-	private fun addDefaultRules() {
-		ruleMap.putAll(mutableMapOf(
+	private fun getDefaultRules(): Map<String, JsonSchemaRule> {
+		return mapOf(
 			"\$ref" to { (_, value) ->
 				//将对yaml schema文件的引用改为对json schema文件的引用
 				val newValue = (value as String).replace(".yml", ".json").replace(".yaml", ".json")
 				mapOf("\$ref" to newValue)
+			},
+			"\$gen" to { (_, value) ->
+				//提取$dataMap中的路径`$value`对应的值列表
+				val newValue = dataMap.query(value as String)
+				when {
+					newValue.isNotEmpty() -> mapOf("enum" to newValue)
+					else -> mapOf()
+				}
 			},
 			"language" to { (_, value) ->
 				//更改为Idea扩展规则
@@ -72,23 +77,15 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 					else -> mapOf()
 				}
 			},
-			"enumSchema" to { (_, value) ->
+			"enumConsts" to { (_, value) ->
 				//提取路径`enumSchema/value`对应的值列表
 				val newValue = (value as List<Map<String, Any?>>).map { it["value"] }
 				when {
 					newValue.isNotEmpty() -> mapOf("enum" to newValue)
 					else -> mapOf()
 				}
-			},
-			"generatedFrom" to { (_, value) ->
-				//提取$dataMap中的路径`$value`对应的值列表
-				val newValue = dataMap.query(value as String)
-				when {
-					newValue.isNotEmpty() -> mapOf("enum" to newValue)
-					else -> mapOf()
-				}
 			}
-		))
+		)
 	}
 	
 	//递归遍历整个约束映射的深复制，处理原本的约束映射
@@ -101,7 +98,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 				//如果值为映射，则继续向下递归遍历，否则检查是否匹配规则名
 				value is Map<*, *> -> convertRules(value as MutableMap<String, Any?>)
 				//考虑oneOf，allOf等情况
-				key in multiSchemaRuleNames -> for(elem in value as List<MutableMap<String,Any?>>) {
+				key in multiSchemaRuleNames -> for(elem in value as List<MutableMap<String, Any?>>) {
 					convertRules(elem)
 				}
 				//如果找到了对应规则名的规则，则执行规则并替换
@@ -128,6 +125,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		fun fromExtJsonSchema(inputPath: String): JsonSchemaGenerator {
 			val generator = JsonSchemaGenerator()
 			generator.inputMap += JsonUtils.fromFile(inputPath)
+			generator.ruleMap += generator.getDefaultRules()
 			return generator
 		}
 		
@@ -138,6 +136,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 		fun fromExtYamlSchema(inputPath: String): JsonSchemaGenerator {
 			val generator = JsonSchemaGenerator()
 			generator.inputMap += YamlUtils.fromFile(inputPath)
+			generator.ruleMap += generator.getDefaultRules()
 			return generator
 		}
 	}

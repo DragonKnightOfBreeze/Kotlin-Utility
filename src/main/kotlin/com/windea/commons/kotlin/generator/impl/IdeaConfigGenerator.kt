@@ -2,8 +2,6 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.Tested
-import com.windea.commons.kotlin.extension.pathSplit
 import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.utils.JsonUtils
 import com.windea.commons.kotlin.utils.YamlUtils
@@ -11,16 +9,14 @@ import java.nio.file.Files
 import java.nio.file.Path
 
 /**
- * Intellij IDEA动态模版配置文件的生成器。
+ * Intellij IDEA配置文件的生成器。
  */
-@Tested
-class LiveTemplateConfigGenerator : ITextGenerator {
+class IdeaConfigGenerator : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze. -->\n"
-	private var configName = "Custom Template"
 	
 	
-	override fun execute(): LiveTemplateConfigGenerator {
+	override fun execute(): IdeaConfigGenerator {
 		generateYamlAnnotation()
 		return this
 	}
@@ -29,7 +25,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		val definitions = inputMap["definitions"] as Map<String, Map<String, Any?>>
 		
 		outputText += """
-		|<templateSet group = "$configName">
+		|<templateSet group="YamlAnnotation">
 		|${definitions.map { (templateName, template) ->
 			val description = template["description"]
 			val params = when {
@@ -44,7 +40,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 			
 			//value的格式示例：@Scope: {scope: $scope$, ...}
 			"""
-			|  <template name="$templateName" value="$templateName$paramSnippet"
+			|  <template name="@$templateName" value="$templateName$paramSnippet"
 		    |            description="$description"
 		    |            toReformat="true" toShortenFQNames="true" useStaticImport="true">
 			|${params.entries.joinToString("\n") { (paramName, param) ->
@@ -77,7 +73,7 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 			|    </context>
 			|  </template>
 			""".trimMargin()
-		}.joinToString("\n")}
+		}.joinToString("\n\n")}
 		|</templateSet>
 		""".trimMargin()
 	}
@@ -92,10 +88,9 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		 * 从指定路径 [inputPath] 的json schema文件读取输入映射。
 		 */
 		@JvmStatic
-		fun fromJsonSchema(inputPath: String): LiveTemplateConfigGenerator {
-			val generator = LiveTemplateConfigGenerator()
+		fun fromJsonSchema(inputPath: String): IdeaConfigGenerator {
+			val generator = IdeaConfigGenerator()
 			generator.inputMap += JsonUtils.fromFile(inputPath)
-			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}
 		
@@ -103,10 +98,9 @@ class LiveTemplateConfigGenerator : ITextGenerator {
 		 * 从指定路径 [inputPath] 的yaml schema文件读取输入映射。
 		 */
 		@JvmStatic
-		fun fromYamlSchema(inputPath: String): LiveTemplateConfigGenerator {
-			val generator = LiveTemplateConfigGenerator()
+		fun fromYamlSchema(inputPath: String): IdeaConfigGenerator {
+			val generator = IdeaConfigGenerator()
 			generator.inputMap += YamlUtils.fromFile(inputPath)
-			generator.configName = inputPath.pathSplit().fileShotName
 			return generator
 		}
 	}
