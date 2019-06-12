@@ -1,5 +1,3 @@
-@file:Suppress("UNCHECKED_CAST")
-
 package com.windea.commons.kotlin.generator.impl
 
 import com.windea.commons.kotlin.generator.ITextGenerator
@@ -8,13 +6,11 @@ import com.windea.commons.kotlin.utils.JsonUtils
 import com.windea.commons.kotlin.utils.YamlUtils
 import java.nio.file.Files
 import java.nio.file.Path
-import java.text.SimpleDateFormat
-import java.util.*
 
 /**
- * Sql语句的生成器。
+ * PlantUml代码的生成器。
  */
-class SqlGenerator private constructor() : ITextGenerator {
+class PlantUmlGenerator private constructor() : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
@@ -33,53 +29,24 @@ class SqlGenerator private constructor() : ITextGenerator {
 	
 	
 	/**
-	 * @param generateStrategy  Default
+	 * @param generateStrategy Puml, PumlMarkdown
 	 */
 	override fun generate(generateStrategy: String): ITextGenerator {
 		when(generateStrategy) {
-			"Default" -> generateSqlText()
+			"Puml" -> generatePuml()
+			"PumlMarkdown" -> generatePumlMarkdown()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
 		}
 		return this
 	}
 	
-	fun generate() = generate("Default")
-	
-	private fun generateSqlText() {
-		val databaseName = inputMap.keys.first()
-		val database = inputMap[databaseName] as Map<String, List<Map<String, Any?>>>
-		
-		outputText += """
-		|-- ${Messages.prefixComment}
-		|use $databaseName;
-		|
-		|${database.entries.joinToString("\n\n") { (tableName, table) ->
-			val columnNameSnippet = table[0].keys.joinToString(", ")
-			
-			"""
-			|insert into $tableName ($columnNameSnippet) values
-			|${table.joinToString(",\n", "", ";\n") { data ->
-				val dataSnippet = data.values.joinToString(", ") { column -> escapeText(quoteText(column)) }
-				
-				"\t($dataSnippet)"
-			}}
-			""".trimMargin()
-		}}
-		""".trimMargin()
+	private fun generatePuml() {
+		TODO()
 	}
 	
-	private fun quoteText(text: Any?): String {
-		return when(text) {
-			is String -> "'$text'"
-			is Date -> "'${SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(text)}'"
-			else -> text.toString()
-		}
+	private fun generatePumlMarkdown() {
+		TODO()
 	}
-	
-	private fun escapeText(text: String): String {
-		return text.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
-	}
-	
 	
 	/**
 	 * @param outputType Default

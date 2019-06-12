@@ -4,13 +4,9 @@ package com.windea.commons.kotlin.generator
  * 文本生成器的接口。
  */
 interface ITextGenerator {
-	/**
-	 * 处理接受到的数据。需要在 [generate] 方法之前调用。
-	 */
-	fun execute(): ITextGenerator
+	fun from(inputPath: String, inputType: String): ITextGenerator
 	
-	/**
-	 * 生成文本到指定的输出路径 [outputPath]。
-	 */
-	fun generate(outputPath: String)
+	fun generate(generateStrategy: String): ITextGenerator
+	
+	fun to(outputPath: String, outputType: String)
 }

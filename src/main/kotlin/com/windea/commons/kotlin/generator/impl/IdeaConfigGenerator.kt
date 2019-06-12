@@ -3,6 +3,7 @@
 package com.windea.commons.kotlin.generator.impl
 
 import com.windea.commons.kotlin.generator.ITextGenerator
+import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.utils.JsonUtils
 import com.windea.commons.kotlin.utils.YamlUtils
 import java.nio.file.Files
@@ -13,11 +14,29 @@ import java.nio.file.Path
  */
 class IdeaConfigGenerator : ITextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
-	private var outputText = "<!-- Generated from kotlin script written by DragonKnightOfBreeze. -->\n"
+	private var outputText = ""
+	
+	/**
+	 * @param inputType JsonSchema, YamlSchema
+	 */
+	override fun from(inputPath: String, inputType: String): ITextGenerator {
+		when(inputType) {
+			"JsonSchema" -> this.inputMap += JsonUtils.fromFile(inputPath)
+			"YamlSchema" -> this.inputMap += YamlUtils.fromFile(inputPath)
+			else -> throw IllegalArgumentException(Messages.invalidInputType)
+		}
+		return this
+	}
 	
 	
-	override fun execute(): IdeaConfigGenerator {
-		generateYamlAnnotation()
+	/**
+	 * @param generateStrategy YamlAnnotation
+	 */
+	override fun generate(generateStrategy: String): ITextGenerator {
+		when(generateStrategy) {
+			"YamlAnnotation" -> generateYamlAnnotation()
+			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
+		}
 		return this
 	}
 	
@@ -25,6 +44,7 @@ class IdeaConfigGenerator : ITextGenerator {
 		val definitions = inputMap["definitions"] as Map<String, Map<String, Any?>>
 		
 		outputText += """
+		|<!-- ${Messages.prefixComment} -->
 		|<templateSet group="YamlAnnotation">
 		|${definitions.map { (templateName, template) ->
 			val description = template["description"]
@@ -32,7 +52,6 @@ class IdeaConfigGenerator : ITextGenerator {
 				"properties" in template -> template["properties"] as Map<String, Map<String, Any?>>
 				else -> mapOf()
 			}
-			//TODO 允许自定义格式
 			val paramSnippet = when {
 				params.isNotEmpty() -> ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
 				else -> ""
@@ -78,30 +97,16 @@ class IdeaConfigGenerator : ITextGenerator {
 		""".trimMargin()
 	}
 	
-	override fun generate(outputPath: String) {
-		Files.writeString(Path.of(outputPath), outputText)
-	}
 	
-	
-	companion object {
-		/**
-		 * 从指定路径 [inputPath] 的json schema文件读取输入映射。
-		 */
-		@JvmStatic
-		fun fromJsonSchema(inputPath: String): IdeaConfigGenerator {
-			val generator = IdeaConfigGenerator()
-			generator.inputMap += JsonUtils.fromFile(inputPath)
-			return generator
-		}
-		
-		/**
-		 * 从指定路径 [inputPath] 的yaml schema文件读取输入映射。
-		 */
-		@JvmStatic
-		fun fromYamlSchema(inputPath: String): IdeaConfigGenerator {
-			val generator = IdeaConfigGenerator()
-			generator.inputMap += YamlUtils.fromFile(inputPath)
-			return generator
+	/**
+	 * @param outputType Default
+	 */
+	override fun to(outputPath: String, outputType: String) {
+		when(outputType) {
+			"Default" -> Files.writeString(Path.of(outputPath), outputText)
+			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
+	
+	fun to(outputPath: String) = to(outputPath, "Default")
 }
