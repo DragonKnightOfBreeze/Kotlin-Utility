@@ -3,7 +3,7 @@ package com.windea.commons.kotlin.loader.impl
 import com.windea.commons.kotlin.loader.XmlLoader
 
 class StandardXmlLoader : XmlLoader {
-	override fun <T> fromFile(path: String, type: Class<T>): T {
+	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		TODO("not implemented")
 	}
 	
@@ -11,7 +11,7 @@ class StandardXmlLoader : XmlLoader {
 		TODO("not implemented")
 	}
 	
-	override fun <T> fromString(string: String, type: Class<T>): T {
+	override fun <T : Any> fromString(string: String, type: Class<T>): T {
 		TODO("not implemented")
 	}
 	
@@ -19,11 +19,11 @@ class StandardXmlLoader : XmlLoader {
 		TODO("not implemented")
 	}
 	
-	override fun <T> toFile(data: T, path: String) {
+	override fun <T : Any> toFile(data: T, path: String) {
 		TODO("not implemented")
 	}
 	
-	override fun <T> toString(data: T): String {
+	override fun <T : Any> toString(data: T): String {
 		TODO("not implemented")
 	}
 }

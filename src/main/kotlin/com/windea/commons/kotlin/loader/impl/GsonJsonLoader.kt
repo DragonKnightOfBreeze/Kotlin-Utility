@@ -23,7 +23,7 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	
-	override fun <T> fromFile(path: String, type: Class<T>): T {
+	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)
 		return gson.fromJson(reader, type)
 	}
@@ -32,7 +32,7 @@ class GsonJsonLoader : JsonLoader {
 		return fromFile(path, Map::class.java) as Map<String, Any?>
 	}
 	
-	override fun <T> fromString(string: String, type: Class<T>): T {
+	override fun <T : Any> fromString(string: String, type: Class<T>): T {
 		return gson.fromJson(string, type)
 	}
 	
@@ -40,11 +40,11 @@ class GsonJsonLoader : JsonLoader {
 		return fromString(string, Map::class.java) as Map<String, Any?>
 	}
 	
-	override fun <T> toFile(data: T, path: String) {
+	override fun <T : Any> toFile(data: T, path: String) {
 		Files.writeString(Path.of(path), gson.toJson(data))
 	}
 	
-	override fun <T> toString(data: T): String {
+	override fun <T : Any> toString(data: T): String {
 		return gson.toJson(data)
 	}
 }

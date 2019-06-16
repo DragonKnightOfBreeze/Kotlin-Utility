@@ -14,3 +14,4 @@
 ## 1.3.x
 
 * 1.3.0 为YamlUtils、JsonUtils等提取接口，重构相关代码。
+* 1.3.1 更新PropertiesLoader，未测试。

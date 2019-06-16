@@ -45,7 +45,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 	}
 	
 	
-	override fun <T> fromFile(path: String, type: Class<T>): T {
+	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)
 		return yaml.loadAs(reader, type)
 	}
@@ -63,7 +63,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 		return resultList
 	}
 	
-	override fun <T> fromString(string: String, type: Class<T>): T {
+	override fun <T : Any> fromString(string: String, type: Class<T>): T {
 		return yaml.loadAs(string, type)
 	}
 	
@@ -79,21 +79,21 @@ class SnakeYamlYamlLoader : YamlLoader {
 		return resultList
 	}
 	
-	override fun <T> toFile(data: T, path: String) {
+	override fun <T : Any> toFile(data: T, path: String) {
 		val writer = FileWriter(path)
 		yaml.dump(data, writer)
 	}
 	
-	override fun <T> toFileAll(dataList: List<T>, path: String) {
+	override fun <T : Any> toFileAll(dataList: List<T>, path: String) {
 		val writer = FileWriter(path)
 		yaml.dumpAll(dataList.iterator(), writer)
 	}
 	
-	override fun <T> toString(data: T): String {
+	override fun <T : Any> toString(data: T): String {
 		return yaml.dump(data)
 	}
 	
-	override fun <T> toStringAll(dataList: List<T>): String {
+	override fun <T : Any> toStringAll(dataList: List<T>): String {
 		return yaml.dumpAll(dataList.iterator())
 	}
 }

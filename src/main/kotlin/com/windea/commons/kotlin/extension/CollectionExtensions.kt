@@ -2,6 +2,44 @@
 
 package com.windea.commons.kotlin.extension
 
+//路径读写方法
+
+fun <K, V> Map<K, V>.getPaths(): List<String> {
+	TODO()
+}
+
+fun <K, V> Map<K, V>.getValueByPath(path: String): Any? {
+	val subPaths = path.split(".")
+	var subValue = this as Map<String, Any?>
+	for((index, subPath) in subPaths.withIndex()) {
+		if(index == subPaths.lastIndex) {
+			return subValue[subPath]
+		} else if(subValue[subPath] is Map<*, *>) {
+			subValue = subValue[subPath] as Map<String, Any?>
+		} else {
+			return null
+		}
+	}
+	return null
+}
+
+fun <K, V> MutableMap<K, V>.setValueByPath(path: String, value: Any?) {
+	val subPaths = path.split(".")
+	var subValue = this as MutableMap<String, Any?>
+	for((index, subPath) in subPaths.withIndex()) {
+		if(index == subPaths.lastIndex) {
+			subValue[subPath] = value
+		} else if(subValue[subPath] is MutableMap<*, *>) {
+			subValue = subValue[subPath] as MutableMap<String, Any?>
+		} else if(subPath !in subValue) {
+			subValue[subPath] = mutableMapOf<String, Any?>()
+			subValue = subValue[subPath] as MutableMap<String, Any?>
+		} else {
+			return
+		}
+	}
+}
+
 //路径查找方法
 
 /**
