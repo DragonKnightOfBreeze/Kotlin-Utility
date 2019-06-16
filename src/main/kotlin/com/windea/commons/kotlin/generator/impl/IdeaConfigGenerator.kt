@@ -2,27 +2,27 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.utils.JsonUtils
-import com.windea.commons.kotlin.utils.YamlUtils
+import com.windea.commons.kotlin.generator.TextGenerator
+import com.windea.commons.kotlin.loader.JsonLoader
+import com.windea.commons.kotlin.loader.YamlLoader
 import java.nio.file.Files
 import java.nio.file.Path
 
 /**
  * Intellij IDEA配置文件的生成器。
  */
-class IdeaConfigGenerator : ITextGenerator {
+class IdeaConfigGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
 	/**
 	 * @param inputType JsonSchema, YamlSchema
 	 */
-	override fun from(inputPath: String, inputType: String): ITextGenerator {
+	override fun from(inputPath: String, inputType: String): TextGenerator {
 		when(inputType) {
-			"JsonSchema" -> this.inputMap += JsonUtils.fromFile(inputPath)
-			"YamlSchema" -> this.inputMap += YamlUtils.fromFile(inputPath)
+			"JsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"YamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		return this
@@ -32,7 +32,7 @@ class IdeaConfigGenerator : ITextGenerator {
 	/**
 	 * @param generateStrategy YamlAnnotation
 	 */
-	override fun generate(generateStrategy: String): ITextGenerator {
+	override fun generate(generateStrategy: String): TextGenerator {
 		when(generateStrategy) {
 			"YamlAnnotation" -> generateYamlAnnotation()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)

@@ -2,10 +2,10 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.utils.JsonUtils
-import com.windea.commons.kotlin.utils.YamlUtils
+import com.windea.commons.kotlin.generator.TextGenerator
+import com.windea.commons.kotlin.loader.JsonLoader
+import com.windea.commons.kotlin.loader.YamlLoader
 import java.nio.file.Files
 import java.nio.file.Path
 import java.text.SimpleDateFormat
@@ -14,7 +14,7 @@ import java.util.*
 /**
  * Sql语句的生成器。
  */
-class SqlGenerator private constructor() : ITextGenerator {
+class SqlGenerator private constructor() : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
@@ -22,10 +22,10 @@ class SqlGenerator private constructor() : ITextGenerator {
 	/**
 	 * @param inputType Json, Yaml
 	 */
-	override fun from(inputPath: String, inputType: String): ITextGenerator {
+	override fun from(inputPath: String, inputType: String): TextGenerator {
 		when(inputType) {
-			"Json" -> this.inputMap += JsonUtils.fromFile(inputPath)
-			"Yaml" -> this.inputMap += YamlUtils.fromFile(inputPath)
+			"Json" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		return this
@@ -35,7 +35,7 @@ class SqlGenerator private constructor() : ITextGenerator {
 	/**
 	 * @param generateStrategy  Default
 	 */
-	override fun generate(generateStrategy: String): ITextGenerator {
+	override fun generate(generateStrategy: String): TextGenerator {
 		when(generateStrategy) {
 			"Default" -> generateSqlText()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)

@@ -3,10 +3,10 @@
 package com.windea.commons.kotlin.generator.impl
 
 import com.windea.commons.kotlin.extension.query
-import com.windea.commons.kotlin.generator.ITextGenerator
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.utils.JsonUtils
-import com.windea.commons.kotlin.utils.YamlUtils
+import com.windea.commons.kotlin.generator.TextGenerator
+import com.windea.commons.kotlin.loader.JsonLoader
+import com.windea.commons.kotlin.loader.YamlLoader
 import java.util.concurrent.ConcurrentHashMap
 
 typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
@@ -14,7 +14,7 @@ typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 /**
  * Json/Yaml Schema的生成器。
  */
-class JsonSchemaGenerator private constructor() : ITextGenerator {
+class JsonSchemaGenerator private constructor() : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()
 	private val ruleMap = mutableMapOf<String, SchemaRule>()
@@ -25,10 +25,10 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	/**
 	 * @param inputType ExtendedJsonSchema, ExtendedYamlSchema
 	 */
-	override fun from(inputPath: String, inputType: String): ITextGenerator {
+	override fun from(inputPath: String, inputType: String): TextGenerator {
 		when(inputType) {
-			"ExtendedJsonSchema" -> this.inputMap += JsonUtils.fromFile(inputPath)
-			"ExtendedYamlSchema" -> this.inputMap += YamlUtils.fromFile(inputPath)
+			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		this.ruleMap += getDefaultRules()
@@ -74,17 +74,17 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	}
 	
 	
-	fun loadDataMap(dataPath: String, dataType: String): ITextGenerator {
+	fun loadDataMap(dataPath: String, dataType: String): TextGenerator {
 		runCatching {
 			when(dataType) {
-				"Json" -> this.inputMap += JsonUtils.fromFile(dataPath)
-				"Yaml" -> this.inputMap += YamlUtils.fromFile(dataPath)
+				"Json" -> this.inputMap += JsonLoader.instance.fromFile(dataPath)
+				"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(dataPath)
 			}
 		}
 		return this
 	}
 	
-	fun addRules(rules: Map<String, SchemaRule>): ITextGenerator {
+	fun addRules(rules: Map<String, SchemaRule>): TextGenerator {
 		//在这里使用+=作为替代或出现方法调用冲突错误，不知道为什么？
 		ruleMap.putAll(rules)
 		return this
@@ -94,7 +94,7 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	/**
 	 * @param generateStrategy  Default
 	 */
-	override fun generate(generateStrategy: String): ITextGenerator {
+	override fun generate(generateStrategy: String): TextGenerator {
 		when(generateStrategy) {
 			"Default" -> convertRules(inputMap)
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
@@ -134,8 +134,8 @@ class JsonSchemaGenerator private constructor() : ITextGenerator {
 	 */
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"JsonSchema" -> JsonUtils.toFile(inputMap, outputPath)
-			"YamlSchema" -> YamlUtils.toFile(inputMap, outputPath)
+			"JsonSchema" -> JsonLoader.instance.toFile(inputMap, outputPath)
+			"YamlSchema" -> YamlLoader.instance.toFile(inputMap, outputPath)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}

@@ -6,6 +6,6 @@ package com.windea.commons.kotlin.annotation
 @Repeatable
 annotation class Markdown(
 	val text: String,
-	val useExtend: Boolean = false,
+	val useExtendSyntax: Boolean = false,
 	val useCriticMarkup: Boolean = false
 )
