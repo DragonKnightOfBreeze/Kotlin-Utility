@@ -9,7 +9,7 @@ import com.windea.commons.kotlin.utils.JsonUtils
 import com.windea.commons.kotlin.utils.YamlUtils
 import java.util.concurrent.ConcurrentHashMap
 
-typealias SchemaRule = (Pair<String, Any?>) -> Map<String, Any?>
+typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 
 /**
  * Json/Yaml Schema的生成器。
