@@ -4,10 +4,26 @@ package com.windea.commons.kotlin.extension
 
 //路径读写方法
 
-fun <K, V> Map<K, V>.getPaths(): List<String> {
-	TODO()
+/**
+ * 根据路径向下递归平滑映射当前映射。
+ */
+fun <K, V> Map<K, V>.flatMapByPath() = flatMapByPath(this as Map<String, Any?>, mutableListOf())
+
+private fun flatMapByPath(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+	return map.flatMap { (key, value) ->
+		prePaths += key
+		if(value is Map<*, *>) {
+			flatMapByPath(value as Map<String, Any?>, prePaths).toList()
+		} else {
+			val fullPath = prePaths.joinToString(".")
+			listOf(Pair(fullPath, value))
+		}
+	}.toMap()
 }
 
+/**
+ * 得到当前映射中指定路径 [path] 的值。
+ */
 fun <K, V> Map<K, V>.getValueByPath(path: String): Any? {
 	val subPaths = path.split(".")
 	var subValue = this as Map<String, Any?>
@@ -23,6 +39,9 @@ fun <K, V> Map<K, V>.getValueByPath(path: String): Any? {
 	return null
 }
 
+/**
+ * 设置当前映射中指定路径 [path] 的值，如果不存在，则持续向下创建。
+ */
 fun <K, V> MutableMap<K, V>.setValueByPath(path: String, value: Any?) {
 	val subPaths = path.split(".")
 	var subValue = this as MutableMap<String, Any?>
@@ -39,6 +58,7 @@ fun <K, V> MutableMap<K, V>.setValueByPath(path: String, value: Any?) {
 		}
 	}
 }
+
 
 //路径查找方法
 
