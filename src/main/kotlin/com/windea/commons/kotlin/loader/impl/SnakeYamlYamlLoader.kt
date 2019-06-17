@@ -15,17 +15,22 @@ import java.util.*
 class SnakeYamlYamlLoader : YamlLoader {
 	private val constructor = Constructor()
 	private val representer = Representer()
-	private var loaderOptions = LoaderOptions()
-	private var dumperOptions = DumperOptions()
-	private var yaml = Yaml(constructor, representer, dumperOptions, loaderOptions)
+	private val loaderOptions = LoaderOptions()
+	private val dumperOptions = DumperOptions()
 	
 	init {
 		loaderOptions.isAllowDuplicateKeys = false
 		dumperOptions.isAllowReadOnlyProperties = true
 		dumperOptions.indent = 2
+		dumperOptions.isPrettyFlow = true
 		dumperOptions.timeZone = TimeZone.getTimeZone("GMT-8:00")
 		dumperOptions.width = 120
 		dumperOptions.isAllowUnicode = true
+	}
+	
+	
+	private fun yaml(): Yaml {
+		return Yaml(constructor, representer, dumperOptions, loaderOptions)
 	}
 	
 	
@@ -47,7 +52,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)
-		return yaml.loadAs(reader, type)
+		return yaml().loadAs(reader, type)
 	}
 	
 	override fun fromFile(path: String): Map<String, Any?> {
@@ -57,14 +62,14 @@ class SnakeYamlYamlLoader : YamlLoader {
 	override fun fromFileAll(path: String): List<Any> {
 		val reader = FileReader(path)
 		val resultList = ArrayList<Any>()
-		for(elem in yaml.loadAll(reader)) {
+		for(elem in yaml().loadAll(reader)) {
 			resultList.add(elem)
 		}
 		return resultList
 	}
 	
 	override fun <T : Any> fromString(string: String, type: Class<T>): T {
-		return yaml.loadAs(string, type)
+		return yaml().loadAs(string, type)
 	}
 	
 	override fun fromString(string: String): Map<String, Any?> {
@@ -73,7 +78,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 	
 	override fun fromStringAll(string: String): List<Any> {
 		val resultList = ArrayList<Any>()
-		for(elem in yaml.loadAll(string)) {
+		for(elem in yaml().loadAll(string)) {
 			resultList.add(elem)
 		}
 		return resultList
@@ -81,19 +86,19 @@ class SnakeYamlYamlLoader : YamlLoader {
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		val writer = FileWriter(path)
-		yaml.dump(data, writer)
+		yaml().dump(data, writer)
 	}
 	
 	override fun <T : Any> toFileAll(dataList: List<T>, path: String) {
 		val writer = FileWriter(path)
-		yaml.dumpAll(dataList.iterator(), writer)
+		yaml().dumpAll(dataList.iterator(), writer)
 	}
 	
 	override fun <T : Any> toString(data: T): String {
-		return yaml.dump(data)
+		return yaml().dump(data)
 	}
 	
 	override fun <T : Any> toStringAll(dataList: List<T>): String {
-		return yaml.dumpAll(dataList.iterator())
+		return yaml().dumpAll(dataList.iterator())
 	}
 }

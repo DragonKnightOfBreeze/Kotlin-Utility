@@ -14,7 +14,7 @@ typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 /**
  * Json/Yaml Schema的生成器。
  */
-class JsonSchemaGenerator private constructor() : TextGenerator {
+class JsonSchemaGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()
 	private val ruleMap = mutableMapOf<String, SchemaRule>()
@@ -25,7 +25,7 @@ class JsonSchemaGenerator private constructor() : TextGenerator {
 	/**
 	 * @param inputType ExtendedJsonSchema, ExtendedYamlSchema
 	 */
-	override fun from(inputPath: String, inputType: String): TextGenerator {
+	override fun from(inputPath: String, inputType: String): JsonSchemaGenerator {
 		when(inputType) {
 			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
 			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
@@ -74,7 +74,7 @@ class JsonSchemaGenerator private constructor() : TextGenerator {
 	}
 	
 	
-	fun loadDataMap(dataPath: String, dataType: String): TextGenerator {
+	fun loadDataMap(dataPath: String, dataType: String): JsonSchemaGenerator {
 		runCatching {
 			when(dataType) {
 				"Json" -> this.inputMap += JsonLoader.instance.fromFile(dataPath)
@@ -94,7 +94,7 @@ class JsonSchemaGenerator private constructor() : TextGenerator {
 	/**
 	 * @param generateStrategy  Default
 	 */
-	override fun generate(generateStrategy: String): TextGenerator {
+	override fun generate(generateStrategy: String): JsonSchemaGenerator {
 		when(generateStrategy) {
 			"Default" -> convertRules(inputMap)
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
@@ -102,7 +102,9 @@ class JsonSchemaGenerator private constructor() : TextGenerator {
 		return this
 	}
 	
-	fun generate() = generate("Default")
+	fun generate(): JsonSchemaGenerator {
+		return generate("Default")
+	}
 	
 	private fun convertRules(map: MutableMap<String, Any?>) {
 		//递归遍历整个约束映射的深复制，处理原本的约束映射

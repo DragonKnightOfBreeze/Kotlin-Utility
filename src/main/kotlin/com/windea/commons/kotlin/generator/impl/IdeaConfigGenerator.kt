@@ -6,7 +6,7 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.YamlLoader
-import java.io.FileWriter
+import java.io.File
 
 /**
  * Intellij IDEA配置文件的生成器。
@@ -18,7 +18,7 @@ class IdeaConfigGenerator : TextGenerator {
 	/**
 	 * @param inputType JsonSchema, YamlSchema
 	 */
-	override fun from(inputPath: String, inputType: String): TextGenerator {
+	override fun from(inputPath: String, inputType: String): IdeaConfigGenerator {
 		when(inputType) {
 			"JsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
 			"YamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
@@ -31,7 +31,7 @@ class IdeaConfigGenerator : TextGenerator {
 	/**
 	 * @param generateStrategy YamlAnnotation
 	 */
-	override fun generate(generateStrategy: String): TextGenerator {
+	override fun generate(generateStrategy: String): IdeaConfigGenerator {
 		when(generateStrategy) {
 			"YamlAnnotation" -> generateYamlAnnotation()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
@@ -102,10 +102,12 @@ class IdeaConfigGenerator : TextGenerator {
 	 */
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"Default" -> FileWriter(outputPath).write(outputText)
+			"Default" -> File(outputPath).writeText(outputText)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
 	
-	fun to(outputPath: String) = to(outputPath, "Default")
+	fun to(outputPath: String) {
+		to(outputPath, "Default")
+	}
 }

@@ -7,8 +7,7 @@ import com.alibaba.fastjson.TypeReference
 import com.alibaba.fastjson.parser.ParserConfig
 import com.alibaba.fastjson.serializer.SerializeConfig
 import com.windea.commons.kotlin.loader.JsonLoader
-import java.io.FileReader
-import java.io.FileWriter
+import java.io.File
 import java.lang.reflect.Type
 
 class FastJsonJsonLoader : JsonLoader {
@@ -35,12 +34,12 @@ class FastJsonJsonLoader : JsonLoader {
 	
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
-		val string = FileReader(path).readText()
+		val string = File(path).readText()
 		return fromString(string, type)
 	}
 	
 	override fun fromFile(path: String): Map<String, Any?> {
-		val string = FileReader(path).readText()
+		val string = File(path).readText()
 		return fromString(string, Map::class.java) as Map<String, Any?>
 	}
 	
@@ -54,7 +53,7 @@ class FastJsonJsonLoader : JsonLoader {
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		val string = toString(data)
-		FileWriter(path).write(string)
+		File(path).writeText(string)
 	}
 	
 	override fun <T : Any> toString(data: T): String {

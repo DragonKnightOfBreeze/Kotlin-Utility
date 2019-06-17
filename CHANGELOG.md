@@ -17,3 +17,4 @@
 * 1.3.1 更新PropertiesLoader，未测试。
 * 1.3.2 降低jdk版本到1.8，保证kotlin script能够正常使用，一些更新。
 * 1.3.3 更新代码。
+* 1.3.4 修复Bug。

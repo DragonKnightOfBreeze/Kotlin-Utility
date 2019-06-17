@@ -6,14 +6,14 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.YamlLoader
-import java.io.FileWriter
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.*
 
 /**
  * Sql语句的生成器。
  */
-class SqlGenerator private constructor() : TextGenerator {
+class SqlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
@@ -21,7 +21,7 @@ class SqlGenerator private constructor() : TextGenerator {
 	/**
 	 * @param inputType Json, Yaml
 	 */
-	override fun from(inputPath: String, inputType: String): TextGenerator {
+	override fun from(inputPath: String, inputType: String): SqlGenerator {
 		when(inputType) {
 			"Json" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
 			"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
@@ -34,7 +34,7 @@ class SqlGenerator private constructor() : TextGenerator {
 	/**
 	 * @param generateStrategy  Default
 	 */
-	override fun generate(generateStrategy: String): TextGenerator {
+	override fun generate(generateStrategy: String): SqlGenerator {
 		when(generateStrategy) {
 			"Default" -> generateSqlText()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
@@ -42,7 +42,9 @@ class SqlGenerator private constructor() : TextGenerator {
 		return this
 	}
 	
-	fun generate() = generate("Default")
+	fun generate(): SqlGenerator {
+		return generate("Default")
+	}
 	
 	private fun generateSqlText() {
 		val databaseName = inputMap.keys.first()
@@ -85,10 +87,12 @@ class SqlGenerator private constructor() : TextGenerator {
 	 */
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"Default" -> FileWriter(outputPath).write(outputText)
+			"Default" -> File(outputPath).writeText(outputText)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
 	
-	fun to(outputPath: String) = to(outputPath, "Default")
+	fun to(outputPath: String) {
+		to(outputPath, "Default")
+	}
 }

@@ -2,16 +2,16 @@
 
 package com.windea.commons.kotlin.loader.impl
 
+import com.google.gson.Gson
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import com.windea.commons.kotlin.loader.JsonLoader
+import java.io.File
 import java.io.FileReader
-import java.io.FileWriter
 import java.lang.reflect.Type
 
 class GsonJsonLoader : JsonLoader {
 	private val gsonBuilder = GsonBuilder()
-	private val gson = gsonBuilder.create()
 	
 	init {
 		gsonBuilder.serializeNulls().setPrettyPrinting()
@@ -25,6 +25,11 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	
+	private fun gson(): Gson {
+		return gsonBuilder.create()
+	}
+	
+	
 	fun configureGsonBuilder(handler: (gsonBuilder: GsonBuilder) -> Unit): GsonJsonLoader {
 		handler.invoke(gsonBuilder)
 		return this
@@ -33,7 +38,7 @@ class GsonJsonLoader : JsonLoader {
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)
-		return gson.fromJson(reader, type)
+		return gson().fromJson(reader, type)
 	}
 	
 	override fun fromFile(path: String): Map<String, Any?> {
@@ -41,7 +46,7 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	override fun <T : Any> fromString(string: String, type: Class<T>): T {
-		return gson.fromJson(string, type)
+		return gson().fromJson(string, type)
 	}
 	
 	override fun fromString(string: String): Map<String, Any?> {
@@ -50,10 +55,10 @@ class GsonJsonLoader : JsonLoader {
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		val string = toString(data)
-		FileWriter(path).write(string)
+		File(path).writeText(string)
 	}
 	
 	override fun <T : Any> toString(data: T): String {
-		return gson.toJson(data)
+		return gson().toJson(data)
 	}
 }

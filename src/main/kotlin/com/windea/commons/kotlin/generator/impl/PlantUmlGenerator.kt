@@ -4,12 +4,12 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.YamlLoader
-import java.io.FileWriter
+import java.io.File
 
 /**
  * PlantUml代码的生成器。
  */
-class PlantUmlGenerator private constructor() : TextGenerator {
+class PlantUmlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
@@ -17,7 +17,7 @@ class PlantUmlGenerator private constructor() : TextGenerator {
 	/**
 	 * @param inputType Json, Yaml
 	 */
-	override fun from(inputPath: String, inputType: String): TextGenerator {
+	override fun from(inputPath: String, inputType: String): PlantUmlGenerator {
 		when(inputType) {
 			"Json" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
 			"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
@@ -30,7 +30,7 @@ class PlantUmlGenerator private constructor() : TextGenerator {
 	/**
 	 * @param generateStrategy Puml, PumlMarkdown
 	 */
-	override fun generate(generateStrategy: String): TextGenerator {
+	override fun generate(generateStrategy: String): PlantUmlGenerator {
 		when(generateStrategy) {
 			"Puml" -> generatePuml()
 			"PumlMarkdown" -> generatePumlMarkdown()
@@ -52,10 +52,12 @@ class PlantUmlGenerator private constructor() : TextGenerator {
 	 */
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"Default" -> FileWriter(outputPath).write(outputText)
+			"Default" -> File(outputPath).writeText(outputText)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
 	
-	fun to(outputPath: String) = to(outputPath, "Default")
+	fun to(outputPath: String) {
+		to(outputPath, "Default")
+	}
 }
