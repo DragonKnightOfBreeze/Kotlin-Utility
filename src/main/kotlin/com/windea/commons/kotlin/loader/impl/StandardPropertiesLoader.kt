@@ -8,9 +8,8 @@ import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.Messages
 import com.windea.commons.kotlin.loader.PropertiesLoader
 import java.io.FileReader
+import java.io.FileWriter
 import java.io.StringReader
-import java.nio.file.Files
-import java.nio.file.Path
 import java.util.*
 
 //TODO： 是否能够正常读取UTF-8编码的文件，同时也能正常读取ISO-8859-1编码的文件？
@@ -47,8 +46,8 @@ class StandardPropertiesLoader : PropertiesLoader {
 	}
 	
 	override fun <T : Any> toFile(data: T, path: String) {
-		val text = toString(data)
-		Files.writeString(Path.of(path), text)
+		val string = toString(data)
+		FileWriter(path).write(string)
 	}
 	
 	@NotTested

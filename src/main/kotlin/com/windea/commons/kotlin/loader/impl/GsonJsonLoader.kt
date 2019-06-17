@@ -3,10 +3,11 @@
 package com.windea.commons.kotlin.loader.impl
 
 import com.google.gson.GsonBuilder
+import com.google.gson.reflect.TypeToken
 import com.windea.commons.kotlin.loader.JsonLoader
 import java.io.FileReader
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.FileWriter
+import java.lang.reflect.Type
 
 class GsonJsonLoader : JsonLoader {
 	private val gsonBuilder = GsonBuilder()
@@ -17,7 +18,14 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	
-	fun configureGsonBuidler(handler: (gsonBuilder: GsonBuilder) -> Unit): GsonJsonLoader {
+	class GenericType<T> : TypeToken<T>()
+	
+	private fun <T> getGenericType(): Type {
+		return GenericType<T>().type
+	}
+	
+	
+	fun configureGsonBuilder(handler: (gsonBuilder: GsonBuilder) -> Unit): GsonJsonLoader {
 		handler.invoke(gsonBuilder)
 		return this
 	}
@@ -41,7 +49,8 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	override fun <T : Any> toFile(data: T, path: String) {
-		Files.writeString(Path.of(path), gson.toJson(data))
+		val string = toString(data)
+		FileWriter(path).write(string)
 	}
 	
 	override fun <T : Any> toString(data: T): String {

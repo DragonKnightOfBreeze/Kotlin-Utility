@@ -1,5 +1,7 @@
 package com.windea.commons.kotlin.loader
 
+//TODO 允许读取指定泛型类型的数据，并且保证较少的api
+
 /**
  * 数据读取器的接口。
  */

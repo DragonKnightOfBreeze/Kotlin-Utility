@@ -15,3 +15,4 @@
 
 * 1.3.0 为YamlUtils、JsonUtils等提取接口，重构相关代码。
 * 1.3.1 更新PropertiesLoader，未测试。
+* 1.3.2 降低jdk版本到1.8，保证kotlin script能够正常使用，一些更新。

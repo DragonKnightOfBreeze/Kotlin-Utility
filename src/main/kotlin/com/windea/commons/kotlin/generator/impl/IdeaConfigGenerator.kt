@@ -6,8 +6,7 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.YamlLoader
-import java.nio.file.Files
-import java.nio.file.Path
+import java.io.FileWriter
 
 /**
  * Intellij IDEA配置文件的生成器。
@@ -103,7 +102,7 @@ class IdeaConfigGenerator : TextGenerator {
 	 */
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"Default" -> Files.writeString(Path.of(outputPath), outputText)
+			"Default" -> FileWriter(outputPath).write(outputText)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
