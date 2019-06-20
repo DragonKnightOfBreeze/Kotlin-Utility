@@ -2,24 +2,13 @@
 
 package com.windea.commons.kotlin.extension
 
-//路径读写方法
-
 /**
- * 根据路径向下递归平滑映射当前映射。
+ * 将当前列表转化成以键为值的映射。
  */
-fun <K, V> Map<K, V>.flatMapByPath() = flatMapByPath(this as Map<String, Any?>, mutableListOf())
-
-private fun flatMapByPath(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
-	return map.flatMap { (key, value) ->
-		prePaths += key
-		if(value is Map<*, *>) {
-			flatMapByPath(value as Map<String, Any?>, prePaths).toList()
-		} else {
-			val fullPath = prePaths.joinToString(".")
-			listOf(Pair(fullPath, value))
-		}
-	}.toMap()
+fun <E> List<E>.toIndexedMap(): Map<String, E> {
+	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
 }
+
 
 /**
  * 得到当前映射中指定路径 [path] 的值。
@@ -60,35 +49,10 @@ fun <K, V> MutableMap<K, V>.setValueByPath(path: String, value: Any?) {
 }
 
 
-//路径查找方法
-
 /**
- * 根据指定路径 [path] 查询当前映射，返回匹配的键或值列表。
+ * 根据指定路径 [path] 查询当前映射，返回匹配的值列表。
  *
- * 可选的目标前缀：key，value。根路径应该表示一个对象/映射（的键）。
- *
- * @see query
- */
-fun <K, V> Map<K, V>.query(path: String): List<Any?> = query(this, path)
-
-/**
- * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
- *
- * 可选的目标前缀：elem。根路径应该表示一个列表（的索引）。
- *
- * @see query
- */
-fun <E> List<E>.query(path: String): List<Any?> = query(this, path)
-
-/**
- * 根据指定路径 [path] 查询当前集合，返回匹配的实体列表。
- *
- * 示例： `value:#/Data/{Category}/1/Name`。
- *
- * 允许的目标前缀：
- * * `elem:` 查询列表元素。
- * * `key:` 查询映射的键。
- * * `value:` 查询映射的值。默认的目标前缀。
+ * 示例： `#/Data/{Category}/1/Name`。
  *
  * 允许的子路径格式：
  * * `[]` 表示一个列表。
@@ -98,79 +62,79 @@ fun <E> List<E>.query(path: String): List<Any?> = query(this, path)
  * * `{Category}` 表示一个注为指定占位符的对象/映射。
  * * `re:Name.*` 表示一个属性/键匹配指定正则的对象/映射。
  * * `Name` 表示一个对象/映射的属性/键。
- *
- * 对于`{"a":1,{"ba":21,"bb":22},"c":[31,32,33]}`
- *
  */
-private fun query(collection: Any?, path: String): List<Any?> {
-	val splitPaths = path.split(":", limit = 1)
-	val (prefix, noPrefixPath) = when {
-		splitPaths.count() > 1 -> Pair(splitPaths[0].trim(), splitPaths[1].trim())
-		else -> Pair("value", path.trim())
-	}
-	val clearPath = noPrefixPath.removePrefix("#").removePrefix("/")
-	val subPaths = clearPath.split("/")
-	
-	var resultList = listOf(collection)
-	
-	for(subPath in subPaths) {
-		//TODO 重构
-		resultList = when {
-			//如果子路径表示一个列表，例如："[]"
-			subPath == "[]" -> queryRuleMap.getValue("list").invoke(resultList, subPath)
-			//如果子路径表示一个列表索引，例如："1"
-			subPath matches Regex("\\d+]") -> queryRuleMap.getValue("index").invoke(resultList, subPath)
-			//如果子路径表示一个范围，例如："1..10"
-			subPath matches Regex("\\d+\\.\\.\\d+") -> queryRuleMap.getValue("indexRange").invoke(resultList, subPath)
-			//如果子路径表示一个对象，例如："{}"
-			subPath == "{}" -> queryRuleMap.getValue("map").invoke(resultList, subPath)
-			//如果子路径表示一个占位符，例如："{Category}"
-			subPath matches Regex("\\{.+}") -> queryRuleMap.getValue("varKey").invoke(resultList, subPath)
-			//如果子路径表示一个正则表达式，例如："re:Name.*"
-			subPath matches Regex("re:.*") -> queryRuleMap.getValue("regexKey").invoke(resultList, subPath)
-			//如果是其他情况，例如："Name"
-			else -> queryRuleMap.getValue("key").invoke(resultList, subPath)
-		}
-	}
-	
-	resultList = when(prefix) {
-		"key" -> resultList.map {
-			if(it is Map.Entry<*, *>) it.key else it
-		}
-		"value" -> resultList.map {
-			if(it is Map.Entry<*, *>) it.value else it
-		}
-		else -> resultList
-	}
-	
-	return resultList
+fun <K, V> Map<K, V>.queryValue(path: String): List<Any?> {
+	return queryValue(this, path)
 }
 
-typealias QueryRule = (resultList: List<Any?>, subPath: String) -> List<Any?>
-
-private val queryRuleMap = mapOf<String, QueryRule>(
-	"list" to { resultList, _ ->
-		resultList.flatMap { it as List<Any?> }
-	},
-	"index" to { resultList, subPath ->
-		val index = subPath.toInt()
-		resultList.map { (it as List<Any?>)[index] }
-	},
-	"indexRange" to { resultList, subPath ->
-		val (fromIndex, toIndex) = subPath.split("..").map { it.toInt() }
-		resultList.flatMap { (it as List<Any?>) }.subList(fromIndex, toIndex + 1)
-	},
-	"map" to { resultList, _ ->
-		resultList.flatMap { (it as Map<String, Any>).entries }
-	},
-	"key" to { resultList, subPath ->
-		resultList.map { mapOf(subPath to (it as Map<String, Any?>)[subPath]).entries.first() }
-	},
-	"varKey" to { resultList, _ ->
-		resultList.flatMap { (it as Map<String, Any>).entries }
-	},
-	"regexKey" to { resultList, subPath ->
-		val pattern = subPath.removePrefix("re:").trim()
-		resultList.flatMap { (it as Map<String, Any?>).filterKeys { k -> k matches Regex(pattern) }.entries }
+private fun queryValue(collection: Any?, path: String): List<Any?> {
+	val fixedPath = path.trim().removePrefix("#").removePrefix("/")
+	val subPaths = fixedPath.split("/")
+	var valueList = listOf(collection)
+	
+	for(subPath in subPaths) {
+		valueList = when {
+			//如果子路径表示一个列表，例如："[]"
+			subPath == "[]" -> {
+				valueList.flatMap { it as List<Any?> }
+			}
+			//如果子路径表示一个范围，例如："1..10"
+			subPath matches Regex("\\d+\\.\\.\\d+") -> {
+				val (fromIndex, toIndex) = subPath.split("..").map { it.toInt() }
+				valueList.flatMap { (it as List<Any?>) }.subList(fromIndex, toIndex + 1)
+			}
+			//如果子路径表示一个列表索引，例如："1"
+			subPath matches Regex("\\d+") -> {
+				val index = subPath.toInt()
+				valueList.map { (it as List<Any?>)[index] }
+			}
+			//如果子路径表示一个对象，例如："{}"
+			subPath == "{}" -> {
+				valueList.flatMap { (it as Map<String, Any>).values }
+			}
+			//如果子路径表示一个占位符，例如："{Category}"
+			subPath matches Regex("\\{.+}") -> {
+				valueList.flatMap { (it as Map<String, Any?>).values }
+			}
+			//如果子路径表示一个正则表达式，例如："/Name.*/"
+			subPath matches Regex("/.*/") -> {
+				val pattern = subPath.removeSurrounding("/")
+				valueList.flatMap { (it as Map<String, Any?>).filterKeys { k -> k matches Regex(pattern) }.values }
+			}
+			//如果是其他情况，例如："Name"
+			else -> {
+				valueList.map { (it as Map<String, Any?>)[subPath] }
+			}
+		}
 	}
-).withDefault { { resultList, _ -> resultList } }
+	return valueList
+}
+
+
+/**
+ * 向下递归平滑映射当前列表。
+ */
+fun <E> List<E>.deepFlatMap(): Map<String, Any?> {
+	return deepFlatMap(toIndexedMap(), mutableListOf())
+}
+
+/**
+ * 向下递归平滑映射当前映射。
+ */
+fun <K, V> Map<K, V>.deepFlatMap(): Map<String, Any?> {
+	return deepFlatMap(this as Map<String, Any?>, mutableListOf())
+}
+
+private fun deepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+	return map.flatMap { (key, value) ->
+		prePaths += key
+		if(value is Map<*, *>) {
+			deepFlatMap(value as Map<String, Any?>, prePaths).toList()
+		} else if(value is List<*>) {
+			deepFlatMap(value.toIndexedMap(), prePaths).toList()
+		} else {
+			val fullPath = prePaths.joinToString(".").replace(Regex("\\.(\\d*)\\."), "[$1].")
+			listOf(Pair(fullPath, value))
+		}
+	}.toMap()
+}

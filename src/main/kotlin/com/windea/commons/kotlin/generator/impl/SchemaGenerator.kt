@@ -2,7 +2,7 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.extension.query
+import com.windea.commons.kotlin.extension.queryValue
 import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
@@ -44,7 +44,7 @@ class JsonSchemaGenerator : TextGenerator {
 			},
 			"\$gen" to { (_, value) ->
 				//提取$dataMap中的路径`$value`对应的值列表
-				val newValue = dataMap.query(value as String)
+				val newValue = dataMap.queryValue(value as String)
 				when {
 					newValue.isNotEmpty() -> mapOf("enum" to newValue)
 					else -> mapOf()
@@ -73,12 +73,14 @@ class JsonSchemaGenerator : TextGenerator {
 		)
 	}
 	
-	
+	/**
+	 * @param dataType Json, Yaml
+	 */
 	fun loadDataMap(dataPath: String, dataType: String): JsonSchemaGenerator {
 		runCatching {
 			when(dataType) {
-				"Json" -> this.inputMap += JsonLoader.instance.fromFile(dataPath)
-				"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(dataPath)
+				"Json" -> this.dataMap += JsonLoader.instance.fromFile(dataPath)
+				"Yaml" -> this.dataMap += YamlLoader.instance.fromFile(dataPath)
 			}
 		}
 		return this

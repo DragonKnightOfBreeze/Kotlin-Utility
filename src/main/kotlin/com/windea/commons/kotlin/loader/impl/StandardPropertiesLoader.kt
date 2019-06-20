@@ -1,7 +1,7 @@
 package com.windea.commons.kotlin.loader.impl
 
 import com.windea.commons.kotlin.annotation.NotTested
-import com.windea.commons.kotlin.extension.flatMapByPath
+import com.windea.commons.kotlin.extension.deepFlatMap
 import com.windea.commons.kotlin.loader.JsonLoader
 import com.windea.commons.kotlin.loader.Messages
 import com.windea.commons.kotlin.loader.PropertiesLoader
@@ -32,7 +32,7 @@ class StandardPropertiesLoader : PropertiesLoader {
 	override fun fromFile(path: String): Map<String, Any?> {
 		val properties = Properties()
 		properties.load(FileReader(path))
-		return properties.flatMapByPath()
+		return properties.deepFlatMap()
 	}
 	
 	override fun <T : Any> fromString(string: String, type: Class<T>): T {
@@ -42,7 +42,7 @@ class StandardPropertiesLoader : PropertiesLoader {
 	override fun fromString(string: String): Map<String, Any?> {
 		val properties = Properties()
 		properties.load(StringReader(string))
-		return properties.flatMapByPath()
+		return properties.deepFlatMap()
 	}
 	
 	override fun <T : Any> toFile(data: T, path: String) {
@@ -53,7 +53,7 @@ class StandardPropertiesLoader : PropertiesLoader {
 	override fun <T : Any> toString(data: T): String {
 		//使用JsonLoader，而非反射
 		val propMap = JsonLoader.instance.fromString(JsonLoader.instance.toString(data))
-		val dataMap = propMap.flatMapByPath()
+		val dataMap = propMap.deepFlatMap()
 		return dataMap.map { (key, value) -> "$key: $value" }.reduce { a, b -> "$a\r\n$b" }
 	}
 }
