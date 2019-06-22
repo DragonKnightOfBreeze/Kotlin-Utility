@@ -58,7 +58,7 @@ class IdeaConfigGenerator : TextGenerator {
 			
 			//value的格式示例：@Scope: {scope: $scope$, ...}
 			"""
-			|  <template name="@$templateName" value="$templateName$paramSnippet"
+			|  <template name="@$templateName" value="@$templateName$paramSnippet"
 		    |            description="$description"
 		    |            toReformat="true" toShortenFQNames="true" useStaticImport="true">
 			|${params.entries.joinToString("\n") { (paramName, param) ->
