@@ -24,6 +24,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 		dumperOptions.width = 120
 		dumperOptions.lineBreak = DumperOptions.LineBreak.WIN
 		dumperOptions.timeZone = TimeZone.getTimeZone("GMT-8:00")
+		dumperOptions.isPrettyFlow = true
 	}
 	
 	
