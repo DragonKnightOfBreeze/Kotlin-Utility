@@ -21,11 +21,9 @@ class SnakeYamlYamlLoader : YamlLoader {
 	init {
 		loaderOptions.isAllowDuplicateKeys = false
 		dumperOptions.isAllowReadOnlyProperties = true
-		dumperOptions.indent = 2
-		dumperOptions.isPrettyFlow = true
-		dumperOptions.timeZone = TimeZone.getTimeZone("GMT-8:00")
 		dumperOptions.width = 120
-		dumperOptions.isAllowUnicode = true
+		dumperOptions.lineBreak = DumperOptions.LineBreak.WIN
+		dumperOptions.timeZone = TimeZone.getTimeZone("GMT-8:00")
 	}
 	
 	
