@@ -119,16 +119,28 @@ enum class StringCase {
 //路径的相关方法
 
 /**
- * 得到字符串的路径信息。
+ * 得到对应的路径信息。
  */
-fun String.getPathInfo(): PathInfo {
-	val dirIndex = this.lastIndexOf("\\")
-	val fileDir = if(dirIndex == -1) "" else this.substring(0, dirIndex)
-	val fileName = if(dirIndex == -1) this else this.substring(dirIndex + 1)
+fun String.toPathInfo(): PathInfo {
+	val fileNameIndex = this.lastIndexOf("\\")
+	val fileDir = when {
+		fileNameIndex == -1 -> ""
+		else -> this.substring(0, fileNameIndex)
+	}
+	val fileName = when {
+		fileNameIndex == -1 -> this
+		else -> this.substring(fileNameIndex + 1)
+	}
 	
-	val extIndex = fileName.lastIndexOf(".")
-	val fileShotName = if(extIndex == -1) fileName else fileName.substring(0, extIndex)
-	val fileExt = if(extIndex == -1) "" else fileName.substring(extIndex)
+	val fileExtIndex = fileName.lastIndexOf(".")
+	val fileShotName = when {
+		fileExtIndex == -1 -> fileName
+		else -> fileName.substring(0, fileExtIndex)
+	}
+	val fileExt = when {
+		fileExtIndex == -1 -> ""
+		else -> fileName.substring(fileExtIndex)
+	}
 	
 	return PathInfo(fileDir, fileName, fileShotName, fileExt)
 }
@@ -174,3 +186,37 @@ class PathInfo(
 		return if(forFullPath) fileDir + "\\" + newFileName else newFileName
 	}
 }
+
+//TODO
+//地址的相关方法
+
+/**
+ * 得到对应的的地址信息。
+ */
+fun String.toUrlInfo(): UrlInfo {
+	val queryParamIndex = this.lastIndexOf("?")
+	val path = when {
+		queryParamIndex == -1 -> this
+		else -> this.substring(0, queryParamIndex)
+	}
+	val paramSnippet = when {
+		queryParamIndex == -1 -> ""
+		else -> this.substring(queryParamIndex + 1)
+	}
+	
+	val queryParamMap = when {
+		paramSnippet.isEmpty() -> mapOf()
+		else -> paramSnippet.split("&").map { it.split("=") }.groupBy({ it[0] }, { it[1] })
+			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
+	}
+	
+	return UrlInfo(path, queryParamMap)
+}
+
+/**
+ * 地址信息。
+ */
+class UrlInfo(
+	val path: String,
+	val queryParamMap: Map<String, Any>
+)

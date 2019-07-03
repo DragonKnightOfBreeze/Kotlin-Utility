@@ -14,8 +14,8 @@ interface YamlLoader : DataLoader {
 	
 	fun <T : Any> toStringAll(dataList: List<T>): String
 	
-	
 	companion object {
+		@JvmStatic
 		val instance = SnakeYamlYamlLoader()
 	}
 }

@@ -7,6 +7,7 @@ import com.windea.commons.kotlin.loader.impl.StandardXmlLoader
  */
 interface XmlLoader : DataLoader {
 	companion object {
+		@JvmStatic
 		val instance = StandardXmlLoader()
 	}
 }
