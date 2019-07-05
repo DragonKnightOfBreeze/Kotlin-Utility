@@ -16,7 +16,7 @@ fun main() {
 	val jsonString = JsonLoader.instance.toString(jsonMap2)
 	println(jsonString)
 	
-	//TESTED 使用File(path).writeText(string)
+	//TESTED 使用File(fullPath).writeText(string)
 	val jsonData = mapOf("aaaa" to 1)
 	JsonLoader.instance.toFile(jsonData, jsonPath)
 	
