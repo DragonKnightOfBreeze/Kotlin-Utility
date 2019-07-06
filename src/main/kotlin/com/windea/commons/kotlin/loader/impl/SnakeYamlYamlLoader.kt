@@ -32,7 +32,6 @@ class SnakeYamlYamlLoader : YamlLoader {
 		return Yaml(constructor, representer, dumperOptions, loaderOptions)
 	}
 	
-	
 	fun configureLoaderOptions(handler: (options: LoaderOptions) -> Unit): SnakeYamlYamlLoader {
 		handler.invoke(loaderOptions)
 		return this
@@ -47,7 +46,6 @@ class SnakeYamlYamlLoader : YamlLoader {
 		dumperOptions.tags.putAll(tagMap)
 		return this
 	}
-	
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)

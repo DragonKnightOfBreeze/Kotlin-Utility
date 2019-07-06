@@ -20,3 +20,4 @@
 * 1.3.4 修复Bug。
 * 1.3.5 更新字符串拓展。
 * 1.3.6 将`XxxLoader.instance`改为`XxxLoader.instance()`。
+* 1.3.7 更新一些其他的拓展。

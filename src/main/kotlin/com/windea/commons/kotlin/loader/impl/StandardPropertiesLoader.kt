@@ -52,7 +52,7 @@ class StandardPropertiesLoader : PropertiesLoader {
 	
 	override fun <T : Any> toString(data: T): String {
 		//使用JsonLoader，而非反射
-		val propMap = JsonLoader.instance.fromString(JsonLoader.instance.toString(data))
+		val propMap = JsonLoader.instance().fromString(JsonLoader.instance().toString(data))
 		val dataMap = propMap.deepFlatMap()
 		return dataMap.map { (key, value) -> "$key: $value" }.reduce { a, b -> "$a\r\n$b" }
 	}

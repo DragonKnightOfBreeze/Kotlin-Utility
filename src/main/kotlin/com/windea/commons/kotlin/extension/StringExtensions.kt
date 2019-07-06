@@ -115,24 +115,12 @@ enum class StringCase {
  */
 fun String.toPathInfo(): PathInfo {
 	val fileNameIndex = this.lastIndexOf("\\")
-	val fileDir = when {
-		fileNameIndex == -1 -> ""
-		else -> this.substring(0, fileNameIndex)
-	}
-	val fileName = when {
-		fileNameIndex == -1 -> this
-		else -> this.substring(fileNameIndex + 1)
-	}
+	val fileDir = if(fileNameIndex == -1) "" else this.substring(0, fileNameIndex)
+	val fileName = if(fileNameIndex == -1) this else this.substring(fileNameIndex + 1)
 	
 	val fileExtIndex = fileName.lastIndexOf(".")
-	val fileShotName = when {
-		fileExtIndex == -1 -> fileName
-		else -> fileName.substring(0, fileExtIndex)
-	}
-	val fileExt = when {
-		fileExtIndex == -1 -> ""
-		else -> fileName.substring(fileExtIndex)
-	}
+	val fileShotName = if(fileExtIndex == -1) fileName else fileName.substring(0, fileExtIndex)
+	val fileExt = if(fileExtIndex == -1) "" else fileName.substring(fileExtIndex)
 	
 	return PathInfo(fileDir, fileName, fileShotName, fileExt)
 }

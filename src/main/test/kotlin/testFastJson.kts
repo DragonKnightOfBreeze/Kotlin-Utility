@@ -14,7 +14,7 @@ val json = """
 {"a":1,"b":2}
 """.trimIndent()
 
-val jsonMap = JsonLoader.instance.fromString(json)
+val jsonMap = JsonLoader.instance().fromString(json)
 println(jsonMap)
 
 //language=Yaml
@@ -22,5 +22,5 @@ val yaml = """
 a: 1
 b: 2
 """.trimIndent()
-val yamlMap = YamlLoader.instance.fromString(yaml)
+val yamlMap = YamlLoader.instance().fromString(yaml)
 println(yamlMap)

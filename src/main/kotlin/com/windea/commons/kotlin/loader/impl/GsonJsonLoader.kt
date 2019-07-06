@@ -24,11 +24,9 @@ class GsonJsonLoader : JsonLoader {
 		return GenericType<T>().type
 	}
 	
-	
 	private fun gson(): Gson {
 		return gsonBuilder.create()
 	}
-	
 	
 	fun configureGsonBuilder(handler: (gsonBuilder: GsonBuilder) -> Unit): GsonJsonLoader {
 		handler.invoke(gsonBuilder)

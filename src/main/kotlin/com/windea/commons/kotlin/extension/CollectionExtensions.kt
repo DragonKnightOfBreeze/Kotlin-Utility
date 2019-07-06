@@ -19,25 +19,28 @@ fun <K, V> mMapOf(vararg pairs: Pair<K, V>) = mutableMapOf(*pairs)
 /**
  * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
  *
- * 示例： `#/0/Name`
- *
- * 允许的子路径格式：
- * * `[]` 表示一个列表。
- * * `1..10` 表示一个所应在指定范围内的列表。包含上下限。
- * * `1` 表示一个列表的索引。
- * * `{}` 表示一个对象/映射。
- * * `{Category}` 表示一个注为指定占位符的对象/映射。
- * * `re:Name.*` 表示一个属性/键匹配指定正则的对象/映射。
- * * `Name` 表示一个对象/映射的属性/键。
+ * @see collectionQueryValue
  */
-fun <E> List<E>.query(path: String): List<Any?> {
-	return queryValue(this, path)
-}
+fun <E> List<E>.query(path: String) = collectionQueryValue(this, path)
+
+/**
+ * 根据指定路径 [path] 查询当前集，返回匹配的元素列表。
+ *
+ * @see collectionQueryValue
+ */
+fun <E> Set<E>.query(path: String) = collectionQueryValue(this.toList(), path)
 
 /**
  * 根据指定路径 [path] 查询当前映射，返回匹配的值列表。
  *
- * 示例： `#/{Category}/{Name}/Name`。
+ * @see collectionQueryValue
+ */
+fun <K, V> Map<K, V>.queryValue(path: String) = collectionQueryValue(this, path)
+
+/**
+ * 根据指定路径 [path] 查询当前集合，返回匹配的元素/值列表。
+ *
+ * * 示例： `#/{Category}/{Name}/Name`。
  *
  * 允许的子路径格式：
  * * `[]` 表示一个列表。
@@ -48,11 +51,7 @@ fun <E> List<E>.query(path: String): List<Any?> {
  * * `re:Name.*` 表示一个属性/键匹配指定正则的对象/映射。
  * * `Name` 表示一个对象/映射的属性/键。
  */
-fun <K, V> Map<K, V>.queryValue(path: String): List<Any?> {
-	return queryValue(this, path)
-}
-
-private fun queryValue(collection: Any?, path: String): List<Any?> {
+private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 	val fixedPath = path.trim().removePrefix("#").removePrefix("/")
 	val subPaths = fixedPath.split("/")
 	var valueList = listOf(collection)
@@ -99,23 +98,24 @@ private fun queryValue(collection: Any?, path: String): List<Any?> {
 /**
  * 向下递归平滑映射当前列表。
  */
-fun <E> List<E>.deepFlatMap(): Map<String, Any?> {
-	return deepFlatMap(toIndexedMap(), mutableListOf())
-}
+fun <E> List<E>.deepFlatMap() = collectionDeepFlatMap(this.toIndexedMap(), mutableListOf())
+
+/**
+ * 向下递归平滑映射当前集。
+ */
+fun <E> Set<E>.deepFlatMap() = collectionDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
 /**
  * 向下递归平滑映射当前映射。
  */
-fun <K, V> Map<K, V>.deepFlatMap(): Map<String, Any?> {
-	return deepFlatMap(this as Map<String, Any?>, mutableListOf())
-}
+fun <K, V> Map<K, V>.deepFlatMap() = collectionDeepFlatMap(this as Map<String, Any?>, mutableListOf())
 
-private fun deepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+private fun collectionDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
 		prePaths += key
 		when(value) {
-			is Map<*, *> -> deepFlatMap(value as Map<String, Any?>, prePaths).toList()
-			is List<*> -> deepFlatMap(value.toIndexedMap(), prePaths).toList()
+			is Map<*, *> -> collectionDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
+			is List<*> -> collectionDeepFlatMap(value.toIndexedMap(), prePaths).toList()
 			else -> {
 				val fullPath = prePaths.joinToString(".").replace(Regex("\\.(\\d*)\\."), "[$1].")
 				listOf(Pair(fullPath, value))
@@ -128,6 +128,13 @@ private fun deepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): 
 /**
  * 将当前列表转化成以键为值的映射。
  */
-fun <E> List<E>.toIndexedMap(): Map<String, E> {
-	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
+fun <E> List<E>.toIndexedMap(): Map<String, E> = collectionToIndexedMap(this)
+
+/**
+ * 将当前集转化成以键为值的映射。
+ */
+fun <E> Set<E>.toIndexedMap(): Map<String, E> = collectionToIndexedMap(this.toList())
+
+private fun <E> collectionToIndexedMap(list: List<E>): Map<String, E> {
+	return list.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
 }

@@ -1,15 +1,14 @@
 package com.windea.commons.kotlin.utils
 
-import org.apache.commons.logging.Log
-import org.apache.commons.logging.LogFactory
 import java.security.SecureRandom
+import kotlin.math.pow
 
 /**
  * 随机数的工具类。
  */
 object RandomUtils {
-	private val log: Log = LogFactory.getLog(RandomUtils::class.java)
 	private val random = SecureRandom()
+	
 	
 	/**
 	 * 得到0到指定范围内的随机数。包含上下限。
@@ -42,7 +41,7 @@ object RandomUtils {
 		if(min > max) {
 			throw IllegalArgumentException("Min Value is greater than max Value.")
 		}
-		val ratio = Math.pow(10.toDouble(), precision.toDouble()).toFloat()
+		val ratio = 10.toDouble().pow(precision.toDouble()).toFloat()
 		return range((min * ratio).toInt(), (max * ratio).toInt()) / ratio
 	}
 	
@@ -85,7 +84,7 @@ object RandomUtils {
 	 * 得到以指定数值 [number] 为中心的浮动范围内的随机数。包含上下限。可指定精确度 [precision]。
 	 */
 	fun delta(number: Float, lowerLimit: Float, upperLimit: Float, precision: Int = 2): Float {
-		val ratio = Math.pow(10.toDouble(), precision.toDouble()).toFloat()
+		val ratio = 10.toDouble().pow(precision.toDouble()).toFloat()
 		return delta((number * ratio).toInt(), (lowerLimit * ratio).toInt(), (upperLimit * ratio).toInt()) / ratio
 	}
 }

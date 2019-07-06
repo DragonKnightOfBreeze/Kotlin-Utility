@@ -21,7 +21,6 @@ class FastJsonJsonLoader : JsonLoader {
 		return GenericType<T>().type
 	}
 	
-	
 	fun configureParseConfig(handler: (ParserConfig) -> Unit): FastJsonJsonLoader {
 		handler.invoke(parserConfig)
 		return this
@@ -31,7 +30,6 @@ class FastJsonJsonLoader : JsonLoader {
 		handler.invoke(serializeConfig)
 		return this
 	}
-	
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val string = File(path).readText()
