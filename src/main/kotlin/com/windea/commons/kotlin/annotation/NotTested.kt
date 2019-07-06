@@ -5,5 +5,5 @@ package com.windea.commons.kotlin.annotation
  */
 @MustBeDocumented
 annotation class NotTested(
-	val message: String = "not tested"
+	val message: String = "Not tested."
 )
