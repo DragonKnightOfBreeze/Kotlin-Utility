@@ -2,6 +2,20 @@
 
 package com.windea.commons.kotlin.extension
 
+typealias MList<E> = MutableList<E>
+
+typealias MSet<E> = MutableSet<E>
+
+typealias MMap<K, V> = MutableMap<K, V>
+
+
+fun <E> mListOf(vararg elements: E) = mutableListOf(*elements)
+
+fun <E> mSetOf(vararg elements: E) = mutableSetOf(*elements)
+
+fun <K, V> mMapOf(vararg pairs: Pair<K, V>) = mutableMapOf(*pairs)
+
+
 /**
  * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
  *

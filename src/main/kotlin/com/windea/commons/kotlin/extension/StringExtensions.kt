@@ -52,7 +52,7 @@ fun String.unescape(): String {
 /**
  * 得到字符串的显示格式。
  */
-fun String.getStringCase() {
+fun String.getCase() {
 	TODO()
 }
 
