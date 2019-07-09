@@ -22,3 +22,4 @@
 * 1.3.6 将`XxxLoader.instance`改为`XxxLoader.instance()`。
 * 1.3.7 更新一些其他的拓展。
 * 1.3.8 更新随机数拓展。
+* 1.3.9 更新映射到java bean拓展。

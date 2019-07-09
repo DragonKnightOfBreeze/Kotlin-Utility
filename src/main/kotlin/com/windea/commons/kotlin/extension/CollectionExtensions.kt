@@ -2,6 +2,8 @@
 
 package com.windea.commons.kotlin.extension
 
+import java.io.Serializable
+
 typealias MList<E> = MutableList<E>
 
 typealias MSet<E> = MutableSet<E>
@@ -107,6 +109,26 @@ private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 		}
 	}
 	return valueList
+}
+
+/**
+ * 将映射转化为可序列化对象。
+ *
+ * 该对象是标准java bean的形式，必须带有无参构造方法，必须带有数个set方法，不能带有实体类属性。
+ */
+fun <T : Serializable> Map<String, Any?>.mapToObject(type: Class<T>): T {
+	val newObject = type.getConstructor().newInstance()
+	val setMethods = type.methods.filter { it.name.startsWith("set") }
+	val propertyNames = setMethods.map { it.name[3].toLowerCase() + it.name.substring(4, it.name.length) }
+	for((setMethod, propertyName) in setMethods.zip(propertyNames)) {
+		val propertyValue = this[propertyName]
+		try {
+			setMethod.invoke(newObject, propertyValue)
+		} catch(e: Exception) {
+			println("Property type mismatch. Class: ${type.name} Name: $propertyName, Value: $propertyValue}")
+		}
+	}
+	return newObject
 }
 
 
