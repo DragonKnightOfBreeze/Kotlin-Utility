@@ -1,4 +1,4 @@
-@file:Suppress("UNUSED_PARAMETER")
+@file:Suppress("UNUSED_PARAMETER", "UNCHECKED_CAST")
 
 package com.windea.commons.kotlin.extension
 
@@ -28,8 +28,10 @@ fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 /**
  * 将字符串转化为对应的枚举常量。
  */
-fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
-	val enumConsts = type.enumConstants
+fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E = toEnumConstUnchecked(type) as E
+
+fun String.toEnumConstUnchecked(type: Class<*>): Any {
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
 	val constName = this.trim()
 	return try {
 		enumConsts.first { it.toString() == constName }
@@ -38,7 +40,6 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 		enumConsts[0]
 	}
 }
-
 
 /**
  * 如果满足条件 [condition]，则保留这段文本。
@@ -320,4 +321,13 @@ class UrlInfo(
 	 * 是否存在查询参数。
 	 */
 	val hasQueryParam = queryParamMap.isNotEmpty()
+}
+
+enum class Abc {
+	A, B, C
+}
+
+fun main() {
+	println("A".toEnumConstUnchecked(Abc::class.java).javaClass)
+	println("A".toEnumConst(Abc::class.java).javaClass)
 }

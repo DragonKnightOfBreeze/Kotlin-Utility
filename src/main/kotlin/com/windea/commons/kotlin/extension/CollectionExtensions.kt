@@ -3,7 +3,7 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.NotTested
-import java.io.Serializable
+import java.lang.reflect.Method
 
 typealias MList<E> = MutableList<E>
 
@@ -113,34 +113,58 @@ private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 
 
 /**
- * 将映射转化为可序列化对象。
+ * 将映射转化为对象。默认不递归转化。
  *
  * 该对象是标准java bean的形式，必须带有无参构造方法，必须带有数个set方法，不能带有实体类属性。
+ *
+ * WARN 转化非基本类型、非字符串数组时，该方法会出错！
  */
-fun <T : Serializable> Map<String, Any?>.mapToObject(type: Class<T>) = collectionMapToObject(this, type)
+fun <T> Map<String, Any?>.mapToObject(type: Class<T>, recursive: Boolean = false) = collectionMapToObject(this, type, recursive)
 
-@NotTested("不存在无参构造方法，属性不具有set方法，对于非基本类型的属性")
-private fun <T : Serializable> collectionMapToObject(map: Map<String, Any?>, type: Class<T>): T {
+@NotTested("不存在无参构造方法，属性不具有set方法，元素需要转化的数组，其他特殊情况？")
+private fun <T> collectionMapToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = false): T {
 	val newObject = type.getConstructor().newInstance()
-	val setMethods = type.methods.filter { it.name.startsWith("set") }
-	val propertyNames = setMethods.map { it.name[3].toLowerCase() + it.name.substring(4, it.name.length) }
-	for((setMethod, propertyName) in setMethods.zip(propertyNames)) {
+	val propertyMap = getPropertyMap(type)
+	for((propertyName, setMethod) in propertyMap) {
+		if(!propertyMap.containsKey(propertyName)) {
+			continue
+		}
 		val propertyValue = map[propertyName]
 		try {
-			val propertyType = type.getField(propertyName)::class.java
-			val fixedPropertyValue = when {
-				propertyType.isPrimitive -> propertyValue
-				propertyType.isEnum -> {
-				
-				}
-				else -> null
-			}
+			val propertyType = type.getDeclaredField(propertyName).type
+			val fixedPropertyValue = convertProperty(propertyType, propertyValue, recursive)
 			setMethod.invoke(newObject, fixedPropertyValue)
 		} catch(e: Exception) {
 			println("[WARN] Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
 		}
 	}
 	return newObject
+}
+
+private fun getPropertyMap(type: Class<*>): Map<String, Method> {
+	return type.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
+}
+
+private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursive: Boolean = false): Any? {
+	return when {
+		propertyType.isPrimitive || propertyType.isCharSequence() -> propertyValue
+		propertyType.isEnum -> propertyValue.toString().toEnumConstUnchecked(propertyType)
+		//使用高阶函数后，无法直接得到运行时泛型
+		propertyType.isArray -> (propertyValue as Array<*>)
+		propertyType.isList() -> (propertyValue as Iterable<*>).toList().map {
+			if(it == null) null else convertProperty(it.javaClass, it, recursive)
+		}
+		propertyType.isSet() -> (propertyValue as Iterable<*>).toSet().map {
+			if(it == null) null else convertProperty(it.javaClass, it, recursive)
+		}.toSet()
+		propertyType.isMap() -> (propertyValue as Map<*, *>).mapValues { (_, v) ->
+			if(v == null) null else convertProperty(v.javaClass, v, recursive)
+		}
+		propertyType.isSerializable() && recursive -> {
+			collectionMapToObject((propertyValue as Map<String, Any?>), propertyType)
+		}
+		else -> null
+	}
 }
 
 
