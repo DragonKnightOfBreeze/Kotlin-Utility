@@ -25,6 +25,20 @@ fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
 }
 
+/**
+ * 将字符串转化为对应的枚举常量。
+ */
+fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
+	val enumConsts = type.enumConstants
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts[0]
+	}
+}
+
 
 /**
  * 如果满足条件 [condition]，则保留这段文本。
@@ -73,26 +87,84 @@ fun String.unescape(): String {
 	return this.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
 }
 
+
 /**
- * 得到显示格式。
+ * 将第一个字符转为大写。
  */
-fun String.getCase() {
-	TODO()
+fun String.firstCharToUpperCase(): String {
+	return this[0].toUpperCase() + this.substring(1, this.length)
 }
+
+/**
+ * 仅将第一个字符转为大写。
+ */
+fun String.firstCharToUpperCaseOnly(): String {
+	return this[0].toUpperCase() + this.substring(1, this.length).toLowerCase()
+}
+
+/**
+ * 将第一个字符转为小写。
+ */
+fun String.firstCharToLowerCase(): String {
+	return this[0].toLowerCase() + this.substring(1, this.length)
+}
+
+/**
+ * 仅将第一个字符转为小写。
+ */
+fun String.firstCharToLowerCaseOnly(): String {
+	return this[0].toLowerCase() + this.substring(1, this.length).toUpperCase()
+}
+
 
 /**
  * 转换显示格式。
  */
 fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
-	TODO()
+	return concatByCase(splitByCase(this, fromCase), toCase)
 }
+
+private fun splitByCase(string: String, case: StringCase): List<String> {
+	return when(case) {
+		StringCase.Other -> listOf(string)
+		StringCase.CamelCase -> string.firstCharToUpperCase().splitWordByWhiteSpace().split(" ")
+		StringCase.PascalCase -> string.splitWordByWhiteSpace().split(" ")
+		StringCase.ScreamingSnakeCase -> string.split("_")
+		StringCase.SnakeCase -> string.split("_")
+		StringCase.KebabCase -> string.split("-")
+		StringCase.DotCase -> string.split(".")
+		StringCase.WhiteSpaceCase -> string.split(" ")
+		StringCase.LSepCase -> string.split("\\")
+		StringCase.RSepCase -> string.split("/")
+	}
+}
+
+private fun concatByCase(splitStrings: List<String>, case: StringCase): String {
+	return when(case) {
+		StringCase.Other -> splitStrings[0]
+		StringCase.CamelCase -> splitStrings.joinToString("") { it.firstCharToUpperCaseOnly() }.firstCharToLowerCase()
+		StringCase.PascalCase -> splitStrings.joinToString("") { it.firstCharToUpperCaseOnly() }
+		StringCase.ScreamingSnakeCase -> splitStrings.joinToString("_") { it.toUpperCase() }
+		StringCase.SnakeCase -> splitStrings.joinToString("_") { it.toLowerCase() }
+		StringCase.KebabCase -> splitStrings.joinToString("_") { it.toLowerCase() }
+		StringCase.DotCase -> splitStrings.joinToString(".")
+		StringCase.WhiteSpaceCase -> splitStrings.joinToString(" ")
+		StringCase.LSepCase -> splitStrings.joinToString("\\")
+		StringCase.RSepCase -> splitStrings.joinToString("/")
+	}
+}
+
+private fun String.splitWordByWhiteSpace(): String {
+	return this.replace(Regex("\\B([A-Z]+)"), " $1")
+}
+
 
 /**
  * 字符串的显示格式。
  */
 enum class StringCase {
 	/**
-	 * OtH_e r。
+	 * OtH_e r Ca  SE。
 	 */
 	Other,
 	/**

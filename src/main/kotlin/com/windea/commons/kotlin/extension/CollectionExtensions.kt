@@ -127,9 +127,17 @@ private fun <T : Serializable> collectionMapToObject(map: Map<String, Any?>, typ
 	for((setMethod, propertyName) in setMethods.zip(propertyNames)) {
 		val propertyValue = map[propertyName]
 		try {
-			setMethod.invoke(newObject, propertyValue)
+			val propertyType = type.getField(propertyName)::class.java
+			val fixedPropertyValue = when {
+				propertyType.isPrimitive -> propertyValue
+				propertyType.isEnum -> {
+				
+				}
+				else -> null
+			}
+			setMethod.invoke(newObject, fixedPropertyValue)
 		} catch(e: Exception) {
-			println("Property type mismatch. Class: ${type.name} Name: $propertyName, Value: $propertyValue}")
+			println("[WARN] Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
 		}
 	}
 	return newObject
