@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.extension.mapToObject
+import com.windea.commons.kotlin.extension.toObject
 import java.io.Serializable
 
 class Test {
@@ -24,7 +24,7 @@ class User : Serializable {
 
 fun main() {
 	val userMap = mapOf("username" to "abc", "password" to "123", "age" to 20)
-	val user = userMap.mapToObject(User::class.java)
+	val user = userMap.toObject(User::class.java)
 	println(user.username)
 	println(user.password)
 	println(user.age)

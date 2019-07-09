@@ -3,7 +3,6 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.NotTested
-import java.lang.reflect.Method
 
 typealias MList<E> = MutableList<E>
 
@@ -37,23 +36,23 @@ fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 /**
  * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
  *
- * @see collectionQueryValue
+ * @see privateQueryValue
  */
-fun <E> List<E>.query(path: String) = collectionQueryValue(this, path)
+fun <E> List<E>.query(path: String) = privateQueryValue(this, path)
 
 /**
  * 根据指定路径 [path] 查询当前集，返回匹配的元素列表。
  *
- * @see collectionQueryValue
+ * @see privateQueryValue
  */
-fun <E> Set<E>.query(path: String) = collectionQueryValue(this.toList(), path)
+fun <E> Set<E>.query(path: String) = privateQueryValue(this.toList(), path)
 
 /**
  * 根据指定路径 [path] 查询当前映射，返回匹配的值列表。
  *
- * @see collectionQueryValue
+ * @see privateQueryValue
  */
-fun <K, V> Map<K, V>.queryValue(path: String) = collectionQueryValue(this, path)
+fun <K, V> Map<K, V>.queryValue(path: String) = privateQueryValue(this, path)
 
 /**
  * * 示例： `#/{Category}/{Name}/Name`。
@@ -68,7 +67,7 @@ fun <K, V> Map<K, V>.queryValue(path: String) = collectionQueryValue(this, path)
  * * `Name` 表示一个对象/映射的属性/键。
  */
 @NotTested("某些特殊情况？")
-private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
+private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
 	val fixedPath = path.trim().removePrefix("#").removePrefix("/")
 	val subPaths = fixedPath.split("/")
 	var valueList = listOf(collection)
@@ -113,18 +112,60 @@ private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 
 
 /**
- * 将映射转化为对象。默认不递归转化。
- *
- * 该对象是标准java bean的形式，必须带有无参构造方法，必须带有数个set方法，不能带有实体类属性。
- *
- * WARN 转化非基本类型、非字符串数组时，该方法会出错！
+ * 向下递归平滑映射当前列表。
  */
-fun <T> Map<String, Any?>.mapToObject(type: Class<T>, recursive: Boolean = false) = collectionMapToObject(this, type, recursive)
+fun <E> List<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-@NotTested("不存在无参构造方法，属性不具有set方法，元素需要转化的数组，其他特殊情况？")
-private fun <T> collectionMapToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = false): T {
+/**
+ * 向下递归平滑映射当前集。
+ */
+fun <E> Set<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
+
+/**
+ * 向下递归平滑映射当前映射。
+ */
+fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
+
+@NotTested("某些特殊情况？")
+private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+	return map.flatMap { (key, value) ->
+		prePaths += key
+		when(value) {
+			is Map<*, *> -> privateDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
+			is List<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
+			else -> {
+				val fullPath = prePaths.joinToString(".").replace(Regex("\\.(\\d*)\\."), "[$1].")
+				listOf(Pair(fullPath, value))
+			}
+		}
+	}.toMap()
+}
+
+
+/**
+ * 将当前列表转化成以键为值的映射。
+ */
+fun <E> List<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this)
+
+/**
+ * 将当前集转化成以键为值的映射。
+ */
+fun <E> Set<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this.toList())
+
+private fun <E> privateToIndexedMap(list: List<E>): Map<String, E> {
+	return list.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
+}
+
+
+/**
+ * 将映射转化为对象。默认不递归转化。
+ */
+fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = false) = privateToObject(this, type, recursive)
+
+@NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
+private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = false): T {
 	val newObject = type.getConstructor().newInstance()
-	val propertyMap = getPropertyMap(type)
+	val propertyMap = type.getSetterMap()
 	for((propertyName, setMethod) in propertyMap) {
 		if(!propertyMap.containsKey(propertyName)) {
 			continue
@@ -139,10 +180,6 @@ private fun <T> collectionMapToObject(map: Map<String, Any?>, type: Class<T>, re
 		}
 	}
 	return newObject
-}
-
-private fun getPropertyMap(type: Class<*>): Map<String, Method> {
-	return type.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }
 
 private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursive: Boolean = false): Any? {
@@ -161,54 +198,8 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 			if(v == null) null else convertProperty(v.javaClass, v, recursive)
 		}
 		propertyType.isSerializable() && recursive -> {
-			collectionMapToObject((propertyValue as Map<String, Any?>), propertyType)
+			privateToObject((propertyValue as Map<String, Any?>), propertyType)
 		}
 		else -> null
 	}
-}
-
-
-/**
- * 向下递归平滑映射当前列表。
- */
-fun <E> List<E>.deepFlatMap() = collectionDeepFlatMap(this.toIndexedMap(), mutableListOf())
-
-/**
- * 向下递归平滑映射当前集。
- */
-fun <E> Set<E>.deepFlatMap() = collectionDeepFlatMap(this.toIndexedMap(), mutableListOf())
-
-/**
- * 向下递归平滑映射当前映射。
- */
-fun <K, V> Map<K, V>.deepFlatMap() = collectionDeepFlatMap(this as Map<String, Any?>, mutableListOf())
-
-@NotTested("某些特殊情况？")
-private fun collectionDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
-	return map.flatMap { (key, value) ->
-		prePaths += key
-		when(value) {
-			is Map<*, *> -> collectionDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
-			is List<*> -> collectionDeepFlatMap(value.toIndexedMap(), prePaths).toList()
-			else -> {
-				val fullPath = prePaths.joinToString(".").replace(Regex("\\.(\\d*)\\."), "[$1].")
-				listOf(Pair(fullPath, value))
-			}
-		}
-	}.toMap()
-}
-
-
-/**
- * 将当前列表转化成以键为值的映射。
- */
-fun <E> List<E>.toIndexedMap(): Map<String, E> = collectionToIndexedMap(this)
-
-/**
- * 将当前集转化成以键为值的映射。
- */
-fun <E> Set<E>.toIndexedMap(): Map<String, E> = collectionToIndexedMap(this.toList())
-
-private fun <E> collectionToIndexedMap(list: List<E>): Map<String, E> {
-	return list.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
 }

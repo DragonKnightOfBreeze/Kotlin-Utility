@@ -1,6 +1,7 @@
 package com.windea.commons.kotlin.extension
 
 import java.io.Serializable
+import java.lang.reflect.Method
 
 fun <T> Class<T>.isCharSequence(): Boolean {
 	return when {
@@ -46,4 +47,13 @@ fun <T> Class<T>.isSerializable(): Boolean {
 		Serializable::class.java == this -> true
 		else -> this.interfaces.any { it.isSerializable() } || this.superclass?.isSerializable() ?: false
 	}
+}
+
+
+fun <T> Class<T>.getGetterMap(): Map<String, Method> {
+	return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
+}
+
+fun <T> Class<T>.getSetterMap(): Map<String, Method> {
+	return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }
