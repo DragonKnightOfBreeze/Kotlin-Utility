@@ -203,3 +203,7 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 		else -> null
 	}
 }
+
+fun main() {
+
+}

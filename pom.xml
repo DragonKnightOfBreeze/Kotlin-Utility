@@ -13,12 +13,6 @@
   <description>Kotlin实用代码整理。</description>
   <url>https://github.com/DragonKnightOfBreeze/Kotlin-Utility</url>
 
-  <scm>
-    <connection>scm:git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</connection>
-    <developerConnection>scm:git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</developerConnection>
-    <url>git@github.com:DragonKnightOfBreeze/Kotlin-Utility.git</url>
-  </scm>
-
   <properties>
     <!--最高只能使用1.8版本，新版本的jdk会导入kotlin script无法加载java.sql-->
     <java.version>1.8</java.version>
