@@ -1,5 +1,6 @@
 package com.windea.commons.kotlin.generator.impl
 
+import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
@@ -9,6 +10,7 @@ import java.io.File
 /**
  * PlantUml代码的生成器。
  */
+@NotTested
 class PlantUmlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""

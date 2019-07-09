@@ -2,6 +2,7 @@
 
 package com.windea.commons.kotlin.generator.impl
 
+import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.extension.queryValue
 import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
@@ -14,6 +15,7 @@ typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 /**
  * Json/Yaml Schema的生成器。
  */
+@NotTested("未发现")
 class SchemaGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()

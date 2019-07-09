@@ -2,6 +2,7 @@
 
 package com.windea.commons.kotlin.generator.impl
 
+import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.generator.TextGenerator
 import com.windea.commons.kotlin.loader.JsonLoader
@@ -11,9 +12,11 @@ import java.io.File
 /**
  * Intellij IDEA配置文件的生成器。
  */
+@NotTested("未发现")
 class IdeaConfigGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
+	
 	
 	/**
 	 * @param inputType JsonSchema, YamlSchema

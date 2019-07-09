@@ -2,6 +2,7 @@
 
 package com.windea.commons.kotlin.extension
 
+import com.windea.commons.kotlin.annotation.NotTested
 import java.io.Serializable
 
 typealias MList<E> = MutableList<E>
@@ -55,8 +56,6 @@ fun <E> Set<E>.query(path: String) = collectionQueryValue(this.toList(), path)
 fun <K, V> Map<K, V>.queryValue(path: String) = collectionQueryValue(this, path)
 
 /**
- * 根据指定路径 [path] 查询当前集合，返回匹配的元素/值列表。
- *
  * * 示例： `#/{Category}/{Name}/Name`。
  *
  * 允许的子路径格式：
@@ -68,6 +67,7 @@ fun <K, V> Map<K, V>.queryValue(path: String) = collectionQueryValue(this, path)
  * * `re:Name.*` 表示一个属性/键匹配指定正则的对象/映射。
  * * `Name` 表示一个对象/映射的属性/键。
  */
+@NotTested("某些特殊情况？")
 private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 	val fixedPath = path.trim().removePrefix("#").removePrefix("/")
 	val subPaths = fixedPath.split("/")
@@ -111,17 +111,21 @@ private fun collectionQueryValue(collection: Any?, path: String): List<Any?> {
 	return valueList
 }
 
+
 /**
  * 将映射转化为可序列化对象。
  *
  * 该对象是标准java bean的形式，必须带有无参构造方法，必须带有数个set方法，不能带有实体类属性。
  */
-fun <T : Serializable> Map<String, Any?>.mapToObject(type: Class<T>): T {
+fun <T : Serializable> Map<String, Any?>.mapToObject(type: Class<T>) = collectionMapToObject(this, type)
+
+@NotTested("不存在无参构造方法，属性不具有set方法，对于非基本类型的属性")
+private fun <T : Serializable> collectionMapToObject(map: Map<String, Any?>, type: Class<T>): T {
 	val newObject = type.getConstructor().newInstance()
 	val setMethods = type.methods.filter { it.name.startsWith("set") }
 	val propertyNames = setMethods.map { it.name[3].toLowerCase() + it.name.substring(4, it.name.length) }
 	for((setMethod, propertyName) in setMethods.zip(propertyNames)) {
-		val propertyValue = this[propertyName]
+		val propertyValue = map[propertyName]
 		try {
 			setMethod.invoke(newObject, propertyValue)
 		} catch(e: Exception) {
@@ -147,6 +151,7 @@ fun <E> Set<E>.deepFlatMap() = collectionDeepFlatMap(this.toIndexedMap(), mutabl
  */
 fun <K, V> Map<K, V>.deepFlatMap() = collectionDeepFlatMap(this as Map<String, Any?>, mutableListOf())
 
+@NotTested("某些特殊情况？")
 private fun collectionDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
 		prePaths += key

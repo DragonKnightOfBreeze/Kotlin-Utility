@@ -1,7 +1,9 @@
 package com.windea.commons.kotlin.loader.impl
 
+import com.windea.commons.kotlin.annotation.NotTested
 import com.windea.commons.kotlin.loader.XmlLoader
 
+@NotTested
 class StandardXmlLoader : XmlLoader {
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		TODO("not implemented")
