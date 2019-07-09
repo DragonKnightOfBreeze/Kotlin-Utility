@@ -1,6 +1,30 @@
+@file:Suppress("UNUSED_PARAMETER")
+
 package com.windea.commons.kotlin.extension
 
 import java.util.function.Predicate
+
+/**
+ * 去空格后，转化为对应的整数，发生异常则转化为默认值 [defaultValue]，默认为0。
+ */
+fun String.toIntOrDefault(defaultValue: Int = 0): Int {
+	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
+}
+
+/**
+ * 去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值 [defaultValue]，默认为0.0f。
+ */
+fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
+	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
+}
+
+/**
+ * 去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值 [defaultValue]，默认为0.0。
+ */
+fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
+	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
+}
+
 
 /**
  * 如果满足条件 [condition]，则保留这段文本。
@@ -50,14 +74,14 @@ fun String.unescape(): String {
 }
 
 /**
- * 得到字符串的显示格式。
+ * 得到显示格式。
  */
 fun String.getCase() {
 	TODO()
 }
 
 /**
- * 转换字符串的显示格式。
+ * 转换显示格式。
  */
 fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
 	TODO()
@@ -193,18 +217,12 @@ class PathInfo(
  */
 fun String.toUrlInfo(): UrlInfo {
 	val queryParamIndex = this.lastIndexOf("?")
-	val fullPath = when {
-		queryParamIndex == -1 -> this
-		else -> this.substring(0, queryParamIndex)
-	}
-	val paramSnippet = when {
-		queryParamIndex == -1 -> ""
-		else -> this.substring(queryParamIndex + 1)
-	}
+	val fullPath = if(queryParamIndex == -1) this else this.substring(0, queryParamIndex)
+	val paramSnippet = if(queryParamIndex == -1) "" else this.substring(queryParamIndex + 1)
 	
 	val queryParamMap = when {
 		paramSnippet.isEmpty() -> mapOf()
-		else -> paramSnippet.split("&").map { it.split("=") }.groupBy({ it[0] }, { it[1] })
+		else -> paramSnippet.split("&").map { s -> s.split("=") }.groupBy({ ss -> ss[0] }, { ss -> ss[1] })
 			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
 	}
 	

@@ -1,5 +1,10 @@
 package com.windea.commons.kotlin.extension
 
+import kotlin.math.pow
+
+fun Int.pow(n: Int) = this.toFloat().pow(n).toInt()
+
+
 fun Float.coerceInAbs(value: Float) = this.coerceIn(-value, value)
 
 fun Float.coerceIn01() = this.coerceIn(0f, 1f)

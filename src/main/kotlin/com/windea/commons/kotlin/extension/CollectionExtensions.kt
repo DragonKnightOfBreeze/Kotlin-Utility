@@ -17,6 +17,21 @@ fun <K, V> mMapOf(vararg pairs: Pair<K, V>) = mutableMapOf(*pairs)
 
 
 /**
+ * 得到指定索引的元素，发生异常则得到默认值。
+ */
+fun <E> Array<E>.getOrDefault(index: Int, defaultValue: E): E {
+	return runCatching { this[index] }.getOrDefault(defaultValue)
+}
+
+/**
+ * 得到指定索引的元素，发生异常则得到默认值。
+ */
+fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
+	return runCatching { this[index] }.getOrDefault(defaultValue)
+}
+
+
+/**
  * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
  *
  * @see collectionQueryValue
