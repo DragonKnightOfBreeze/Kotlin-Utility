@@ -11,9 +11,7 @@ import java.util.concurrent.*
 
 typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 
-/**
- * Json/Yaml Schema的生成器。
- */
+/**Json/Yaml Schema的生成器。*/
 @NotTested("未发现")
 class SchemaGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
@@ -68,9 +66,7 @@ class SchemaGenerator : TextGenerator {
 		)
 	
 	
-	/**
-	 * @param inputType ExtendedJsonSchema, ExtendedYamlSchema
-	 */
+	/**@param inputType ExtendedJsonSchema, ExtendedYamlSchema*/
 	override fun from(inputPath: String, inputType: String): SchemaGenerator {
 		when(inputType) {
 			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
@@ -84,9 +80,7 @@ class SchemaGenerator : TextGenerator {
 	fun from(inputPath: String) = from(inputPath, "ExtendedYamlSchema")
 	
 	
-	/**
-	 * @param dataType Json, Yaml
-	 */
+	/**@param dataType Json, Yaml*/
 	fun loadDataMap(dataPath: String, dataType: String): SchemaGenerator {
 		runCatching {
 			when(dataType) {
@@ -104,9 +98,7 @@ class SchemaGenerator : TextGenerator {
 	}
 	
 	
-	/**
-	 * @param generateStrategy  Default
-	 */
+	/**@param generateStrategy  Default*/
 	override fun generate(generateStrategy: String): SchemaGenerator {
 		when(generateStrategy) {
 			"Default" -> convertRules(inputMap)
@@ -142,9 +134,7 @@ class SchemaGenerator : TextGenerator {
 	}
 	
 	
-	/**
-	 * @param outputType JsonSchema, YamlSchema
-	 */
+	/**@param outputType JsonSchema, YamlSchema*/
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
 			"JsonSchema" -> JsonLoader.instance().toFile(inputMap, outputPath)

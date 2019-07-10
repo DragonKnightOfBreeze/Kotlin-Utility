@@ -1,10 +1,8 @@
 package com.windea.commons.kotlin.enums.extended
 
-import com.windea.commons.kotlin.annotation.LocaleText
+import com.windea.commons.kotlin.annotation.*
 
-/**
- * 扩展的方向。
- */
+/**扩展的方向。*/
 @LocaleText("方向")
 enum class Direction {
 	@LocaleText("东")

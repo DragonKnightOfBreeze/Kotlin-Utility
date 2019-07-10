@@ -6,18 +6,14 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.loader.*
 import java.io.*
 
-/**
- * PlantUml代码的生成器。
- */
+/**PlantUml代码的生成器。*/
 @NotTested
 class PlantUmlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
 	
-	/**
-	 * @param inputType Json, Yaml
-	 */
+	/**@param inputType Json, Yaml*/
 	override fun from(inputPath: String, inputType: String): PlantUmlGenerator {
 		when(inputType) {
 			"Json" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
@@ -30,9 +26,7 @@ class PlantUmlGenerator : TextGenerator {
 	fun from(inputPath: String) = from(inputPath, "Yaml")
 	
 	
-	/**
-	 * @param generateStrategy Uml, UmlMarkdown
-	 */
+	/**@param generateStrategy Uml, UmlMarkdown*/
 	override fun generate(generateStrategy: String): PlantUmlGenerator {
 		when(generateStrategy) {
 			"Uml" -> generateUml()
@@ -51,9 +45,7 @@ class PlantUmlGenerator : TextGenerator {
 	}
 	
 	
-	/**
-	 * @param outputType Default
-	 */
+	/**@param outputType Default*/
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
 			"Default" -> File(outputPath).writeText(outputText)

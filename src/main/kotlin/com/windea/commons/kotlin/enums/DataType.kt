@@ -2,9 +2,7 @@ package com.windea.commons.kotlin.enums
 
 import com.windea.commons.kotlin.loader.*
 
-/**
- * 数据类型。
- */
+/**数据类型。*/
 enum class DataType(
 	val extension: String,
 	val loader: DataLoader

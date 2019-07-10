@@ -2,73 +2,70 @@
 
 package com.windea.commons.kotlin.extension
 
-/**
- * 去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。
- */
-fun String.toIntOrDefault(defaultValue: Int = 0): Int {
-	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
+/**判断字符串是否以指定前缀开头。*/
+infix fun String.startsWith(prefix: String): Boolean {
+	return this.startsWith(prefix, false)
 }
 
-/**
- * 去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。
- */
-fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
-	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
-}
-
-/**
- * 去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。
- */
-fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
-	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
-}
-
-/**
- * 将字符串转化为对应的枚举常量。
- */
-fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
-	val enumConsts = type.enumConstants
-	val constName = this.trim()
-	return try {
-		enumConsts.first { it.toString() == constName }
-	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts[0]
+/**判断字符串是否以任意指定前缀开头。*/
+infix fun String.startsWith(prefixArray: Array<String>): Boolean {
+	for(prefix in prefixArray) {
+		if(this.startsWith(prefix, false)) return true
 	}
+	return false
 }
 
-/**
- * 将字符串转化为对应的枚举常量。
- */
-fun String.toEnumConstUnchecked(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
-	val constName = this.trim()
-	return try {
-		enumConsts.first { it.toString() == constName }
-	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts[0]
+/**判断字符串是否以指定后缀结尾。*/
+infix fun String.endsWith(suffix: String): Boolean {
+	return this.endsWith(suffix, false)
+}
+
+/**判断字符串是否以任意指定后缀结尾。*/
+infix fun String.endsWith(prefixArray: Array<String>): Boolean {
+	for(prefix in prefixArray) {
+		if(this.endsWith(prefix, false)) return true
 	}
+	return false
+}
+
+/**判断字符串是否以指定前缀开头。忽略大小写。*/
+infix fun String.startsWithIc(prefix: String): Boolean {
+	return this.startsWith(prefix, true)
+}
+
+/**判断字符串是否以任意指定前缀开头。忽略大小写。*/
+infix fun String.startsWithIc(prefixArray: Array<String>): Boolean {
+	for(prefix in prefixArray) {
+		if(this.startsWith(prefix, true)) return true
+	}
+	return false
+}
+
+/**判断字符串是否以指定后缀结尾。忽略大小写。*/
+infix fun String.endsWithIc(suffix: String): Boolean {
+	return this.endsWith(suffix, true)
+}
+
+/**判断字符串是否以指定后缀结尾。忽略大小写。*/
+infix fun String.endsWithIc(prefixArray: Array<String>): Boolean {
+	for(prefix in prefixArray) {
+		if(this.endsWith(prefix, true)) return true
+	}
+	return false
 }
 
 
-/**
- * 根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
- */
+/**根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
 fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
 	val isEmpty = ignoreEmpty && this.isEmpty()
 	val result = prefix + this + suffix
 	return if(isEmpty) "" else result
 }
 
-/**
- * 根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
- */
+/**根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
 fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
 
-/**
- * 转义字符串。例如，将`\\n`转换为`\n`。
- */
+/**转义字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in getEscapeCharList()) {
@@ -77,9 +74,7 @@ fun String.escape(): String {
 	}
 }
 
-/**
- * 反转义字符串。例如，将`\n`转换为`\\n`。
- */
+/**反转义字符串。例如，将`\n`转换为`\\n`。*/
 fun String.unescape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in getEscapeCharList()) {
@@ -92,54 +87,40 @@ private fun getEscapeCharList(): List<Pair<String, String>> {
 	return listOf("\n" to "\\n", "\r" to "\\r", "\b" to "\\b", "\t" to "\\t", "\'" to "\\'", "\"" to "\\\"", "\\" to "\\\\")
 }
 
-/**
- * 使用双引号/单引号/反引号包围字符串。默认使用双引号。
- */
+/**使用双引号/单引号/反引号包围字符串。默认使用双引号。*/
 fun String.quote(delimiter: String = "\""): String {
 	if(delimiter !in arrayOf("\"", "'", "`")) return this
 	return this.surround(delimiter, false)
 }
 
-/**
- * 去除字符串两侧的双引号/单引号/反引号。
- */
+/**去除字符串两侧的双引号/单引号/反引号。*/
 fun String.unquote(): String {
 	return this.removeSurrounding("\"").removeSurrounding("'").removeSurrounding("`")
 }
 
 
-/**
- * 将第一个字符转为大写。
- */
+/**将第一个字符转为大写。*/
 fun String.firstCharToUpperCase(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length)
 }
 
-/**
- * 仅将第一个字符转为大写。
- */
+/**仅将第一个字符转为大写。*/
 fun String.firstCharToUpperCaseOnly(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length).toLowerCase()
 }
 
-/**
- * 将第一个字符转为小写。
- */
+/**将第一个字符转为小写。*/
 fun String.firstCharToLowerCase(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length)
 }
 
-/**
- * 仅将第一个字符转为小写。
- */
+/**仅将第一个字符转为小写。*/
 fun String.firstCharToLowerCaseOnly(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length).toUpperCase()
 }
 
 
-/**
- * 转换显示格式。
- */
+/**转换显示格式。*/
 fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
 	return concatByCase(splitByCase(this, fromCase), toCase)
 }
@@ -178,56 +159,32 @@ private fun String.splitWordByWhiteSpace(): String {
 	return this.replace(Regex("\\B([A-Z]+)"), " $1")
 }
 
-/**
- * 字符串的显示格式。
- */
+/**字符串的显示格式。*/
 enum class StringCase {
-	/**
-	 * OtH_e r Ca  SE。
-	 */
+	/**OtH_e r Ca  SE。*/
 	Other,
-	/**
-	 * camelCase。
-	 */
+	/**camelCase。*/
 	CamelCase,
-	/**
-	 * PascalCase。
-	 */
+	/**PascalCase。*/
 	PascalCase,
-	/**
-	 * SCREAMING_SNAKE_CASE。
-	 */
+	/**SCREAMING_SNAKE_CASE。*/
 	ScreamingSnakeCase,
-	/**
-	 * snake_case。
-	 */
+	/**snake_case。*/
 	SnakeCase,
-	/**
-	 * kebab-case。
-	 */
+	/**kebab-case。*/
 	KebabCase,
-	/**
-	 * dot.case。
-	 */
+	/**dot.case。*/
 	DotCase,
-	/**
-	 * whiteSpace case。
-	 */
+	/**whiteSpace case。*/
 	WhiteSpaceCase,
-	/**
-	 * lSep\\case。
-	 */
+	/**lSep\\case。*/
 	LSepCase,
-	/**
-	 * rSep/case。
-	 */
+	/**rSep/case。*/
 	RSepCase
 }
 
 
-/**
- * 得到对应的路径信息。
- */
+/**得到对应的路径信息。*/
 fun String.toPathInfo(): PathInfo {
 	val fileNameIndex = this.lastIndexOf("\\")
 	val fileDir = if(fileNameIndex == -1) "" else this.substring(0, fileNameIndex)
@@ -240,62 +197,40 @@ fun String.toPathInfo(): PathInfo {
 	return PathInfo(fileDir, fileName, fileShotName, fileExt)
 }
 
-/**
- * 路径信息。
- */
+/**路径信息。*/
 class PathInfo(
-	/**
-	 * 文件所在文件夹。
-	 */
+	/**文件所在文件夹。*/
 	val fileDirectory: String,
-	/**
-	 * 文件名。
-	 */
+	/**文件名。*/
 	val fileName: String,
-	/**
-	 * 不包含扩展名在内的文件名。
-	 */
+	/**不包含扩展名在内的文件名。*/
 	val fileShotName: String,
-	/**
-	 * 包含"."的文件扩展名。
-	 */
+	/**包含"."的文件扩展名。*/
 	val fileExtension: String
 ) {
-	/**
-	 * 是否存在上一级文件夹。
-	 */
+	/**是否存在上一级文件夹。*/
 	val hasFileDirectory = fileDirectory.isNotEmpty()
-	/**
-	 * 是否存在文件扩展名。
-	 */
+	/**是否存在文件扩展名。*/
 	val hasFileExtension = fileExtension.isNotEmpty()
 	
 	
-	/**
-	 * 更改文件所在文件夹为新的文件夹[newFileDirectory]。
-	 */
+	/**更改文件所在文件夹为新的文件夹[newFileDirectory]。*/
 	fun changeFileDirectory(newFileDirectory: String): String {
 		return newFileDirectory + "\\" + fileName
 	}
 	
-	/**
-	 * 更改文件名为新的文件名[newFileName]。
-	 */
+	/**更改文件名为新的文件名[newFileName]。*/
 	fun changeFileName(newFileName: String): String {
 		return fileDirectory + "\\" + newFileName
 	}
 	
-	/**
-	 * 更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[returnFullPath]，默认为true。
-	 */
+	/**更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[returnFullPath]，默认为true。*/
 	fun changeFileShotName(newFileShotName: String, returnFullPath: Boolean = true): String {
 		val newFileName = newFileShotName + fileExtension
 		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
 	}
 	
-	/**
-	 * 更改文件扩展名为新的扩展名[newFileExtension]，可指定是否返回全路径[returnFullPath]，默认为true。
-	 */
+	/**更改文件扩展名为新的扩展名[newFileExtension]，可指定是否返回全路径[returnFullPath]，默认为true。*/
 	fun changeFileExtension(newFileExtension: String, returnFullPath: Boolean = true): String {
 		val newFileName = fileShotName + newFileExtension
 		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
@@ -303,9 +238,7 @@ class PathInfo(
 }
 
 
-/**
- * 得到对应的的地址信息。
- */
+/**得到对应的的地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val queryParamIndex = this.lastIndexOf("?")
 	val fullPath = if(queryParamIndex == -1) this else this.substring(0, queryParamIndex)
@@ -326,26 +259,51 @@ fun String.toUrlInfo(): UrlInfo {
  * TODO 包含协议、端口等更多信息。
  */
 class UrlInfo(
-	/**
-	 * 包含协议、端口等的完整路径。
-	 */
+	/**包含协议、端口等的完整路径。*/
 	val fullPath: String,
-	/**
-	 * 查询参数映射。
-	 */
+	/**查询参数映射。*/
 	val queryParamMap: Map<String, Any>
 ) {
-	/**
-	 * 是否存在查询参数。
-	 */
+	/**是否存在查询参数。*/
 	val hasQueryParam = queryParamMap.isNotEmpty()
 }
 
-enum class Abc {
-	A, B, C
+
+/**去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
+fun String.toIntOrDefault(defaultValue: Int = 0): Int {
+	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
 }
 
-fun main() {
-	println("A".toEnumConstUnchecked(Abc::class.java).javaClass)
-	println("A".toEnumConst(Abc::class.java).javaClass)
+/**去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
+fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
+	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
+}
+
+/**去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
+fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
+	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
+}
+
+/**将字符串转化为对应的枚举常量。*/
+fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
+	val enumConsts = type.enumConstants
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts[0]
+	}
+}
+
+/**将字符串转化为对应的枚举常量。*/
+fun String.toEnumConstUnchecked(type: Class<*>): Any {
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts[0]
+	}
 }

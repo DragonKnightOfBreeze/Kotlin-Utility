@@ -2,7 +2,7 @@
 
 package com.windea.commons.kotlin.extension
 
-import com.windea.commons.kotlin.annotation.NotTested
+import com.windea.commons.kotlin.annotation.*
 
 typealias MList<E> = MutableList<E>
 
@@ -18,16 +18,12 @@ fun <E> mSetOf(vararg elements: E) = mutableSetOf(*elements)
 fun <K, V> mMapOf(vararg pairs: Pair<K, V>) = mutableMapOf(*pairs)
 
 
-/**
- * 得到指定索引的元素，发生异常则得到默认值。
- */
+/**得到指定索引的元素，发生异常则得到默认值。*/
 fun <E> Array<E>.getOrDefault(index: Int, defaultValue: E): E {
 	return runCatching { this[index] }.getOrDefault(defaultValue)
 }
 
-/**
- * 得到指定索引的元素，发生异常则得到默认值。
- */
+/**得到指定索引的元素，发生异常则得到默认值。*/
 fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 	return runCatching { this[index] }.getOrDefault(defaultValue)
 }
@@ -111,19 +107,13 @@ private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
 }
 
 
-/**
- * 向下递归平滑映射当前列表。
- */
+/**向下递归平滑映射当前列表。*/
 fun <E> List<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**
- * 向下递归平滑映射当前集。
- */
+/**向下递归平滑映射当前集。*/
 fun <E> Set<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**
- * 向下递归平滑映射当前映射。
- */
+/**向下递归平滑映射当前映射。*/
 fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
 
 @NotTested("某些特殊情况？")
@@ -142,14 +132,10 @@ private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<Str
 }
 
 
-/**
- * 将当前列表转化成以键为值的映射。
- */
+/**将当前列表转化成以键为值的映射。*/
 fun <E> List<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this)
 
-/**
- * 将当前集转化成以键为值的映射。
- */
+/**将当前集转化成以键为值的映射。*/
 fun <E> Set<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this.toList())
 
 private fun <E> privateToIndexedMap(list: List<E>): Map<String, E> {
@@ -157,9 +143,7 @@ private fun <E> privateToIndexedMap(list: List<E>): Map<String, E> {
 }
 
 
-/**
- * 将映射转化为指定类型[type]的对象。可指定是否递归转化[recursive]，默认为true。
- */
+/**将映射转化为指定类型[type]的对象。可指定是否递归转化[recursive]，默认为true。*/
 fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
 @NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")

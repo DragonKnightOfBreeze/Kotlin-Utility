@@ -1,8 +1,6 @@
 package com.windea.commons.kotlin.generator
 
-/**
- * 文本生成器的接口。
- */
+/**文本生成器的接口。*/
 interface TextGenerator {
 	fun from(inputPath: String, inputType: String): TextGenerator
 	

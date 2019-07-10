@@ -9,18 +9,14 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.loader.*
 import java.io.*
 
-/**
- * Sql语句的生成器。
- */
+/**Sql语句的生成器。*/
 @NotTested
 class SqlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
 	
-	/**
-	 * @param inputType Json, Yaml
-	 */
+	/**@param inputType Json, Yaml*/
 	override fun from(inputPath: String, inputType: String): SqlGenerator {
 		when(inputType) {
 			"Json" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
@@ -33,9 +29,7 @@ class SqlGenerator : TextGenerator {
 	fun from(inputPath: String) = from(inputPath, "Yaml")
 	
 	
-	/**
-	 * @param generateStrategy  Default
-	 */
+	/**@param generateStrategy  Default*/
 	override fun generate(generateStrategy: String): SqlGenerator {
 		when(generateStrategy) {
 			"Default" -> generateSqlText()
@@ -72,9 +66,7 @@ class SqlGenerator : TextGenerator {
 	}
 	
 	
-	/**
-	 * @param outputType Default
-	 */
+	/**@param outputType Default*/
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
 			"Default" -> File(outputPath).writeText(outputText)

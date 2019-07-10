@@ -1,10 +1,8 @@
 package com.windea.commons.kotlin.enums.extended
 
-import com.windea.commons.kotlin.annotation.LocaleText
+import com.windea.commons.kotlin.annotation.*
 
-/**
- * 扩展的性别。
- */
+/**扩展的性别。*/
 @LocaleText("性别")
 enum class Gender {
 	@LocaleText("男性")

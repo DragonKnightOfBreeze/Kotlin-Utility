@@ -8,18 +8,14 @@ import com.windea.commons.kotlin.generator.Messages
 import com.windea.commons.kotlin.loader.*
 import java.io.*
 
-/**
- * Intellij IDEA配置文件的生成器。
- */
+/**Intellij IDEA配置文件的生成器。*/
 @NotTested("未发现")
 class IdeaConfigGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
 	
 	
-	/**
-	 * @param inputType JsonSchema, YamlSchema
-	 */
+	/**@param inputType JsonSchema, YamlSchema*/
 	override fun from(inputPath: String, inputType: String): IdeaConfigGenerator {
 		when(inputType) {
 			"JsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
@@ -32,9 +28,7 @@ class IdeaConfigGenerator : TextGenerator {
 	fun from(inputPath: String) = from(inputPath, "YamlSchema")
 	
 	
-	/**
-	 * @param generateStrategy YamlAnnotation
-	 */
+	/**@param generateStrategy YamlAnnotation*/
 	override fun generate(generateStrategy: String): IdeaConfigGenerator {
 		when(generateStrategy) {
 			"YamlAnnotation" -> generateYamlAnnotation()
@@ -99,9 +93,7 @@ class IdeaConfigGenerator : TextGenerator {
 	}
 	
 	
-	/**
-	 * @param outputType Default
-	 */
+	/**@param outputType Default*/
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
 			"Default" -> File(outputPath).writeText(outputText)

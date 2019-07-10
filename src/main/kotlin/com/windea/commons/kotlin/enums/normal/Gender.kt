@@ -1,10 +1,8 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.LocaleText
+import com.windea.commons.kotlin.annotation.*
 
-/**
- * 性别。
- */
+/**性别。*/
 @LocaleText("性别")
 enum class Gender {
 	@LocaleText("男性")

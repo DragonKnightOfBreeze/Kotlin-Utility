@@ -1,10 +1,8 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.LocaleText
+import com.windea.commons.kotlin.annotation.*
 
-/**
- * 二维方向。
- */
+/**二维方向。*/
 @LocaleText("二维方向")
 enum class Direction2D {
 	@LocaleText("上")
