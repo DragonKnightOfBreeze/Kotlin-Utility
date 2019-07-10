@@ -23,7 +23,7 @@ class SchemaGenerator : TextGenerator {
 	private val multiSchemaRuleNames = listOf("oneOf", "allOf", "anyOf")
 	
 	/**
-	 * 默认拓展规则：
+	 * 默认扩展规则：
 	 * * $ref: string
 	 * * $gen: string
 	 * * language: string
