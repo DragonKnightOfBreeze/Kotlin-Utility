@@ -176,7 +176,7 @@ private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursiv
 			val fixedPropertyValue = convertProperty(propertyType, propertyValue, recursive)
 			setMethod.invoke(newObject, fixedPropertyValue)
 		} catch(e: Exception) {
-			println("[WARN]Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
+			println("[WARN] Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
 		}
 	}
 	return newObject
@@ -189,13 +189,13 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 		//使用高阶函数后，无法直接得到运行时泛型
 		propertyType.isArray -> (propertyValue as Array<*>)
 		propertyType.isList() -> (propertyValue as Iterable<*>).toList().map {
-			if(it == null) null else convertProperty(it.javaClass, it, recursive)
+			it?.let { convertProperty(it.javaClass, it, recursive) }
 		}
 		propertyType.isSet() -> (propertyValue as Iterable<*>).toSet().map {
-			if(it == null) null else convertProperty(it.javaClass, it, recursive)
+			it?.let { convertProperty(it.javaClass, it, recursive) }
 		}.toSet()
 		propertyType.isMap() -> (propertyValue as Map<*, *>).mapValues { (_, v) ->
-			if(v == null) null else convertProperty(v.javaClass, v, recursive)
+			v?.let { convertProperty(v.javaClass, v, recursive) }
 		}
 		propertyType.isSerializable() && recursive -> {
 			privateToObject((propertyValue as Map<String, Any?>), propertyType)

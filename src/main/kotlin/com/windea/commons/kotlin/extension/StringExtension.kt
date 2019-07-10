@@ -34,7 +34,7 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 	return try {
 		enumConsts.first { it.toString() == constName }
 	} catch(e: Exception) {
-		println("[WARN]No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
 		enumConsts[0]
 	}
 }
@@ -43,12 +43,12 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
  * 将字符串转化为对应的枚举常量。
  */
 fun String.toEnumConstUnchecked(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR]$type is not a enum class!")
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
 	val constName = this.trim()
 	return try {
 		enumConsts.first { it.toString() == constName }
 	} catch(e: Exception) {
-		println("[WARN]No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
 		enumConsts[0]
 	}
 }
