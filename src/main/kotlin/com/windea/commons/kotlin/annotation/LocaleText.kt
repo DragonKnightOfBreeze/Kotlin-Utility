@@ -10,6 +10,8 @@ annotation class LocaleText(
 	val locale: String = "Chs"
 )
 
+
 fun Any.localeText(locale: String = "Chs"): String {
-	return this::class.annotations.filterIsInstance<LocaleText>().first { it.locale == locale }.value
+	return this::class.annotations.filterIsInstance<LocaleText>()
+		.firstOrNull { it.locale == locale }?.value ?: "No locale text."
 }
