@@ -37,6 +37,8 @@ class SchemaGenerator : TextGenerator {
 		return this
 	}
 	
+	fun from(inputPath: String) = from(inputPath, "ExtendedYamlSchema")
+	
 	private fun getDefaultRules(): Map<String, SchemaRule> {
 		return mapOf(
 			"\$ref" to { (_, value) ->
@@ -106,9 +108,7 @@ class SchemaGenerator : TextGenerator {
 		return this
 	}
 	
-	fun generate(): SchemaGenerator {
-		return generate("Default")
-	}
+	fun generate() = generate("Default")
 	
 	private fun convertRules(map: MutableMap<String, Any?>) {
 		//递归遍历整个约束映射的深复制，处理原本的约束映射
@@ -145,4 +145,6 @@ class SchemaGenerator : TextGenerator {
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}
+	
+	fun to(outputPath: String) = to(outputPath, "YamlSchema")
 }

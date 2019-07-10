@@ -11,7 +11,7 @@ fun <T> Class<T>.isCharSequence(): Boolean {
 }
 
 fun <T> Class<T>.isString(): Boolean {
-	return String::class.java.let { it == this }
+	return String::class.java == this
 }
 
 fun <T> Class<T>.isIterable(): Boolean {

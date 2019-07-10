@@ -4,6 +4,8 @@ import kotlin.math.pow
 
 fun Int.pow(n: Int) = this.toFloat().pow(n).toInt()
 
+fun Int.pow(n: Float) = this.toFloat().pow(n).toInt()
+
 
 fun Float.coerceInAbs(value: Float) = this.coerceIn(-value, value)
 

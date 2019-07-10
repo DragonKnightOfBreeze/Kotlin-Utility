@@ -1,25 +1,25 @@
-@file:Suppress("UNUSED_PARAMETER", "UNCHECKED_CAST")
+@file:Suppress("UNUSED_PARAMETER")
 
 package com.windea.commons.kotlin.extension
 
 import java.util.function.Predicate
 
 /**
- * 去空格后，转化为对应的整数，发生异常则转化为默认值 [defaultValue]，默认为0。
+ * 去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。
  */
 fun String.toIntOrDefault(defaultValue: Int = 0): Int {
 	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
 }
 
 /**
- * 去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值 [defaultValue]，默认为0.0f。
+ * 去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。
  */
 fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
 	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
 }
 
 /**
- * 去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值 [defaultValue]，默认为0.0。
+ * 去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。
  */
 fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
@@ -28,28 +28,40 @@ fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 /**
  * 将字符串转化为对应的枚举常量。
  */
-fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E = toEnumConstUnchecked(type) as E
-
-fun String.toEnumConstUnchecked(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
+fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
+	val enumConsts = type.enumConstants
 	val constName = this.trim()
 	return try {
 		enumConsts.first { it.toString() == constName }
 	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		println("[WARN]No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
 		enumConsts[0]
 	}
 }
 
 /**
- * 如果满足条件 [condition]，则保留这段文本。
+ * 将字符串转化为对应的枚举常量。
+ */
+fun String.toEnumConstUnchecked(type: Class<*>): Any {
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR]$type is not a enum class!")
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN]No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts[0]
+	}
+}
+
+/**
+ * 如果满足条件[condition]，则保留这段文本。
  */
 fun String.where(condition: Boolean): String {
 	return if(condition) "" else this
 }
 
 /**
- * 如果满足条件预测 [predicate]，则保留这段文本。
+ * 如果满足条件预测[predicate]，则保留这段文本。
  */
 fun <T : Any> String.where(pointer: T, predicate: Predicate<T>): String {
 	val condition = predicate.test(pointer)
@@ -58,7 +70,7 @@ fun <T : Any> String.where(pointer: T, predicate: Predicate<T>): String {
 
 
 /**
- * 根据指定的前缀 [prefix] 和后缀 [suffix]，包围字符串，可指定是否忽略空字符串 [ignoreEmpty]，默认为true。
+ * 根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
  */
 fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
 	val condition = ignoreEmpty && this.isEmpty()
@@ -67,7 +79,7 @@ fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true)
 }
 
 /**
- * 根据指定的前后缀 [fix]，包围字符串，可指定是否忽略空字符串 [ignoreEmpty]，默认为true。
+ * 根据指定的前后缀[fix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
  */
 fun String.surround(fix: String, ignoreEmpty: Boolean = true): String {
 	return surround(fix, fix, ignoreEmpty)
@@ -158,7 +170,6 @@ private fun concatByCase(splitStrings: List<String>, case: StringCase): String {
 private fun String.splitWordByWhiteSpace(): String {
 	return this.replace(Regex("\\B([A-Z]+)"), " $1")
 }
-
 
 /**
  * 字符串的显示格式。
@@ -254,21 +265,21 @@ class PathInfo(
 	
 	
 	/**
-	 * 更改文件所在文件夹为新的文件夹 [newFileDir]。
+	 * 更改文件所在文件夹为新的文件夹[newFileDir]。
 	 */
 	fun changeFileDir(newFileDir: String): String {
 		return newFileDir + "\\" + fileName
 	}
 	
 	/**
-	 * 更改文件名为新的文件名 [newFileName]。
+	 * 更改文件名为新的文件名[newFileName]。
 	 */
 	fun changeFileName(newFileName: String): String {
 		return fileDir + "\\" + newFileName
 	}
 	
 	/**
-	 * 更改不包含扩展名在内的文件名为新的文件名 [newFileShotName]，可指定是否返回全路径 [forFullPath]，默认为true。
+	 * 更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[forFullPath]，默认为true。
 	 */
 	fun changeFileShotName(newFileShotName: String, forFullPath: Boolean = true): String {
 		val newFileName = newFileShotName + fileExt
@@ -276,7 +287,7 @@ class PathInfo(
 	}
 	
 	/**
-	 * 更改文件扩展名为新的扩展名 [newFileExt]，可指定是否返回全路径 [forFullPath]，默认为true。
+	 * 更改文件扩展名为新的扩展名[newFileExt]，可指定是否返回全路径[forFullPath]，默认为true。
 	 */
 	fun changeFileExt(newFileExt: String, forFullPath: Boolean = true): String {
 		val newFileName = fileShotName + newFileExt

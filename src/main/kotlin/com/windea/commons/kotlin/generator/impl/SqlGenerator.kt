@@ -32,6 +32,8 @@ class SqlGenerator : TextGenerator {
 		return this
 	}
 	
+	fun from(inputPath: String) = from(inputPath, "Yaml")
+	
 	
 	/**
 	 * @param generateStrategy  Default
@@ -44,9 +46,7 @@ class SqlGenerator : TextGenerator {
 		return this
 	}
 	
-	fun generate(): SqlGenerator {
-		return generate("Default")
-	}
+	fun generate() = generate("Default")
 	
 	private fun generateSqlText() {
 		val databaseName = inputMap.keys.first()
@@ -94,7 +94,5 @@ class SqlGenerator : TextGenerator {
 		}
 	}
 	
-	fun to(outputPath: String) {
-		to(outputPath, "Default")
-	}
+	fun to(outputPath: String) = to(outputPath, "Default")
 }

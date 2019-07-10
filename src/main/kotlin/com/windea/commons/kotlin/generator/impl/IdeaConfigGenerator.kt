@@ -30,6 +30,8 @@ class IdeaConfigGenerator : TextGenerator {
 		return this
 	}
 	
+	fun from(inputPath: String) = from(inputPath, "YamlSchema")
+	
 	
 	/**
 	 * @param generateStrategy YamlAnnotation
@@ -110,7 +112,5 @@ class IdeaConfigGenerator : TextGenerator {
 		}
 	}
 	
-	fun to(outputPath: String) {
-		to(outputPath, "Default")
-	}
+	fun to(outputPath: String) = to(outputPath, "Default")
 }

@@ -34,21 +34,21 @@ fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 
 
 /**
- * 根据指定路径 [path] 查询当前列表，返回匹配的元素列表。
+ * 根据指定路径[path]查询当前列表，返回匹配的元素列表。
  *
  * @see privateQueryValue
  */
 fun <E> List<E>.query(path: String) = privateQueryValue(this, path)
 
 /**
- * 根据指定路径 [path] 查询当前集，返回匹配的元素列表。
+ * 根据指定路径[path]查询当前集，返回匹配的元素列表。
  *
  * @see privateQueryValue
  */
 fun <E> Set<E>.query(path: String) = privateQueryValue(this.toList(), path)
 
 /**
- * 根据指定路径 [path] 查询当前映射，返回匹配的值列表。
+ * 根据指定路径[path]查询当前映射，返回匹配的值列表。
  *
  * @see privateQueryValue
  */
@@ -176,7 +176,7 @@ private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursiv
 			val fixedPropertyValue = convertProperty(propertyType, propertyValue, recursive)
 			setMethod.invoke(newObject, fixedPropertyValue)
 		} catch(e: Exception) {
-			println("[WARN] Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
+			println("[WARN]Property type mismatch. Class: ${type.name}, Name: $propertyName, Value: $propertyValue}.")
 		}
 	}
 	return newObject
@@ -202,8 +202,4 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 		}
 		else -> null
 	}
-}
-
-fun main() {
-
 }

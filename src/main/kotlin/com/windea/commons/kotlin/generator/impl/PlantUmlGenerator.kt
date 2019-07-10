@@ -28,24 +28,26 @@ class PlantUmlGenerator : TextGenerator {
 		return this
 	}
 	
+	fun from(inputPath: String) = from(inputPath, "Yaml")
+	
 	
 	/**
-	 * @param generateStrategy Puml, PumlMarkdown
+	 * @param generateStrategy Uml, UmlMarkdown
 	 */
 	override fun generate(generateStrategy: String): PlantUmlGenerator {
 		when(generateStrategy) {
-			"Puml" -> generatePuml()
-			"PumlMarkdown" -> generatePumlMarkdown()
+			"Uml" -> generateUml()
+			"UmlMarkdown" -> generateUmlMarkdown()
 			else -> throw IllegalArgumentException(Messages.invalidGenerateStrategy)
 		}
 		return this
 	}
 	
-	private fun generatePuml() {
+	private fun generateUml() {
 		TODO()
 	}
 	
-	private fun generatePumlMarkdown() {
+	private fun generateUmlMarkdown() {
 		TODO()
 	}
 	
@@ -59,7 +61,5 @@ class PlantUmlGenerator : TextGenerator {
 		}
 	}
 	
-	fun to(outputPath: String) {
-		to(outputPath, "Default")
-	}
+	fun to(outputPath: String) = to(outputPath, "Default")
 }
