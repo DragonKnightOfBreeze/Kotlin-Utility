@@ -11,7 +11,10 @@ annotation class LocaleText(
 )
 
 
+/**
+ * 得到目标的本地化文本。
+ */
 fun Any.localeText(locale: String = "Chs"): String {
 	return this::class.annotations.filterIsInstance<LocaleText>()
-		.firstOrNull { it.locale == locale }?.value ?: "No locale text."
+		       .firstOrNull { it.locale == locale }?.value ?: "No locale text."
 }

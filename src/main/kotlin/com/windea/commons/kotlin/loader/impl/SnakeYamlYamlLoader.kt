@@ -2,14 +2,11 @@
 
 package com.windea.commons.kotlin.loader.impl
 
-import com.windea.commons.kotlin.loader.YamlLoader
-import org.yaml.snakeyaml.DumperOptions
-import org.yaml.snakeyaml.LoaderOptions
-import org.yaml.snakeyaml.Yaml
-import org.yaml.snakeyaml.constructor.Constructor
-import org.yaml.snakeyaml.representer.Representer
-import java.io.FileReader
-import java.io.FileWriter
+import com.windea.commons.kotlin.loader.*
+import org.yaml.snakeyaml.*
+import org.yaml.snakeyaml.constructor.*
+import org.yaml.snakeyaml.representer.*
+import java.io.*
 import java.util.*
 
 class SnakeYamlYamlLoader : YamlLoader {
@@ -47,6 +44,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 		return this
 	}
 	
+	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
 		val reader = FileReader(path)
 		return yaml().loadAs(reader, type)
@@ -80,6 +78,7 @@ class SnakeYamlYamlLoader : YamlLoader {
 		}
 		return resultList
 	}
+	
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		val writer = FileWriter(path)

@@ -1,13 +1,9 @@
 package com.windea.commons.kotlin.loader.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
-import com.windea.commons.kotlin.extension.deepFlatMap
-import com.windea.commons.kotlin.loader.JsonLoader
-import com.windea.commons.kotlin.loader.Messages
-import com.windea.commons.kotlin.loader.PropertiesLoader
-import java.io.FileReader
-import java.io.FileWriter
-import java.io.StringReader
+import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.extension.*
+import com.windea.commons.kotlin.loader.*
+import java.io.*
 import java.util.*
 
 //TODO： 是否能够正常读取UTF-8编码的文件，同时也能正常读取ISO-8859-1编码的文件？
@@ -44,6 +40,7 @@ class StandardPropertiesLoader : PropertiesLoader {
 		properties.load(StringReader(string))
 		return properties.deepFlatMap()
 	}
+	
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		val string = toString(data)

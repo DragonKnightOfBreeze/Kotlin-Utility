@@ -2,12 +2,11 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
+import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.generator.*
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.generator.TextGenerator
-import com.windea.commons.kotlin.loader.JsonLoader
-import com.windea.commons.kotlin.loader.YamlLoader
-import java.io.File
+import com.windea.commons.kotlin.loader.*
+import java.io.*
 
 /**
  * Intellij IDEA配置文件的生成器。
@@ -60,7 +59,6 @@ class IdeaConfigGenerator : TextGenerator {
 				params.isNotEmpty() -> ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
 				else -> ""
 			}
-			
 			//value的格式示例：@Scope: {scope: $scope$, ...}
 			"""
 			|  <template name="@$templateName" value="@$templateName$paramSnippet"
@@ -68,7 +66,6 @@ class IdeaConfigGenerator : TextGenerator {
 		    |            toReformat="true" toShortenFQNames="true" useStaticImport="true">
 			|${params.entries.joinToString("\n") { (paramName, param) ->
 				val defaultValue = param.getOrDefault("default", "")
-				
 				"""
 				|    <variable name="$paramName" expression="" defaultValue="&quot;$defaultValue&quot;" alwaysStopAt="true"/>
 				""".trimMargin()

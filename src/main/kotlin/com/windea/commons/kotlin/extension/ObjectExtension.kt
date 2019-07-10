@@ -1,7 +1,7 @@
 package com.windea.commons.kotlin.extension
 
-import com.windea.commons.kotlin.annotation.NotTested
-import java.io.Serializable
+import com.windea.commons.kotlin.annotation.*
+import java.io.*
 
 /**
  * 将对象转化为映射。不递归转化。

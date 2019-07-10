@@ -1,7 +1,7 @@
 package com.windea.commons.kotlin.loader.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
-import com.windea.commons.kotlin.loader.XmlLoader
+import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.loader.*
 
 @NotTested
 class StandardXmlLoader : XmlLoader {
@@ -20,6 +20,7 @@ class StandardXmlLoader : XmlLoader {
 	override fun fromString(string: String): Map<String, Any?> {
 		TODO("not implemented")
 	}
+	
 	
 	override fun <T : Any> toFile(data: T, path: String) {
 		TODO("not implemented")

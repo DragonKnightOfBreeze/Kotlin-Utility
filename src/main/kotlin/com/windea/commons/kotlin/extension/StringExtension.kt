@@ -2,8 +2,6 @@
 
 package com.windea.commons.kotlin.extension
 
-import java.util.function.Predicate
-
 /**
  * 去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。
  */
@@ -53,51 +51,60 @@ fun String.toEnumConstUnchecked(type: Class<*>): Any {
 	}
 }
 
-/**
- * 如果满足条件[condition]，则保留这段文本。
- */
-fun String.where(condition: Boolean): String {
-	return if(condition) "" else this
-}
-
-/**
- * 如果满足条件预测[predicate]，则保留这段文本。
- */
-fun <T : Any> String.where(pointer: T, predicate: Predicate<T>): String {
-	val condition = predicate.test(pointer)
-	return where(condition)
-}
-
 
 /**
  * 根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
  */
 fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
-	val condition = ignoreEmpty && this.isEmpty()
+	val isEmpty = ignoreEmpty && this.isEmpty()
 	val result = prefix + this + suffix
-	return if(condition) "" else result
+	return if(isEmpty) "" else result
 }
 
 /**
- * 根据指定的前后缀[fix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
+ * 根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。
  */
-fun String.surround(fix: String, ignoreEmpty: Boolean = true): String {
-	return surround(fix, fix, ignoreEmpty)
-}
-
+fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
 
 /**
  * 转义字符串。例如，将`\\n`转换为`\n`。
  */
 fun String.escape(): String {
-	return this.replace("\\n", "\n").replace("\\r", "\r").replace("\\t", "\t")
+	return buildString {
+		for((escapeChar, unescapeString) in getEscapeCharList()) {
+			this.replace(Regex(unescapeString), escapeChar)
+		}
+	}
 }
 
 /**
  * 反转义字符串。例如，将`\n`转换为`\\n`。
  */
 fun String.unescape(): String {
-	return this.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
+	return buildString {
+		for((escapeChar, unescapeString) in getEscapeCharList()) {
+			this.replace(Regex(escapeChar), unescapeString)
+		}
+	}
+}
+
+private fun getEscapeCharList(): List<Pair<String, String>> {
+	return listOf("\n" to "\\n", "\r" to "\\r", "\b" to "\\b", "\t" to "\\t", "\'" to "\\'", "\"" to "\\\"", "\\" to "\\\\")
+}
+
+/**
+ * 使用双引号/单引号/反引号包围字符串。默认使用双引号。
+ */
+fun String.quote(delimiter: String = "\""): String {
+	if(delimiter !in arrayOf("\"", "'", "`")) return this
+	return this.surround(delimiter, false)
+}
+
+/**
+ * 去除字符串两侧的双引号/单引号/反引号。
+ */
+fun String.unquote(): String {
+	return this.removeSurrounding("\"").removeSurrounding("'").removeSurrounding("`")
 }
 
 

@@ -2,13 +2,12 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
-import com.windea.commons.kotlin.extension.queryValue
+import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.extension.*
+import com.windea.commons.kotlin.generator.*
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.generator.TextGenerator
-import com.windea.commons.kotlin.loader.JsonLoader
-import com.windea.commons.kotlin.loader.YamlLoader
-import java.util.concurrent.ConcurrentHashMap
+import com.windea.commons.kotlin.loader.*
+import java.util.concurrent.*
 
 typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 
@@ -23,24 +22,16 @@ class SchemaGenerator : TextGenerator {
 	
 	private val multiSchemaRuleNames = listOf("oneOf", "allOf", "anyOf")
 	
-	
 	/**
-	 * @param inputType ExtendedJsonSchema, ExtendedYamlSchema
+	 * 默认拓展规则：
+	 * * $ref: string
+	 * * $gen: string
+	 * * language: string
+	 * * deprecated: string | boolean
+	 * * enumConsts: {value: string, description: string}
 	 */
-	override fun from(inputPath: String, inputType: String): SchemaGenerator {
-		when(inputType) {
-			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
-			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance().fromFile(inputPath)
-			else -> throw IllegalArgumentException(Messages.invalidInputType)
-		}
-		this.ruleMap += getDefaultRules()
-		return this
-	}
-	
-	fun from(inputPath: String) = from(inputPath, "ExtendedYamlSchema")
-	
-	private fun getDefaultRules(): Map<String, SchemaRule> {
-		return mapOf(
+	private val defaultRuleMap
+		get() = mapOf<String, SchemaRule>(
 			"\$ref" to { (_, value) ->
 				//将对yaml schema文件的引用改为对json schema文件的引用
 				val newValue = (value as String).replace(".yml", ".json").replace(".yaml", ".json")
@@ -75,7 +66,23 @@ class SchemaGenerator : TextGenerator {
 				}
 			}
 		)
+	
+	
+	/**
+	 * @param inputType ExtendedJsonSchema, ExtendedYamlSchema
+	 */
+	override fun from(inputPath: String, inputType: String): SchemaGenerator {
+		when(inputType) {
+			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
+			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance().fromFile(inputPath)
+			else -> throw IllegalArgumentException(Messages.invalidInputType)
+		}
+		this.ruleMap += defaultRuleMap
+		return this
 	}
+	
+	fun from(inputPath: String) = from(inputPath, "ExtendedYamlSchema")
+	
 	
 	/**
 	 * @param dataType Json, Yaml

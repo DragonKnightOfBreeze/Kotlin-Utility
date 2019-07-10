@@ -2,14 +2,12 @@
 
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.NotTested
+import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.extension.*
+import com.windea.commons.kotlin.generator.*
 import com.windea.commons.kotlin.generator.Messages
-import com.windea.commons.kotlin.generator.TextGenerator
-import com.windea.commons.kotlin.loader.JsonLoader
-import com.windea.commons.kotlin.loader.YamlLoader
-import java.io.File
-import java.text.SimpleDateFormat
-import java.util.*
+import com.windea.commons.kotlin.loader.*
+import java.io.*
 
 /**
  * Sql语句的生成器。
@@ -58,29 +56,19 @@ class SqlGenerator : TextGenerator {
 		|
 		|${database.entries.joinToString("\n\n") { (tableName, table) ->
 			val columnNameSnippet = table[0].keys.joinToString(", ")
-			
 			"""
 			|insert into $tableName ($columnNameSnippet) values
 			|${table.joinToString(",\n", "", ";\n") { data ->
-				val dataSnippet = data.values.joinToString(", ") { column -> escapeText(quoteText(column)) }
-				
-				"\t($dataSnippet)"
+				val dataSnippet = data.values.joinToString(", ") { column ->
+					column?.toString()?.quote("'")?.unescape() ?: "null"
+				}
+				"""
+				|  ($dataSnippet)
+				""".trimMargin()
 			}}
 			""".trimMargin()
 		}}
 		""".trimMargin()
-	}
-	
-	private fun quoteText(text: Any?): String {
-		return when(text) {
-			is String -> "'$text'"
-			is Date -> "'${SimpleDateFormat("yyyy-MM-dd hh:mm:ss").format(text)}'"
-			else -> text.toString()
-		}
-	}
-	
-	private fun escapeText(text: String): String {
-		return text.replace("\n", "\\n").replace("\r", "\\r").replace("\t", "\\t")
 	}
 	
 	
