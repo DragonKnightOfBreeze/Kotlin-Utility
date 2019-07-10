@@ -6,7 +6,7 @@ object SystemExtension {
 	 */
 	val workDirectory get() = System.getProperty("user.dir") ?: ""
 	
-	/**
+	/**、
 	 * 项目的实际工作平台名。例如：Windows 10。
 	 */
 	val desktopName get() = System.getProperty("os.name") ?: ""
