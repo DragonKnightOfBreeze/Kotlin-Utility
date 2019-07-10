@@ -1,8 +1,9 @@
 package com.windea.commons.kotlin.extension
 
-import java.io.Serializable
-import java.lang.reflect.Method
+import java.io.*
+import java.lang.reflect.*
 
+/**判断是否是字符序列。*/
 fun <T> Class<T>.isCharSequence(): Boolean {
 	return when {
 		CharSequence::class.java == this -> true
@@ -10,10 +11,12 @@ fun <T> Class<T>.isCharSequence(): Boolean {
 	}
 }
 
+/**判断是否是字符串。*/
 fun <T> Class<T>.isString(): Boolean {
 	return String::class.java == this
 }
 
+/**判断是否是可迭代类/接口。*/
 fun <T> Class<T>.isIterable(): Boolean {
 	return when {
 		Iterable::class.java == this -> true
@@ -21,6 +24,7 @@ fun <T> Class<T>.isIterable(): Boolean {
 	}
 }
 
+/**判断是否是列表。*/
 fun <T> Class<T>.isList(): Boolean {
 	return when {
 		List::class.java == this -> true
@@ -28,6 +32,7 @@ fun <T> Class<T>.isList(): Boolean {
 	}
 }
 
+/**判断是否是集。*/
 fun <T> Class<T>.isSet(): Boolean {
 	return when {
 		Set::class.java == this -> true
@@ -35,6 +40,7 @@ fun <T> Class<T>.isSet(): Boolean {
 	}
 }
 
+/**判断是否是映射。*/
 fun <T> Class<T>.isMap(): Boolean {
 	return when {
 		Map::class.java == this -> true
@@ -42,6 +48,7 @@ fun <T> Class<T>.isMap(): Boolean {
 	}
 }
 
+/**判断是否是可序列类/接口。*/
 fun <T> Class<T>.isSerializable(): Boolean {
 	return when {
 		Serializable::class.java == this -> true
@@ -50,10 +57,12 @@ fun <T> Class<T>.isSerializable(): Boolean {
 }
 
 
+/**得到取值方法的属性名-方法映射。*/
 fun <T> Class<T>.getGetterMap(): Map<String, Method> {
 	return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }
 
+/**得到赋值方法的属性名-方法映射。*/
 fun <T> Class<T>.getSetterMap(): Map<String, Method> {
 	return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }

@@ -11,5 +11,5 @@ annotation class Scope(
 
 /**得到目标的作用域。*/
 fun Any.scope(): String {
-	return this::class.findAnnotation<Scope>()?.value ?: "No scope."
+	return this::class.findAnnotation<Scope>()?.value ?: ""
 }

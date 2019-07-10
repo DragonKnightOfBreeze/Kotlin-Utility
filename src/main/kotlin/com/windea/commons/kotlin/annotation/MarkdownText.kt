@@ -13,5 +13,5 @@ annotation class MarkdownText(
 
 /**得到目标的Markdown文本。*/
 fun Any.markdownText(): String {
-	return this::class.findAnnotation<MarkdownText>()?.value ?: "No markdown text."
+	return this::class.findAnnotation<MarkdownText>()?.value ?: ""
 }
