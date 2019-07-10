@@ -240,7 +240,7 @@ class PathInfo(
 	/**
 	 * 文件所在文件夹。
 	 */
-	val fileDir: String,
+	val fileDirectory: String,
 	/**
 	 * 文件名。
 	 */
@@ -252,46 +252,46 @@ class PathInfo(
 	/**
 	 * 包含"."的文件扩展名。
 	 */
-	val fileExt: String
+	val fileExtension: String
 ) {
 	/**
 	 * 是否存在上一级文件夹。
 	 */
-	val hasFileDir = fileDir.isNotEmpty()
+	val hasFileDirectory = fileDirectory.isNotEmpty()
 	/**
 	 * 是否存在文件扩展名。
 	 */
-	val hasFileExt = fileExt.isNotEmpty()
+	val hasFileExtension = fileExtension.isNotEmpty()
 	
 	
 	/**
-	 * 更改文件所在文件夹为新的文件夹[newFileDir]。
+	 * 更改文件所在文件夹为新的文件夹[newFileDirectory]。
 	 */
-	fun changeFileDir(newFileDir: String): String {
-		return newFileDir + "\\" + fileName
+	fun changeFileDirectory(newFileDirectory: String): String {
+		return newFileDirectory + "\\" + fileName
 	}
 	
 	/**
 	 * 更改文件名为新的文件名[newFileName]。
 	 */
 	fun changeFileName(newFileName: String): String {
-		return fileDir + "\\" + newFileName
+		return fileDirectory + "\\" + newFileName
 	}
 	
 	/**
-	 * 更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[forFullPath]，默认为true。
+	 * 更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[returnFullPath]，默认为true。
 	 */
-	fun changeFileShotName(newFileShotName: String, forFullPath: Boolean = true): String {
-		val newFileName = newFileShotName + fileExt
-		return if(forFullPath) fileDir + "\\" + newFileName else newFileName
+	fun changeFileShotName(newFileShotName: String, returnFullPath: Boolean = true): String {
+		val newFileName = newFileShotName + fileExtension
+		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
 	}
 	
 	/**
-	 * 更改文件扩展名为新的扩展名[newFileExt]，可指定是否返回全路径[forFullPath]，默认为true。
+	 * 更改文件扩展名为新的扩展名[newFileExtension]，可指定是否返回全路径[returnFullPath]，默认为true。
 	 */
-	fun changeFileExt(newFileExt: String, forFullPath: Boolean = true): String {
-		val newFileName = fileShotName + newFileExt
-		return if(forFullPath) fileDir + "\\" + newFileName else newFileName
+	fun changeFileExtension(newFileExtension: String, returnFullPath: Boolean = true): String {
+		val newFileName = fileShotName + newFileExtension
+		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
 	}
 }
 

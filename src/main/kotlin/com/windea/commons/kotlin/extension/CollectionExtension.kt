@@ -158,12 +158,12 @@ private fun <E> privateToIndexedMap(list: List<E>): Map<String, E> {
 
 
 /**
- * 将映射转化为对象。默认不递归转化。
+ * 将映射转化为指定类型[type]的对象。可指定是否递归转化[recursive]，默认为true。
  */
-fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = false) = privateToObject(this, type, recursive)
+fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
 @NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
-private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = false): T {
+private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = true): T {
 	val newObject = type.getConstructor().newInstance()
 	val propertyMap = type.getSetterMap()
 	for((propertyName, setMethod) in propertyMap) {

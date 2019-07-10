@@ -1,5 +1,6 @@
 package com.windea.commons.kotlin.loader
 
+import com.windea.commons.kotlin.enums.DataType
 import com.windea.commons.kotlin.extension.toPathInfo
 
 /**
@@ -21,7 +22,7 @@ class DataConverter constructor(
 	 * 将一种数据文件转换成另一种数据文件，输入与输出路径仅扩展名不同。
 	 */
 	fun convert(fromPath: String) {
-		val toPath = fromPath.toPathInfo().changeFileExt(toType.extension)
+		val toPath = fromPath.toPathInfo().changeFileExtension(toType.extension)
 		val dataMap = fromType.loader.fromFile(fromPath)
 		toType.loader.toFile(dataMap, toPath)
 	}
