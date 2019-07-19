@@ -7,8 +7,8 @@ interface XmlLoader : DataLoader {
 	companion object {
 		/**得到一个实例。*/
 		@JvmStatic
-		fun instance(): StandardXmlLoader {
-			return StandardXmlLoader()
+		fun instance(): JacksonXmlLoader {
+			return JacksonXmlLoader()
 		}
 	}
 }

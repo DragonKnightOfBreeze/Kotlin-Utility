@@ -133,17 +133,17 @@ private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<Str
 
 
 /**将当前列表转化成以键为值的映射。*/
-fun <E> List<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this)
+fun <E> List<E>.toIndexedMap(): Map<String, E> {
+	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
+}
 
 /**将当前集转化成以键为值的映射。*/
-fun <E> Set<E>.toIndexedMap(): Map<String, E> = privateToIndexedMap(this.toList())
-
-private fun <E> privateToIndexedMap(list: List<E>): Map<String, E> {
-	return list.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
+fun <E> Set<E>.toIndexedMap(): Map<String, E> {
+	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
 }
 
 
-/**将映射转化为指定类型[type]的对象。可指定是否递归转化[recursive]，默认为true。*/
+/**将映射转化为指定类型[T]的对象。可指定是否递归转化[recursive]，默认为true。*/
 fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
 @NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")

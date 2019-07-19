@@ -307,3 +307,8 @@ fun String.toEnumConstUnchecked(type: Class<*>): Any {
 		enumConsts[0]
 	}
 }
+
+
+fun Iterable<String>.filterNotEmpty() = this.filterNot { it.isEmpty() }
+
+fun Iterable<String>.filterNotBlank() = this.filterNot { it.isBlank() }

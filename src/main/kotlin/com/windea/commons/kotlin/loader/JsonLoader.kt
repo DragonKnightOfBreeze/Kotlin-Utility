@@ -7,8 +7,6 @@ interface JsonLoader : DataLoader {
 	companion object {
 		/**得到一个实例。*/
 		@JvmStatic
-		fun instance(): GsonJsonLoader {
-			return GsonJsonLoader()
-		}
+		fun instance() = GsonJsonLoader()
 	}
 }

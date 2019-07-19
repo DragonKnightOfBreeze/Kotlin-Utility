@@ -2,27 +2,24 @@
 
 package com.windea.commons.kotlin.loader.impl
 
-import com.google.gson.*
+import com.fasterxml.jackson.dataformat.xml.*
+import com.windea.commons.kotlin.annotation.*
 import com.windea.commons.kotlin.loader.*
 import java.io.*
 
-class GsonJsonLoader : JsonLoader {
-	private val gsonBuilder = GsonBuilder()
-	private val gson get() = gsonBuilder.create()
-	
-	init {
-		gsonBuilder.setPrettyPrinting()
-	}
+@NotTested
+class JacksonXmlLoader : XmlLoader {
+	private val mapper = XmlMapper()
 	
 	
-	fun configureGsonBuilder(handler: (gsonBuilder: GsonBuilder) -> Unit): GsonJsonLoader {
-		handler.invoke(gsonBuilder)
+	fun configureMapper(handler: (XmlMapper) -> Unit): JacksonXmlLoader {
+		handler.invoke(mapper)
 		return this
 	}
 	
 	
 	override fun <T : Any> fromString(string: String, type: Class<T>): T {
-		return gson.fromJson(string, type)
+		return mapper.readValue(StringReader(string), type)
 	}
 	
 	override fun fromString(string: String): Map<String, Any?> {
@@ -30,7 +27,7 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	override fun <T : Any> fromFile(path: String, type: Class<T>): T {
-		return gson.fromJson(FileReader(path), type)
+		return mapper.readValue(FileReader(path), type)
 	}
 	
 	override fun fromFile(path: String): Map<String, Any?> {
@@ -38,10 +35,10 @@ class GsonJsonLoader : JsonLoader {
 	}
 	
 	override fun <T : Any> toString(data: T): String {
-		return gson.toJson(data)
+		return mapper.writeValueAsString(data)
 	}
 	
 	override fun <T : Any> toFile(data: T, path: String) {
-		File(path).writeText(toString(data))
+		return mapper.writeValue(FileWriter(path), data)
 	}
 }

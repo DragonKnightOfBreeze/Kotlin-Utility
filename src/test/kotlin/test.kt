@@ -1,5 +1,4 @@
-import com.windea.commons.kotlin.loader.JsonLoader
-import com.windea.commons.kotlin.loader.YamlLoader
+import com.windea.commons.kotlin.loader.*
 
 fun main() {
 	//TESTED

@@ -7,8 +7,8 @@ interface PropertiesLoader : DataLoader {
 	companion object {
 		/**得到一个实例。*/
 		@JvmStatic
-		fun instance(): StandardPropertiesLoader {
-			return StandardPropertiesLoader()
+		fun instance(): JacksonPropertiesLoader {
+			return JacksonPropertiesLoader()
 		}
 	}
 }

@@ -3,7 +3,7 @@ package com.windea.commons.kotlin.loader
 import com.windea.commons.kotlin.enums.*
 import com.windea.commons.kotlin.extension.*
 
-/**数据类型转化器。*/
+/**数据转化器。*/
 class DataConverter constructor(
 	private val fromType: DataType,
 	private val toType: DataType

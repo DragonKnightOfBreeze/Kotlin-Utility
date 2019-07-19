@@ -57,12 +57,12 @@ fun <T> Class<T>.isSerializable(): Boolean {
 }
 
 
-/**得到取值方法的属性名-方法映射。*/
+/**得到类型的属性名-取值方法映射。*/
 fun <T> Class<T>.getGetterMap(): Map<String, Method> {
 	return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }
 
-/**得到赋值方法的属性名-方法映射。*/
+/**得到类型的属性名-赋值方法映射。*/
 fun <T> Class<T>.getSetterMap(): Map<String, Method> {
 	return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 }
