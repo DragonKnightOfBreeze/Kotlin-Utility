@@ -65,10 +65,21 @@ fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true)
 /**根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
 fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
 
+/**去除字符串中的所有空格。*/
+fun String.removeWhiteSpace(): String {
+	return this.replace(" ", "")
+}
+
+/**去除字符串中的所有空白。*/
+fun String.removeBlank(): String {
+	return this.replace("[\\s\\n\\r\\t]+".toRegex(), "")
+}
+
+
 /**转义字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
 	return buildString {
-		for((escapeChar, unescapeString) in getEscapeCharList()) {
+		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
 			this.replace(Regex(unescapeString), escapeChar)
 		}
 	}
@@ -77,26 +88,28 @@ fun String.escape(): String {
 /**反转义字符串。例如，将`\n`转换为`\\n`。*/
 fun String.unescape(): String {
 	return buildString {
-		for((escapeChar, unescapeString) in getEscapeCharList()) {
+		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
 			this.replace(Regex(escapeChar), unescapeString)
 		}
 	}
 }
 
-private fun getEscapeCharList(): List<Pair<String, String>> {
-	return listOf("\n" to "\\n", "\r" to "\\r", "\b" to "\\b", "\t" to "\\t", "\'" to "\\'", "\"" to "\\\"", "\\" to "\\\\")
-}
+private val escapeChars = arrayOf("\n", "\r", "\b", "\t", "\'", "\"", "\\")
+
+private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
 
 /**使用双引号/单引号/反引号包围字符串。默认使用双引号。*/
 fun String.quote(delimiter: String = "\""): String {
-	if(delimiter !in arrayOf("\"", "'", "`")) return this
+	if(delimiter !in quoteChars) return this
 	return this.surround(delimiter, false)
 }
 
 /**去除字符串两侧的双引号/单引号/反引号。*/
 fun String.unquote(): String {
-	return this.removeSurrounding("\"").removeSurrounding("'").removeSurrounding("`")
+	return this.chaining(quoteChars) { this.replace(it, "") }
 }
+
+private val quoteChars = arrayOf("\"", "'", "`")
 
 
 /**将第一个字符转为大写。*/
@@ -246,7 +259,8 @@ fun String.toUrlInfo(): UrlInfo {
 	
 	val queryParamMap = when {
 		paramSnippet.isEmpty() -> mapOf()
-		else -> paramSnippet.split("&").map { s -> s.split("=") }.groupBy({ ss -> ss[0] }, { ss -> ss[1] })
+		else -> paramSnippet.split("&").map { s -> s.split("=") }
+			.groupBy({ it[0] }, { it[1] })
 			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
 	}
 	
@@ -297,7 +311,7 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 }
 
 /**将字符串转化为对应的枚举常量。*/
-fun String.toEnumConstUnchecked(type: Class<*>): Any {
+fun String.toEnumConst(type: Class<*>): Any {
 	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
 	val constName = this.trim()
 	return try {
@@ -309,6 +323,14 @@ fun String.toEnumConstUnchecked(type: Class<*>): Any {
 }
 
 
-fun Iterable<String>.filterNotEmpty() = this.filterNot { it.isEmpty() }
+/**过滤空字符串。*/
+fun Array<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 
-fun Iterable<String>.filterNotBlank() = this.filterNot { it.isBlank() }
+/**过滤空白字符串。*/
+fun Array<String>.filterNotBlank() = this.filter { it.isNotEmpty() }
+
+/**过滤空字符串。*/
+fun Iterable<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+
+/**过滤空白字符串。*/
+fun Iterable<String>.filterNotBlank() = this.filter { it.isNotEmpty() }

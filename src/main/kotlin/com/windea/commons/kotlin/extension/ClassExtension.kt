@@ -4,65 +4,44 @@ import java.io.*
 import java.lang.reflect.*
 
 /**判断是否是字符序列。*/
-fun <T> Class<T>.isCharSequence(): Boolean {
-	return when {
-		CharSequence::class.java == this -> true
-		else -> this.interfaces.any { it.isCharSequence() } || this.superclass?.isCharSequence() ?: false
-	}
-}
+val <T> Class<T>.isCharSequence: Boolean get() = this.checkInterface(CharSequence::class.java)
 
 /**判断是否是字符串。*/
-fun <T> Class<T>.isString(): Boolean {
-	return String::class.java == this
-}
+val <T> Class<T>.isString: Boolean get() = this == String::class.java
 
 /**判断是否是可迭代类/接口。*/
-fun <T> Class<T>.isIterable(): Boolean {
-	return when {
-		Iterable::class.java == this -> true
-		else -> this.interfaces.any { it.isIterable() } || this.superclass?.isIterable() ?: false
-	}
-}
+val <T> Class<T>.isIterable: Boolean get() = this.checkInterface(Iterable::class.java)
 
 /**判断是否是列表。*/
-fun <T> Class<T>.isList(): Boolean {
-	return when {
-		List::class.java == this -> true
-		else -> this.interfaces.any { it.isList() } || this.superclass?.isList() ?: false
-	}
-}
+val <T> Class<T>.isList: Boolean get() = this.checkInterface(List::class.java)
 
 /**判断是否是集。*/
-fun <T> Class<T>.isSet(): Boolean {
-	return when {
-		Set::class.java == this -> true
-		else -> this.interfaces.any { it.isSet() } || this.superclass?.isSet() ?: false
-	}
-}
+val <T> Class<T>.isSet: Boolean get() = this.checkInterface(Set::class.java)
 
 /**判断是否是映射。*/
-fun <T> Class<T>.isMap(): Boolean {
-	return when {
-		Map::class.java == this -> true
-		else -> this.interfaces.any { it.isMap() } || this.superclass?.isMap() ?: false
-	}
-}
+val <T> Class<T>.isMap: Boolean get() = this.checkInterface(Map::class.java)
 
 /**判断是否是可序列类/接口。*/
-fun <T> Class<T>.isSerializable(): Boolean {
-	return when {
-		Serializable::class.java == this -> true
-		else -> this.interfaces.any { it.isSerializable() } || this.superclass?.isSerializable() ?: false
-	}
+val <T> Class<T>.isSerializable: Boolean get() = this.checkInterface(Serializable::class.java)
+
+private fun Class<*>.checkClass(clazz: Class<*>): Boolean {
+	return this == clazz || superclass?.checkClass(clazz) ?: false
+}
+
+private fun Class<*>.checkInterface(clazz: Class<*>): Boolean {
+	return this == clazz || interfaces.any { it.checkInterface(clazz) } || superclass?.checkInterface(clazz) ?: false
 }
 
 
 /**得到类型的属性名-取值方法映射。*/
-fun <T> Class<T>.getGetterMap(): Map<String, Method> {
-	return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
-}
+val <T> Class<T>.getterMap: Map<String, Method>
+	get() {
+		return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
+	}
+
 
 /**得到类型的属性名-赋值方法映射。*/
-fun <T> Class<T>.getSetterMap(): Map<String, Method> {
-	return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
-}
+val <T> Class<T>.setterMap: Map<String, Method>
+	get() {
+		return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
+	}
