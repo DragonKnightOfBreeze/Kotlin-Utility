@@ -18,8 +18,7 @@ interface YamlLoader : DataLoader {
 	
 	
 	companion object {
-		/**得到一个实例。*/
-		@JvmStatic
-		fun instance() = SnakeYamlYamlLoader()
+		/**得到一个单例实例。*/
+		val instance = SnakeYamlYamlLoader()
 	}
 }

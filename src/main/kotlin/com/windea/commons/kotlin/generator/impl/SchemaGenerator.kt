@@ -68,8 +68,8 @@ class SchemaGenerator : TextGenerator {
 	/**@param inputType ExtendedJsonSchema, ExtendedYamlSchema*/
 	override fun from(inputPath: String, inputType: String): SchemaGenerator {
 		when(inputType) {
-			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
-			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance().fromFile(inputPath)
+			"ExtendedJsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"ExtendedYamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		this.ruleMap += defaultRuleMap
@@ -83,8 +83,8 @@ class SchemaGenerator : TextGenerator {
 	fun loadDataMap(dataPath: String, dataType: String): SchemaGenerator {
 		runCatching {
 			when(dataType) {
-				"Json" -> this.dataMap += JsonLoader.instance().fromFile(dataPath)
-				"Yaml" -> this.dataMap += YamlLoader.instance().fromFile(dataPath)
+				"Json" -> this.dataMap += JsonLoader.instance.fromFile(dataPath)
+				"Yaml" -> this.dataMap += YamlLoader.instance.fromFile(dataPath)
 			}
 		}
 		return this
@@ -136,8 +136,8 @@ class SchemaGenerator : TextGenerator {
 	/**@param outputType JsonSchema, YamlSchema*/
 	override fun to(outputPath: String, outputType: String) {
 		when(outputType) {
-			"JsonSchema" -> JsonLoader.instance().toFile(inputMap, outputPath)
-			"YamlSchema" -> YamlLoader.instance().toFile(inputMap, outputPath)
+			"JsonSchema" -> JsonLoader.instance.toFile(inputMap, outputPath)
+			"YamlSchema" -> YamlLoader.instance.toFile(inputMap, outputPath)
 			else -> throw IllegalArgumentException(Messages.invalidOutputType)
 		}
 	}

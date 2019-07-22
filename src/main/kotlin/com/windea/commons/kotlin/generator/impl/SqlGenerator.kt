@@ -18,8 +18,8 @@ class SqlGenerator : TextGenerator {
 	/**@param inputType Json, Yaml*/
 	override fun from(inputPath: String, inputType: String): SqlGenerator {
 		when(inputType) {
-			"Json" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
-			"Yaml" -> this.inputMap += YamlLoader.instance().fromFile(inputPath)
+			"Json" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"Yaml" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		return this

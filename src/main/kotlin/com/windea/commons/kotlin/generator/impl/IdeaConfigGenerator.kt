@@ -17,8 +17,8 @@ class IdeaConfigGenerator : TextGenerator {
 	/**@param inputType JsonSchema, YamlSchema*/
 	override fun from(inputPath: String, inputType: String): IdeaConfigGenerator {
 		when(inputType) {
-			"JsonSchema" -> this.inputMap += JsonLoader.instance().fromFile(inputPath)
-			"YamlSchema" -> this.inputMap += YamlLoader.instance().fromFile(inputPath)
+			"JsonSchema" -> this.inputMap += JsonLoader.instance.fromFile(inputPath)
+			"YamlSchema" -> this.inputMap += YamlLoader.instance.fromFile(inputPath)
 			else -> throw IllegalArgumentException(Messages.invalidInputType)
 		}
 		return this
