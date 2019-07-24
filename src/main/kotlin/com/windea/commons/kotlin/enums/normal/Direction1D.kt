@@ -16,5 +16,5 @@ enum class Direction1D(
 	Backward(arrayOf(Point, Length));
 	
 	
-	override val topDimension = Length
+	override val topDimension = Point
 }
