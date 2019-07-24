@@ -3,21 +3,21 @@ package com.windea.commons.kotlin.enums.normal
 import com.windea.commons.kotlin.annotation.*
 import com.windea.commons.kotlin.enums.normal.Dimension.*
 
-/**二维方向。*/
-@LocaleText("二维方向")
-enum class Direction2D(
+/**基于XZ轴的二维方向。*/
+@LocaleText("基于XZ轴的二维方向")
+enum class DirectionXZ(
 	override val dimension: Array<Dimension>
 ) : Direction {
 	@LocaleText("原点")
 	Origin(arrayOf(Point)),
 	@LocaleText("前")
-	Forward(arrayOf(Point, Length)),
+	Forward(arrayOf(Length)),
 	@LocaleText("后")
-	Backward(arrayOf(Point, Length)),
+	Backward(arrayOf(Length)),
 	@LocaleText("左")
-	Left(arrayOf(Point, Width)),
+	Left(arrayOf(Width)),
 	@LocaleText("右")
-	Right(arrayOf(Point, Width));
+	Right(arrayOf(Width));
 	
 	
 	override val topDimension = Width

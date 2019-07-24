@@ -4,44 +4,71 @@ package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.*
 
-typealias MList<E> = MutableList<E>
+/**判断当前数组是否以指定元素开始。*/
+infix fun <T> Array<T>.startsWith(element: T): Boolean {
+	return this.firstOrNull() == element
+}
 
-typealias MSet<E> = MutableSet<E>
+/**判断当前数组是否以任意指定元素开始。*/
+infix fun <T> Array<T>.startsWith(elements: Array<T>): Boolean {
+	return this.firstOrNull() in elements
+}
 
-typealias MMap<K, V> = MutableMap<K, V>
+/**判断当前数组是否以指定元素结束。*/
+infix fun <T> Array<T>.endsWith(element: T): Boolean {
+	return this.firstOrNull() == element
+}
 
+/**判断当前数组是否以任意指定元素结束。*/
+infix fun <T> Array<T>.endsWith(elements: Array<T>): Boolean {
+	return this.firstOrNull() in elements
+}
 
-fun <E> mListOf(vararg elements: E) = mutableListOf(*elements)
+/**判断当前集合是否以指定元素开始。*/
+infix fun <T> Iterable<T>.startsWith(element: T): Boolean {
+	return this.firstOrNull() == element
+}
 
-fun <E> mSetOf(vararg elements: E) = mutableSetOf(*elements)
+/**判断当前集合是否以任意指定元素开始。*/
+infix fun <T> Iterable<T>.startsWith(elements: Array<T>): Boolean {
+	return this.firstOrNull() in elements
+}
 
-fun <K, V> mMapOf(vararg pairs: Pair<K, V>) = mutableMapOf(*pairs)
+/**判断当前集合是否以指定元素结束。*/
+infix fun <T> Iterable<T>.endsWith(element: T): Boolean {
+	return this.firstOrNull() == element
+}
+
+/**判断当前可迭代对象是否以任意指定元素结束。*/
+infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean {
+	return this.firstOrNull() in elements
+}
 
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
-fun <E> Array<E>.getOrDefault(index: Int, defaultValue: E): E {
-	return runCatching { this[index] }.getOrDefault(defaultValue)
+fun <T> Array<T>.getOrDefault(index: Int, defaultValue: T): T {
+	return this.getOrElse(index) { defaultValue }
 }
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
 fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
-	return runCatching { this[index] }.getOrDefault(defaultValue)
+	return this.getOrElse(index) { defaultValue }
 }
 
 
 /**
- * 根据指定路径[path]查询当前列表，返回匹配的元素列表。
+ * 根据指定路径[path]查询当前数组，返回匹配的元素列表。
  *
  * @see privateQueryValue
  */
-fun <E> List<E>.query(path: String) = privateQueryValue(this, path)
+fun <T> Array<T>.query(path: String) = privateQueryValue(this.toList(), path)
 
 /**
- * 根据指定路径[path]查询当前集，返回匹配的元素列表。
+ * 根据指定路径[path]查询当前集合，返回匹配的元素列表。
  *
  * @see privateQueryValue
  */
-fun <E> Set<E>.query(path: String) = privateQueryValue(this.toList(), path)
+fun <E> Iterable<E>.query(path: String) = privateQueryValue(this.toList(), path)
 
 /**
  * 根据指定路径[path]查询当前映射，返回匹配的值列表。
@@ -107,13 +134,13 @@ private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
 }
 
 
-/**向下递归平滑映射当前列表。*/
-fun <E> List<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
+/**向下递归平滑映射当前数组，返回路径-值映射。*/
+fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**向下递归平滑映射当前集。*/
-fun <E> Set<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
+/**向下递归平滑映射当前集合，返回路径-值映射。*/
+fun <E> Iterable<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**向下递归平滑映射当前映射。*/
+/**向下递归平滑映射当前映射，返回路径-值映射。*/
 fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
 
 @NotTested("某些特殊情况？")
@@ -132,18 +159,39 @@ private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<Str
 }
 
 
-/**将当前列表转化成以键为值的映射。*/
-fun <E> List<E>.toIndexedMap(): Map<String, E> {
-	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
-}
-
-/**将当前集转化成以键为值的映射。*/
-fun <E> Set<E>.toIndexedMap(): Map<String, E> {
-	return this.withIndex().map { (i, e) -> Pair(i.toString(), e) }.toMap()
+/**移除指定范围内的元素。*/
+fun <E> MutableList<E>.removeAllAt(indices: IntRange) {
+	for(index in indices.reversed()) this.removeAt(index)
 }
 
 
-/**将映射转化为指定类型[T]的对象。可指定是否递归转化[recursive]，默认为true。*/
+/**将指定索引的元素插入到另一索引处。后者为移动前的索引，而非移动后的索引。*/
+fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int) {
+	val element = this[fromIndices]
+	this.add(toIndex, element)
+	this.removeAt(fromIndices)
+}
+
+/**将指定索引范围内的元素插入到以另一索引为起点处。后者为移动前的索引，而非移动后的索引。*/
+fun <E> MutableList<E>.moveAll(fromIndices: IntRange, toIndex: Int) {
+	val elements = this.slice(fromIndices)
+	this.addAll(toIndex, elements)
+	this.removeAllAt(fromIndices)
+}
+
+
+/**将当前数组转化成以键为值的映射。*/
+fun <T> Array<T>.toIndexedMap(): Map<String, T> {
+	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
+}
+
+/**将当前集合转化成以键为值的映射。*/
+fun <E> Iterable<E>.toIndexedMap(): Map<String, E> {
+	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
+}
+
+
+/**将当前映射转化为指定类型[T]的对象。可指定是否递归转化[recursive]，默认为true。*/
 fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
 @NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
@@ -186,4 +234,15 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 		}
 		else -> null
 	}
+}
+
+
+/**映射当前带索引值集合的索引，返回带有新的索引的带索引值集合。*/
+inline fun <T> Iterable<IndexedValue<T>>.mapIndices(transform: (Int) -> Int): Iterable<IndexedValue<T>> {
+	return this.map { (index, value) -> IndexedValue(transform(index), value) }
+}
+
+/**映射当前带索引值集合的值，返回带有新的值的带索引值集合。*/
+inline fun <T> Iterable<IndexedValue<T>>.mapValues(transform: (T) -> T): Iterable<IndexedValue<T>> {
+	return this.map { (index, value) -> IndexedValue(index, transform(value)) }
 }
