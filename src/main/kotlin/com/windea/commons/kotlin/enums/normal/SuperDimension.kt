@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 
 /**顶级维度。*/
 @Name("顶级维度")

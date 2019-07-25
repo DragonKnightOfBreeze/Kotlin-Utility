@@ -3,7 +3,7 @@
 package com.windea.commons.kotlin.loader.impl
 
 import com.fasterxml.jackson.dataformat.javaprop.*
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.mark.*
 import com.windea.commons.kotlin.loader.*
 import java.io.*
 import java.util.*

@@ -1,4 +1,4 @@
-package com.windea.commons.kotlin.annotation
+package com.windea.commons.kotlin.annotation.message
 
 import com.windea.commons.kotlin.extension.*
 
@@ -6,12 +6,12 @@ import com.windea.commons.kotlin.extension.*
 @MustBeDocumented
 @Repeatable
 annotation class Name(
-	val value: String,
+	val text: String,
 	val locale: String = "Chs"
 )
 
 
 /**得到目标的本地化名字。*/
 fun Any.annotatedName(locale: String = "Chs"): String? {
-	return this::class.findAnnotation<Name> { it.locale == locale }?.value
+	return this::class.findAnnotation<Name> { it.locale == locale }?.text
 }

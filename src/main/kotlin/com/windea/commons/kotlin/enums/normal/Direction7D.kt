@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 import com.windea.commons.kotlin.enums.normal.Dimension.*
 
 /**七维方向。第七维指代变量时间线。*/

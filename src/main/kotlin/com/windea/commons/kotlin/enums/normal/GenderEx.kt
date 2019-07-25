@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 
 /**扩展的性别。*/
 @Name("扩展的性别")

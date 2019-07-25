@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.generator.impl
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.mark.*
 import com.windea.commons.kotlin.generator.*
 import com.windea.commons.kotlin.loader.*
 import java.io.*

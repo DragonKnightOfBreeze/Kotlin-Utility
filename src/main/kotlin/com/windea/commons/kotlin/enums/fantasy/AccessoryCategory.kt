@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.fantasy
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 
 /**饰品分类。*/
 @Name("饰品分类")

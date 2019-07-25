@@ -2,7 +2,7 @@
 
 package com.windea.commons.kotlin.extension
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.mark.*
 
 operator fun <T> Iterable<T>.times(n: Int): List<T> {
 	return mutableListOf<T>().also { list -> repeat(n) { list += this } }

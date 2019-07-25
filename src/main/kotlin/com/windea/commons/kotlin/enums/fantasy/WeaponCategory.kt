@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.fantasy
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 import com.windea.commons.kotlin.enums.fantasy.WeaponSuperCategory.*
 
 /**武器分类。*/

@@ -2,7 +2,7 @@
 
 package com.windea.commons.kotlin.extension
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.mark.*
 import java.net.*
 import java.nio.file.*
 import java.text.*

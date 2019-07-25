@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 import com.windea.commons.kotlin.enums.normal.Dimension.*
 
 /**九维方向。第九维指代可变世界线。*/

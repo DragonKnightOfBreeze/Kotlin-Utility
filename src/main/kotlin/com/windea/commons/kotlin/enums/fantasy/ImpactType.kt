@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.fantasy
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 
 /**作用类型。*/
 @Name("作用类型")

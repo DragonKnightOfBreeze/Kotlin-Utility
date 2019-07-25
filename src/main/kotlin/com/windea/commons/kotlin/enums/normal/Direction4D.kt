@@ -1,6 +1,6 @@
 package com.windea.commons.kotlin.enums.normal
 
-import com.windea.commons.kotlin.annotation.*
+import com.windea.commons.kotlin.annotation.message.*
 import com.windea.commons.kotlin.enums.normal.Dimension.*
 
 /**四维方向。第四维指代时间。*/
