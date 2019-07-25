@@ -3,6 +3,8 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.*
+import java.net.*
+import java.nio.file.*
 import java.text.*
 import kotlin.contracts.*
 
@@ -286,6 +288,65 @@ enum class StringCase {
 }
 
 
+/**去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
+fun String.toIntOrDefault(defaultValue: Int = 0): Int {
+	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
+}
+
+/**去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
+fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
+	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
+}
+
+/**去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
+fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
+	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
+}
+
+
+/**将字符串转化为对应的枚举常量。*/
+fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
+	val enumConsts = type.enumConstants
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts.first()
+	}
+}
+
+/**将字符串转化为对应的枚举常量。*/
+fun String.toEnumConst(type: Class<*>): Any {
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
+	val constName = this.trim()
+	return try {
+		enumConsts.first { it.toString() == constName }
+	} catch(e: Exception) {
+		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		enumConsts.first()
+	}
+}
+
+
+/**将当前字符串转化为路径。*/
+fun String.toPath(): Path = Path.of(this.trim())
+
+
+/**将当前字符串转化为地址。*/
+fun String.toUrl(): URL = URL(this.trim())
+
+/**将当前字符串转化为地址。*/
+fun String.toUrl(content: URL): URL = URL(content, this.trim())
+
+/**将当前字符串转化为地址。*/
+fun String.toUrl(content: URL, handler: URLStreamHandler): URL = URL(content, this.trim(), handler)
+
+
+/**将当前字符串转化为统一资源定位符。*/
+fun String.toUri(): URI = URI.create(this)
+
+
 /**得到对应的路径信息。*/
 fun String.toPathInfo(): PathInfo {
 	val filePath = this.trim().replace("/", "\\")
@@ -294,7 +355,7 @@ fun String.toPathInfo(): PathInfo {
 	return PathInfo(filePath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
-/**路径信息。*/
+/**路径信息。相比[Path]更加轻量，同时也能进行解构。*/
 data class PathInfo(
 	/**文件路径。*/
 	val filePath: String,
@@ -340,20 +401,13 @@ data class PathInfo(
 /**得到对应的的地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val url = this.trim()
-	val (fullPath, params) = url.substringWithDefault("?") { listOf(it, "") }
+	val (fullPath, query) = url.substringWithDefault("?") { listOf(it, "") }
 	val (protocol, hostAndPort, path) = fullPath.substringWithDefault("://", "/") { listOf("http", "", it) }
 	val (host, port) = hostAndPort.substringWithDefault(":") { listOf(it, "") }
-	
-	val queryParamMap = when {
-		params.isEmpty() -> mapOf()
-		else -> params.split("&").map { s -> s.split("=") }
-			.groupBy({ it[0] }, { it[1] })
-			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
-	}
-	return UrlInfo(this, fullPath, protocol, host, port, path, queryParamMap)
+	return UrlInfo(this, fullPath, protocol, host, port, path, query)
 }
 
-/**地址信息。*/
+/**地址信息。相比[URL]更加轻量，同时也能进行解构。*/
 data class UrlInfo(
 	/**完整地址。*/
 	val url: String,
@@ -367,49 +421,38 @@ data class UrlInfo(
 	val port: String,
 	/**路径*/
 	val path: String,
-	/**查询参数映射。*/
-	val queryParamMap: Map<String, Any>
+	/**查询参数。*/
+	val query: String
 ) {
 	/**是否存在查询参数。*/
-	val hasQueryParam = queryParamMap.isNotEmpty()
+	val hasQueryParam = query.isNotEmpty()
+	
+	/**查询参数映射。*/
+	val queryParamMap = query.toQueryParamMap()
 }
 
 
-/**去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
-fun String.toIntOrDefault(defaultValue: Int = 0): Int {
-	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
-}
-
-/**去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
-fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
-	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
-}
-
-/**去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
-fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
-	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
-}
-
-/**将字符串转化为对应的枚举常量。*/
-fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
-	val enumConsts = type.enumConstants
-	val constName = this.trim()
-	return try {
-		enumConsts.first { it.toString() == constName }
-	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts.first()
+internal fun String.toQueryParamMap(): QueryParamMap {
+	val map = if(this.isEmpty()) {
+		mapOf()
+	} else {
+		this.split("&").map { s -> s.split("=") }.groupBy({ it[0] }, { it[1] })
+			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
 	}
+	return QueryParamMap(map)
 }
 
-/**将字符串转化为对应的枚举常量。*/
-fun String.toEnumConst(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
-	val constName = this.trim()
-	return try {
-		enumConsts.first { it.toString() == constName }
-	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts.first()
+/**查询参数映射。*/
+class QueryParamMap(
+	map: Map<String, Any>
+) : HashMap<String, Any>(map) {
+	/**得到指定名字的单个查询参数。*/
+	fun getParam(name: String): String? {
+		return this[name]?.let { (if(it is Iterable<*>) it.first() else it) as String }
+	}
+	
+	/**得到指定名字的所用查询参数。*/
+	fun getParams(name: String): List<String>? {
+		return this[name]?.let { (it as List<*>).filterIsInstance<String>() }
 	}
 }

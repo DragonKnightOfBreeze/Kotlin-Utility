@@ -47,7 +47,10 @@ class StringExtensionTests {
 	
 	@Test
 	fun test7() {
-		val str = "http://localhost:8080/www.github.com/DragonKnightOfBreeze?name=Windea&Weapon=BreezesLanding&Weapon=BreathOfBreeze"
+		val str = "http://localhost:8080/www.github.com/DragonKnightOfBreeze?name=Windea&weapon=BreezesLanding&weapon=BreathOfBreeze"
 		println(str.toUrlInfo())
+		println(str.toUrlInfo().queryParamMap.getParam("name"))
+		println(str.toUrlInfo().queryParamMap.getParam("weapon"))
+		println(str.toUrlInfo().queryParamMap.getParams("weapon"))
 	}
 }
