@@ -15,5 +15,5 @@ annotation class Description(
 
 /**得到目标的本地化描述。*/
 fun Any.annotatedDescription(locale: String = "Chs"): String? {
-	return this::class.findAnnotation<Description> { it.locale == locale }?.text
+	return this::class.findAnnotation<Description> { it.locale == locale }?.text ?: this.annotatedSummary(locale)
 }

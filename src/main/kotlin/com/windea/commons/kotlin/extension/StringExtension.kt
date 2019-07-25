@@ -287,6 +287,16 @@ enum class StringCase {
 	RightSepCase
 }
 
+/**转换为Markdown文本。一般而言，仅需在必要的每行最后添加两个空格，以应用折行。*/
+fun String.toMarkdown(): String {
+	var isNotInCodeFence = true
+	return this.lines().joinToString("\n") {
+		val isCodeFenceBound = "```" in it
+		if(isCodeFenceBound) isNotInCodeFence = !isNotInCodeFence
+		if(!isCodeFenceBound && isNotInCodeFence && it.isNotBlank()) "$it  " else it
+	}
+}
+
 
 /**去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
 fun String.toIntOrDefault(defaultValue: Int = 0): Int {
