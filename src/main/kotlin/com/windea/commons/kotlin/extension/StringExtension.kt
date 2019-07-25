@@ -4,31 +4,45 @@ package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.*
 import java.text.*
+import kotlin.contracts.*
+
+operator fun String.times(n: Int): String {
+	return this.repeat(n)
+}
+
+operator fun String.div(n: Int): List<String> {
+	return this.chunked(n)
+}
+
 
 /**判断可空字符串是否为null，为空白。*/
+@ExperimentalContracts
 fun CharSequence?.isNullOrBlank(): Boolean {
+	contract {
+		returns(false) implies (this@isNullOrBlank != null)
+	}
 	return this == null || this.isBlank()
 }
 
 
 /**判断字符串是否以指定前缀开头。*/
 infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
-	return this.startsWith(prefix)
+	return this.startsWith(prefix, ignoreCase = false)
 }
 
 /**判断字符串是否以任意指定前缀开头。*/
 infix fun CharSequence.startsWith(prefixArray: Array<CharSequence>): Boolean {
-	return prefixArray.any { this.startsWith(it) }
+	return prefixArray.any { this.startsWith(it, ignoreCase = false) }
 }
 
 /**判断字符串是否以指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffix: CharSequence): Boolean {
-	return this.endsWith(suffix)
+	return this.endsWith(suffix, ignoreCase = false)
 }
 
 /**判断字符串是否以任意指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffixArray: Array<CharSequence>): Boolean {
-	return suffixArray.any { this.endsWith(it) }
+	return suffixArray.any { this.endsWith(it, ignoreCase = false) }
 }
 
 /**判断字符串是否以指定前缀开头。忽略大小写。*/
@@ -52,91 +66,52 @@ infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean {
 }
 
 
-operator fun String.times(n: Int): String {
-	return this.repeat(n)
-}
-
-operator fun String.div(n: Int): List<String> {
-	return this.chunked(n)
-}
-
-
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/
-fun String.substringOrElse(delimiters: Array<String>, lastDelimiters: Array<String>, defaultValue: (Int, String) -> String): List<String> {
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/
+fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
+	if(delimiters.count { it == null } > 1) {
+		throw IllegalArgumentException("[ERROR] There should be at most one null value for separator in delimiters!")
+	}
+	
 	var rawString = this
-	val delimiterSize = delimiters.size
-	val allDelimiterSize = delimiterSize + lastDelimiters.size
+	val fixedDelimiters = delimiters.filterNotNull()
+	val size = fixedDelimiters.size
+	val indexOfNull = delimiters.indexOf(null).let { if(it == -1) size else it }
 	val result = mutableListOf<String>()
 	
-	for((index, delimiter) in delimiters.withIndex()) {
-		result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
-		if(index < allDelimiterSize - 1) {
-			rawString = rawString.substringAfter(delimiter, rawString)
+	for((index, delimiter) in fixedDelimiters.withIndex()) {
+		if(index < indexOfNull) {
+			result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
+			if(index == size - 1) {
+				result += rawString.substringAfter(delimiter, defaultValue(index + 1, rawString))
+			} else {
+				rawString = rawString.substringAfter(delimiter, rawString)
+			}
 		} else {
-			result += rawString.substringAfter(delimiter, defaultValue(index, rawString))
-		}
-	}
-	for((index, delimiter) in lastDelimiters.withIndex().mapIndices { it + delimiterSize }) {
-		result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
-		if(index < allDelimiterSize - 1) {
-			rawString = rawString.substringAfterLast(delimiter, rawString)
-		} else {
-			result += rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
+			result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
+			if(index == size - 1) {
+				result += rawString.substringAfterLast(delimiter, defaultValue(index + 1, rawString))
+			} else {
+				rawString = rawString.substringAfterLast(delimiter, rawString)
+			}
 		}
 	}
 	return result
 }
 
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入默认值。*/
-fun String.substringOrDefault(delimiters: Array<String>, lastDelimiters: Array<String>, defaultValue: String) =
-	this.substringOrElse(delimiters, lastDelimiters) { _, _ -> defaultValue }
-
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(delimiters: Array<String>, lastDelimiters: Array<String>) =
-	this.substringOrElse(delimiters, lastDelimiters) { _, _ -> "" }
-
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入从默认字符串列表中对应索引取出的值。*/
-fun String.substringWithDefault(delimiters: Array<String>, lastDelimiters: Array<String>, defaultValue: (String) -> List<String>) =
-	this.substringOrElse(delimiters, lastDelimiters) { index, delimiter -> defaultValue(delimiter)[index] }
-
-
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/
-fun String.substringOrElse(delimiters: Array<Char>, lastDelimiters: Array<Char>, defaultValue: (Int, String) -> String): List<String> {
-	var rawString = this
-	val delimiterSize = delimiters.size
-	val allDelimiterSize = delimiterSize + lastDelimiters.size
-	val result = mutableListOf<String>()
-	
-	for((index, delimiter) in delimiters.withIndex()) {
-		result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
-		if(index < allDelimiterSize - 1) {
-			rawString = rawString.substringAfter(delimiter, rawString)
-		} else {
-			result += rawString.substringAfter(delimiter, defaultValue(index, rawString))
-		}
-	}
-	for((index, delimiter) in lastDelimiters.withIndex().mapIndices { it + delimiterSize }) {
-		result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
-		if(index < allDelimiterSize - 1) {
-			rawString = rawString.substringAfterLast(delimiter, rawString)
-		} else {
-			result += rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
-		}
-	}
-	return result
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入默认值。*/
+fun String.substringOrDefault(vararg delimiters: String?, defaultValue: String): List<String> {
+	return this.substringOrElse(*delimiters) { _, _ -> defaultValue }
 }
 
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入默认值。*/
-fun String.substringOrDefault(delimiters: Array<Char>, lastDelimiters: Array<Char>, defaultValue: String) =
-	this.substringOrElse(delimiters, lastDelimiters) { _, _ -> defaultValue }
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
+fun String.substringOrEmpty(vararg delimiters: String?): List<String> {
+	return this.substringOrElse(*delimiters) { _, _ -> "" }
+}
 
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(delimiters: Array<Char>, lastDelimiters: Array<Char>) =
-	this.substringOrElse(delimiters, lastDelimiters) { _, _ -> "" }
-
-/**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入从默认字符串列表中对应索引取出的值。*/
-fun String.substringWithDefault(delimiters: Array<Char>, lastDelimiters: Array<Char>, defaultValue: (String) -> List<String>) =
-	this.substringOrElse(delimiters, lastDelimiters) { index, delimiter -> defaultValue(delimiter)[index] }
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入从默认字符串列表中对应索引取出的值。*/
+fun String.substringWithDefault(vararg delimiters: String?, defaultValue: (String) -> List<String>): List<String> {
+	return this.substringOrElse(*delimiters) { index, delimiter -> defaultValue(delimiter).getOrEmpty(index) }
+}
 
 
 /**
@@ -313,13 +288,10 @@ enum class StringCase {
 
 /**得到对应的路径信息。*/
 fun String.toPathInfo(): PathInfo {
-	val (fileDir, fileName) = this.substringWithDefault(arrayOf(), arrayOf("\\")) {
-		listOf("", it)
-	}
-	val (fileShotName, fileExtension) = fileName.substringWithDefault(arrayOf(), arrayOf(".")) {
-		listOf(it, "")
-	}
-	return PathInfo(this, fileDir, fileName, fileShotName, fileExtension)
+	val filePath = this.trim().replace("/", "\\")
+	val (fileDirectory, fileName) = filePath.substringWithDefault(null, "\\") { listOf("", it) }
+	val (fileShotName, fileExtension) = fileName.substringWithDefault(null, ".") { listOf(it, "") }
+	return PathInfo(filePath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
 /**路径信息。*/
@@ -367,15 +339,11 @@ data class PathInfo(
 
 /**得到对应的的地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
-	val (fullPath, params) = this.substringWithDefault(arrayOf("?"), arrayOf()) {
-		listOf(it, "")
-	}
-	val (protocol, hostAndPort, path) = fullPath.substringWithDefault(arrayOf("://", "/"), arrayOf()) {
-		listOf("http", "", it)
-	}
-	val (host, port) = hostAndPort.substringWithDefault(arrayOf(":"), arrayOf()) {
-		listOf(it, "")
-	}
+	val url = this.trim()
+	val (fullPath, params) = url.substringWithDefault("?") { listOf(it, "") }
+	val (protocol, hostAndPort, path) = fullPath.substringWithDefault("://", "/") { listOf("http", "", it) }
+	val (host, port) = hostAndPort.substringWithDefault(":") { listOf(it, "") }
+	
 	val queryParamMap = when {
 		params.isEmpty() -> mapOf()
 		else -> params.split("&").map { s -> s.split("=") }
@@ -430,7 +398,7 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 		enumConsts.first { it.toString() == constName }
 	} catch(e: Exception) {
 		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts[0]
+		enumConsts.first()
 	}
 }
 
@@ -442,19 +410,6 @@ fun String.toEnumConst(type: Class<*>): Any {
 		enumConsts.first { it.toString() == constName }
 	} catch(e: Exception) {
 		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts[0]
+		enumConsts.first()
 	}
 }
-
-
-/**过滤空字符串。*/
-fun Array<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
-
-/**过滤空白字符串。*/
-fun Array<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }
-
-/**过滤空字符串。*/
-fun Iterable<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
-
-/**过滤空白字符串。*/
-fun Iterable<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }

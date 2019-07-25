@@ -4,6 +4,15 @@ package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.*
 
+operator fun <T> Iterable<T>.times(n: Int): List<T> {
+	return mutableListOf<T>().also { list -> repeat(n) { list += this } }
+}
+
+operator fun <T> Iterable<T>.div(n: Int): List<List<T>> {
+	return this.chunked(n)
+}
+
+
 /**判断当前数组是否以指定元素开始。*/
 infix fun <T> Array<T>.startsWith(element: T): Boolean {
 	return this.firstOrNull() == element
@@ -42,15 +51,6 @@ infix fun <T> Iterable<T>.endsWith(element: T): Boolean {
 /**判断当前可迭代对象是否以任意指定元素结束。*/
 infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean {
 	return this.firstOrNull() in elements
-}
-
-
-operator fun <T> Iterable<T>.times(n: Int): List<T> {
-	return mutableListOf<T>().also { list -> repeat(n) { list += this } }
-}
-
-operator fun <T> Iterable<T>.div(n: Int): List<List<T>> {
-	return this.chunked(n)
 }
 
 
@@ -195,7 +195,7 @@ fun <T> Array<T>.toIndexedMap(): Map<String, T> {
 }
 
 /**将当前集合转化成以键为值的映射。*/
-fun <E> Iterable<E>.toIndexedMap(): Map<String, E> {
+fun <T> Iterable<T>.toIndexedMap(): Map<String, T> {
 	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
 }
 
@@ -244,6 +244,26 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 		else -> null
 	}
 }
+
+
+/**得到指定索引的值，如果出错，则返回空字符串。*/
+fun Array<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
+
+/**得到指定索引的值，如果出错，则返回空字符串。*/
+fun List<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
+
+
+/**过滤空字符串。*/
+fun Array<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+
+/**过滤空白字符串。*/
+fun Array<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }
+
+/**过滤空字符串。*/
+fun Iterable<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+
+/**过滤空白字符串。*/
+fun Iterable<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }
 
 
 /**映射当前带索引值集合的索引，返回带有新的索引的带索引值集合。*/
