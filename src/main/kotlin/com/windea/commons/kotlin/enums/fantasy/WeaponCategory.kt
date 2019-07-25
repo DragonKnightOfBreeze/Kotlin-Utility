@@ -4,73 +4,73 @@ import com.windea.commons.kotlin.annotation.*
 import com.windea.commons.kotlin.enums.fantasy.WeaponSuperCategory.*
 
 /**武器分类。*/
-@LocaleText("武器分类")
+@Name("武器分类")
 enum class WeaponCategory(
 	val superCategory: WeaponSuperCategory
 ) {
-	@LocaleText("匕首")
+	@Name("匕首")
 	Dagger(BladeWeapon),
-	@LocaleText("刺剑")
+	@Name("刺剑")
 	Rapier(BladeWeapon),
-	@LocaleText("直剑")
+	@Name("直剑")
 	StraightSword(BladeWeapon),
-	@LocaleText("大剑")
+	@Name("大剑")
 	GreatSword(BladeWeapon),
-	@LocaleText("特大剑")
+	@Name("特大剑")
 	UltraGreatSword(BladeWeapon),
-	@LocaleText("曲刀")
+	@Name("曲刀")
 	CurvedSword(BladeWeapon),
-	@LocaleText("大曲刀")
+	@Name("大曲刀")
 	GreatCurvedSword(BladeWeapon),
-	@LocaleText("刀")
+	@Name("刀")
 	Katana(BladeWeapon),
-	@LocaleText("鞭")
+	@Name("鞭")
 	Whip(BladeWeapon),
 	
-	@LocaleText("枪")
+	@Name("枪")
 	Spear(LongArmWeapon),
-	@LocaleText("长枪")
+	@Name("长枪")
 	Lance(LongArmWeapon),
-	@LocaleText("戟")
+	@Name("戟")
 	Hambert(LongArmWeapon),
-	@LocaleText("镰刀")
+	@Name("镰刀")
 	Scythe(LongArmWeapon),
 	
-	@LocaleText("长棍")
+	@Name("长棍")
 	QuarterStaff(StrikeWeapon),
-	@LocaleText("槌")
+	@Name("槌")
 	Hammer(StrikeWeapon),
-	@LocaleText("大槌")
+	@Name("大槌")
 	GreatHammer(StrikeWeapon),
 	
-	@LocaleText("弓")
+	@Name("弓")
 	Bow(ShootWeapon),
-	@LocaleText("大弓")
+	@Name("大弓")
 	GreatBow(ShootWeapon),
-	@LocaleText("弩")
+	@Name("弩")
 	Crossbow(ShootWeapon),
-	@LocaleText("手枪")
+	@Name("手枪")
 	Pistol(ShootWeapon),
-	@LocaleText("轻枪械")
+	@Name("轻枪械")
 	LightRifle(ShootWeapon),
-	@LocaleText("重枪械")
+	@Name("重枪械")
 	HeavyRifle(ShootWeapon),
 	
-	@LocaleText("小型盾")
+	@Name("小型盾")
 	SmallShield(Shield),
-	@LocaleText("中型盾")
+	@Name("中型盾")
 	MediumShield(Shield),
-	@LocaleText("大型盾")
+	@Name("大型盾")
 	GreatShield(Shield),
 	
-	@LocaleText("法杖")
+	@Name("法杖")
 	Staff(MagicInterface),
-	@LocaleText("魔法石")
+	@Name("魔法石")
 	MagicStone(MagicInterface),
-	@LocaleText("护符")
+	@Name("护符")
 	Talisman(MagicInterface),
-	@LocaleText("圣铃")
+	@Name("圣铃")
 	Chime(MagicInterface),
-	@LocaleText("书籍")
+	@Name("书籍")
 	Book(MagicInterface)
 }

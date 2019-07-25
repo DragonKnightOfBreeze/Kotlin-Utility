@@ -3,26 +3,26 @@ package com.windea.commons.kotlin.enums.fantasy
 import com.windea.commons.kotlin.annotation.*
 
 /**饰品分类。*/
-@LocaleText("饰品分类")
+@Name("饰品分类")
 enum class AccessoryCategory {
-	@LocaleText("头饰")
+	@Name("头饰")
 	Headwear,
-	@LocaleText("耳饰")
+	@Name("耳饰")
 	Earring,
-	@LocaleText("围巾")
+	@Name("围巾")
 	Scarf,
-	@LocaleText("项圈")
+	@Name("项圈")
 	Collar,
-	@LocaleText("首饰")
+	@Name("首饰")
 	Jewelry,
-	@LocaleText("胸针")
+	@Name("胸针")
 	Brooch,
-	@LocaleText("护身符")
+	@Name("护身符")
 	Amulet,
-	@LocaleText("手镯")
+	@Name("手镯")
 	Bracelet,
-	@LocaleText("戒指")
+	@Name("戒指")
 	Ring,
-	@LocaleText("脚镯")
+	@Name("脚镯")
 	Anklet
 }
