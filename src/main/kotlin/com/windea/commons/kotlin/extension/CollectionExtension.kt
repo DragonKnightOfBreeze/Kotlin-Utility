@@ -45,6 +45,11 @@ infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean {
 }
 
 
+operator fun <T> Iterable<T>.times(n: Int) = mutableListOf<T>().also { list -> repeat(n) { list += this } }
+
+operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
+
+
 /**得到指定索引的元素，发生异常则得到默认值。*/
 fun <T> Array<T>.getOrDefault(index: Int, defaultValue: T): T {
 	return this.getOrElse(index) { defaultValue }
