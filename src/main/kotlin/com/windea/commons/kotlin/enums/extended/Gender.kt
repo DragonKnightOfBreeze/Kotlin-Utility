@@ -2,7 +2,7 @@ package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
 
-/**扩展的性别。*/
+/**性别。*/
 @Name("性别")
 enum class Gender {
 	@Name("无性别")

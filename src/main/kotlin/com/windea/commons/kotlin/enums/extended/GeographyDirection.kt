@@ -2,7 +2,7 @@ package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
 
-/**扩展的地理方向。*/
+/**地理方向。*/
 @Name("地理方向")
 enum class GeographyDirection {
 	@Name("原点")
