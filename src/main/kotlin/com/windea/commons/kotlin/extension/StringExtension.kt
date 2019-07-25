@@ -52,9 +52,13 @@ infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean {
 }
 
 
-operator fun String.times(n: Int) = this.repeat(n)
+operator fun String.times(n: Int): String {
+	return this.repeat(n)
+}
 
-operator fun String.div(n: Int) = this.chunked(n)
+operator fun String.div(n: Int): List<String> {
+	return this.chunked(n)
+}
 
 
 /**根据从前往后以及从后往前的分隔符数组，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/

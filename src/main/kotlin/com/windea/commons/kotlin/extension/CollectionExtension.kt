@@ -45,9 +45,13 @@ infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean {
 }
 
 
-operator fun <T> Iterable<T>.times(n: Int) = mutableListOf<T>().also { list -> repeat(n) { list += this } }
+operator fun <T> Iterable<T>.times(n: Int): List<T> {
+	return mutableListOf<T>().also { list -> repeat(n) { list += this } }
+}
 
-operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
+operator fun <T> Iterable<T>.div(n: Int): List<List<T>> {
+	return this.chunked(n)
+}
 
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
