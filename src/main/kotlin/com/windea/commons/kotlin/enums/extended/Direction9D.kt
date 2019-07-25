@@ -1,13 +1,13 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
 /**九维方向。第九维指代可变世界线。*/
 @Name("九维方向。")
 enum class Direction9D(
-	override val dimension: Array<Dimension>
-) : Direction {
+	val dimension: Array<Dimension>
+) {
 	@Name("原点")
 	Origin(arrayOf(Point)),
 	
@@ -67,5 +67,5 @@ enum class Direction9D(
 	ParallelWorld(arrayOf(Point, Time, MutableWorldLine)),
 	
 	@Name("异度空间")
-	StrangeSpace(arrayOf(Point));
+	StrangeSpace(arrayOf(Point))
 }

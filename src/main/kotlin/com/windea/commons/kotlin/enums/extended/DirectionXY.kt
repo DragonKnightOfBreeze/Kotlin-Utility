@@ -1,7 +1,7 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
 /**基于XY轴的二维方向。*/
 @Name("基于XY轴的二维方向")

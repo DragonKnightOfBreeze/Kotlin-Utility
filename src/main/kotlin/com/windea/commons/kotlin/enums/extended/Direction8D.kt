@@ -1,13 +1,13 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
 /**八维方向。第八维指代世界线。*/
 @Name("八维方向。")
 enum class Direction8D(
-	override val dimension: Array<Dimension>
-) : Direction {
+	val dimension: Array<Dimension>
+) {
 	@Name("原点")
 	Origin(arrayOf(Point)),
 	
@@ -64,5 +64,5 @@ enum class Direction8D(
 	Backvision(arrayOf(Point, Time, WorldLine)),
 	
 	@Name("异度空间")
-	StrangeSpace(arrayOf(Point));
+	StrangeSpace(arrayOf(Point))
 }

@@ -1,10 +1,10 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
 
 /**扩展的地理方向。*/
-@Name("扩展的地理方向")
-enum class GeographyDirectionEx {
+@Name("地理方向")
+enum class GeographyDirection {
 	@Name("原点")
 	Origin,
 	@Name("东")

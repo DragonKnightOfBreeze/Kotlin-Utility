@@ -1,7 +1,7 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
 /**四维方向。第四维指代时间。*/
 @Name("四维方向。")

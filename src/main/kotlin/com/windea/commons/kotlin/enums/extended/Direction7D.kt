@@ -1,13 +1,13 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
-/**十维方向。第九维指代变量世界线。*/
-@Name("十维方向。")
-enum class Direction10D(
-	override val dimension: Array<Dimension>
-) : Direction {
+/**七维方向。第七维指代变量时间线。*/
+@Name("七维方向。")
+enum class Direction7D(
+	val dimension: Array<Dimension>
+) {
 	@Name("原点")
 	Origin(arrayOf(Point)),
 	
@@ -52,26 +52,6 @@ enum class Direction10D(
 	@Name("不复存在的过去")
 	NeverExistPast(arrayOf(Time, VariableTimeLine)),
 	
-	@Name("现世")
-	ThisWorldly(arrayOf(Point, Time)),
-	@Name("彼岸")
-	OtherWorldly(arrayOf(Point, Time)),
-	@Name("别岸")
-	AnotherWorldly(arrayOf(Point, Time)),
-	@Name("预见的愿景")
-	Forevision(arrayOf(Point, Time, WorldLine)),
-	@Name("回见的光景")
-	Backvision(arrayOf(Point, Time, WorldLine)),
-	
-	@Name("平行世界")
-	ParallelWorld(arrayOf(Point, Time, MutableWorldLine)),
-	@Name("不该存在的世界")
-	ShouldNotExistWorld(arrayOf(Time, VariableTimeLine)),
-	@Name("不复存在的世界")
-	NeverExistWorld(arrayOf(Time, VariableTimeLine)),
-	
 	@Name("异度空间")
-	StrangeSpace(arrayOf(Point)),
-	@Name("异度时间")
-	StrangeTime(arrayOf(Time));
+	StrangeSpace(arrayOf(Point))
 }

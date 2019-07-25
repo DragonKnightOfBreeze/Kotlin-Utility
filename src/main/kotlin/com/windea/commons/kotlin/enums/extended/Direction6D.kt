@@ -1,13 +1,13 @@
-package com.windea.commons.kotlin.enums.normal
+package com.windea.commons.kotlin.enums.extended
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.normal.Dimension.*
+import com.windea.commons.kotlin.enums.extended.Dimension.*
 
-/**五维方向。第五维指代时间线。*/
-@Name("五维方向。")
-enum class Direction5D(
-	override val dimension: Array<Dimension>
-) : Direction {
+/**六维方向。第六维指代可变时间线。*/
+@Name("六维方向。")
+enum class Direction6D(
+	val dimension: Array<Dimension>
+) {
 	@Name("原点")
 	Origin(arrayOf(Point)),
 	
@@ -35,5 +35,11 @@ enum class Direction5D(
 	@Name("预见的未来")
 	Foresight(arrayOf(Time, TimeLine)),
 	@Name("回见的过去")
-	Backsight(arrayOf(Time, TimeLine));
+	Backsight(arrayOf(Time, TimeLine)),
+	@Name("平行的现在")
+	ParallelNow(arrayOf(Time, MutableTimeLine)),
+	@Name("平行的未来")
+	ParallelFuture(arrayOf(Time, MutableTimeLine)),
+	@Name("平行的过去")
+	ParallelPast(arrayOf(Time, MutableTimeLine))
 }
