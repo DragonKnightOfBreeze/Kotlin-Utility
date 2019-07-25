@@ -1,4 +1,4 @@
-package com.windea.commons.kotlin.enums.fantasy
+package com.windea.commons.kotlin.enums.dream
 
 import com.windea.commons.kotlin.annotation.message.*
 

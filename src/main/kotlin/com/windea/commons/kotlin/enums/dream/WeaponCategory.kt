@@ -1,7 +1,7 @@
-package com.windea.commons.kotlin.enums.fantasy
+package com.windea.commons.kotlin.enums.dream
 
 import com.windea.commons.kotlin.annotation.message.*
-import com.windea.commons.kotlin.enums.fantasy.WeaponSuperCategory.*
+import com.windea.commons.kotlin.enums.dream.WeaponSuperCategory.*
 
 /**武器分类。*/
 @Name("武器分类")
