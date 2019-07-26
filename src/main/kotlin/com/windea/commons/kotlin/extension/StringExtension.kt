@@ -3,6 +3,8 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.mark.*
+import com.windea.commons.kotlin.enums.*
+import com.windea.commons.kotlin.text.*
 import java.net.*
 import java.nio.file.*
 import java.text.*
@@ -27,46 +29,51 @@ fun CharSequence?.isNullOrBlank(): Boolean {
 }
 
 
-/**判断字符串是否以指定前缀开头。*/
+/**判断当前字符串是否以指定前缀开头。*/
 infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
 	return this.startsWith(prefix, ignoreCase = false)
 }
 
-/**判断字符串是否以任意指定前缀开头。*/
+/**判断当前字符串是否以任意指定前缀开头。*/
 infix fun CharSequence.startsWith(prefixArray: Array<CharSequence>): Boolean {
 	return prefixArray.any { this.startsWith(it, ignoreCase = false) }
 }
 
-/**判断字符串是否以指定后缀结尾。*/
+/**判断当前字符串是否以指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffix: CharSequence): Boolean {
 	return this.endsWith(suffix, ignoreCase = false)
 }
 
-/**判断字符串是否以任意指定后缀结尾。*/
+/**判断当前字符串是否以任意指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffixArray: Array<CharSequence>): Boolean {
 	return suffixArray.any { this.endsWith(it, ignoreCase = false) }
 }
 
-/**判断字符串是否以指定前缀开头。忽略大小写。*/
+/**判断当前字符串是否以指定前缀开头。忽略大小写。*/
 infix fun CharSequence.startsWithIc(prefix: CharSequence): Boolean {
 	return this.startsWith(prefix, ignoreCase = true)
 }
 
-/**判断字符串是否以任意指定前缀开头。忽略大小写。*/
+/**判断当前字符串是否以任意指定前缀开头。忽略大小写。*/
 infix fun CharSequence.startsWithIc(prefixArray: Array<CharSequence>): Boolean {
 	return prefixArray.any { this.startsWith(it, ignoreCase = true) }
 }
 
-/**判断字符串是否以指定后缀结尾。忽略大小写。*/
+/**判断当前字符串是否以指定后缀结尾。忽略大小写。*/
 infix fun CharSequence.endsWithIc(suffix: CharSequence): Boolean {
 	return this.endsWith(suffix, ignoreCase = true)
 }
 
-/**判断字符串是否以指定后缀结尾。忽略大小写。*/
+/**判断当前字符串是否以指定后缀结尾。忽略大小写。*/
 infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean {
 	return suffixArray.any { this.endsWith(it, ignoreCase = true) }
 }
 
+
+/**根据指定的正则表达式，得到当前字符串的匹配分组列表。不包含索引0的分组，列表可能为空。*/
+fun String.substring(regex: Regex): List<String> {
+	return regex.matchEntire(this)?.groupValues?.drop(0) ?: listOf()
+}
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/
 fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
@@ -137,18 +144,28 @@ fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true)
 fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
 
 
-/**去除字符串中的所有空格。*/
+/**去除指定字符串。*/
+fun String.remove(oldValue: String, ignoreCase: Boolean = false): String {
+	return this.replace(oldValue, "", ignoreCase)
+}
+
+/**去除指定正则表达式的字符串。*/
+fun String.remove(regex: Regex): String {
+	return this.replace(regex, "")
+}
+
+/**去除所有空格。*/
 fun String.removeWhiteSpace(): String {
 	return this.replace(" ", "")
 }
 
-/**去除字符串中的所有空白。*/
+/**去除所有空白。*/
 fun String.removeBlank(): String {
 	return this.replace("[\\s\\n\\r\\t]+".toRegex(), "")
 }
 
 
-/**转义字符串。例如，将`\\n`转换为`\n`。*/
+/**转义当前字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
@@ -157,7 +174,7 @@ fun String.escape(): String {
 	}
 }
 
-/**反转义字符串。例如，将`\n`转换为`\\n`。*/
+/**反转义当前字符串。例如，将`\n`转换为`\\n`。*/
 fun String.unescape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
@@ -170,13 +187,13 @@ private val escapeChars = arrayOf("\n", "\r", "\b", "\t", "\'", "\"", "\\")
 
 private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
 
-/**使用双引号/单引号/反引号包围字符串。默认使用双引号。*/
+/**使用双引号/单引号/反引号包围当前字符串。默认使用双引号。*/
 fun String.quote(delimiter: String = "\""): String {
 	if(delimiter !in quoteChars) return this
 	return this.surround(delimiter, ignoreEmpty = false)
 }
 
-/**去除字符串两侧的双引号/单引号/反引号。*/
+/**去除当前字符串两侧的双引号/单引号/反引号。*/
 fun String.unquote(): String {
 	return quoteChars.fold(this) { init, quoteChar -> init.replace(quoteChar, "") }
 }
@@ -222,7 +239,7 @@ fun String.checkCase(): StringCase {
 	}
 }
 
-/**转换显示格式。*/
+/**转换当前字符串的显示格式。*/
 fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
 	return this.splitByCase(fromCase).concatByCase(toCase)
 }
@@ -263,58 +280,62 @@ private fun String.splitWordByWhiteSpace(): String {
 	return this.replace("\\B([A-Z]+)".toRegex(), " $1")
 }
 
-/**字符串的显示格式。*/
-enum class StringCase {
-	/**OtH_e r Ca  SE。*/
-	Other,
-	/**camelCase。*/
-	CamelCase,
-	/**PascalCase。*/
-	PascalCase,
-	/**SCREAMING_SNAKE_CASE。*/
-	ScreamingSnakeCase,
-	/**snake_case。*/
-	SnakeCase,
-	/**kebab-case。*/
-	KebabCase,
-	/**dot.case。*/
-	DotCase,
-	/**whiteSpace case。*/
-	WhiteSpaceCase,
-	/**lSep\\case。*/
-	LeftSepCase,
-	/**rSep/case。*/
-	RightSepCase
+
+/**
+ * 将当前字符串转为折行文本。
+ *
+ * 去除首尾换行符，尾部空白以及其他所有的换行符。
+ */
+fun String.asWrappedText(): String {
+	return this.remove("\n").trimEnd()
 }
 
-/**转换为Markdown文本。一般而言，仅需在必要的每行最后添加两个空格，以应用折行。*/
-fun String.toMarkdown(): String {
+/**
+ * 将当前字符串转化为多行文本。
+ *
+ * 去除首尾换行符，尾部空白，然后基于最后一行的缩进，去除每一行的缩进。如果无法判定缩进，则使用[trimIndent]这个方法。
+ */
+fun String.asMultilineText(): String {
+	val trimmedIndent = this.lines().last().let { if(it.isBlank()) it.count() else 0 }
+	return if(trimmedIndent != 0) {
+		this.removePrefix("\n").trimEnd().lines().joinToString("\n") { it.drop(trimmedIndent) }
+	} else {
+		this.trimIndent()
+	}
+}
+
+/**
+ * 将当前字符串转换为Markdown文本。
+ *
+ * 转化为多行文本，然后为未折行的行末尾添加两个空格。如果已添加，则应直接使用[asMultilineText]这个方法。
+ */
+fun String.asMarkdownText(): String {
 	var isNotInCodeFence = true
-	return this.lines().joinToString("\n") {
-		val isCodeFenceBound = "```" in it
+	return this.removePrefix("\n").trimEnd().lines().joinToString("\n") {
+		val isCodeFenceBound = it startsWith "```"
+		val isFoldedLine = it endsWith "  "
 		if(isCodeFenceBound) isNotInCodeFence = !isNotInCodeFence
-		if(!isCodeFenceBound && isNotInCodeFence && it.isNotBlank()) "$it  " else it
+		if(isNotInCodeFence && it.isNotEmpty() && !isCodeFenceBound && !isFoldedLine) "$it  " else it
 	}
 }
 
 
-/**去空格后，转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
+/**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
 fun String.toIntOrDefault(defaultValue: Int = 0): Int {
 	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
 }
 
-/**去空格后，转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
+/**去空白后，将当前字符串转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
 fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
 	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
 }
 
-/**去空格后，转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
+/**去空白后，将当前字符串转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
 fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
 }
 
-
-/**将字符串转化为对应的枚举常量。*/
+/**将当前字符串转化为对应的枚举常量。*/
 fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 	val enumConsts = type.enumConstants
 	val constName = this.trim()
@@ -326,7 +347,7 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 	}
 }
 
-/**将字符串转化为对应的枚举常量。*/
+/**将当前字符串转化为对应的枚举常量。*/
 fun String.toEnumConst(type: Class<*>): Any {
 	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
 	val constName = this.trim()
@@ -338,77 +359,32 @@ fun String.toEnumConst(type: Class<*>): Any {
 	}
 }
 
-
 /**将当前字符串转化为路径。*/
 fun String.toPath(): Path = Path.of(this.trim())
 
-
 /**将当前字符串转化为地址。*/
-fun String.toUrl(): URL = URL(this.trim())
-
-/**将当前字符串转化为地址。*/
-fun String.toUrl(content: URL): URL = URL(content, this.trim())
-
-/**将当前字符串转化为地址。*/
-fun String.toUrl(content: URL, handler: URLStreamHandler): URL = URL(content, this.trim(), handler)
-
+fun String.toUrl(content: URL? = null, handler: URLStreamHandler? = null): URL = URL(content, this.trim(), handler)
 
 /**将当前字符串转化为统一资源定位符。*/
 fun String.toUri(): URI = URI.create(this)
 
 
-/**得到对应的路径信息。*/
+/**得到当前字符串对应的Markdown对象。*/
+fun String.toMarkdown(useExtendedSyntax: Boolean = false, userCriticalMarkup: Boolean = false): Markdown {
+	val text = this.asMarkdownText()
+	return Markdown(text, useExtendedSyntax, userCriticalMarkup)
+}
+
+/**得到当前字符串对应的路径信息。*/
 fun String.toPathInfo(): PathInfo {
-	val filePath = this.trim().replace("/", "\\")
-	val (fileDirectory, fileName) = filePath.substringWithDefault(null, "\\") { listOf("", it) }
+	val path = this.trim().replace("/", "\\")
+	val rootPath = path.substringBefore("\\")
+	val (fileDirectory, fileName) = path.substringWithDefault(null, "\\") { listOf("", it) }
 	val (fileShotName, fileExtension) = fileName.substringWithDefault(null, ".") { listOf(it, "") }
-	return PathInfo(filePath, fileDirectory, fileName, fileShotName, fileExtension)
+	return PathInfo(path, rootPath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
-/**路径信息。相比[Path]更加轻量，同时也能进行解构。*/
-data class PathInfo(
-	/**文件路径。*/
-	val filePath: String,
-	/**文件所在文件夹。*/
-	val fileDirectory: String,
-	/**文件名。*/
-	val fileName: String,
-	/**不包含扩展名在内的文件名。*/
-	val fileShotName: String,
-	/**包含"."的文件扩展名。*/
-	val fileExtension: String
-) {
-	/**是否存在上一级文件夹。*/
-	val hasFileDirectory = fileDirectory.isNotEmpty()
-	/**是否存在文件扩展名。*/
-	val hasFileExtension = fileExtension.isNotEmpty()
-	
-	
-	/**更改文件所在文件夹为新的文件夹[newFileDirectory]。*/
-	fun changeFileDirectory(newFileDirectory: String): String {
-		return newFileDirectory + "\\" + fileName
-	}
-	
-	/**更改文件名为新的文件名[newFileName]。*/
-	fun changeFileName(newFileName: String): String {
-		return fileDirectory + "\\" + newFileName
-	}
-	
-	/**更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[returnFullPath]，默认为true。*/
-	fun changeFileShotName(newFileShotName: String, returnFullPath: Boolean = true): String {
-		val newFileName = newFileShotName + fileExtension
-		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
-	}
-	
-	/**更改文件扩展名为新的扩展名[newFileExtension]，可指定是否返回全路径[returnFullPath]，默认为true。*/
-	fun changeFileExtension(newFileExtension: String, returnFullPath: Boolean = true): String {
-		val newFileName = fileShotName + newFileExtension
-		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
-	}
-}
-
-
-/**得到对应的的地址信息。*/
+/**得到当前字符串对应的的地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val url = this.trim()
 	val (fullPath, query) = url.substringWithDefault("?") { listOf(it, "") }
@@ -417,31 +393,7 @@ fun String.toUrlInfo(): UrlInfo {
 	return UrlInfo(this, fullPath, protocol, host, port, path, query)
 }
 
-/**地址信息。相比[URL]更加轻量，同时也能进行解构。*/
-data class UrlInfo(
-	/**完整地址。*/
-	val url: String,
-	/**排除查询参数的完整路径。*/
-	val fullPath: String,
-	/**协议。默认为http。*/
-	val protocol: String,
-	/**主机。*/
-	val host: String,
-	/**端口。*/
-	val port: String,
-	/**路径*/
-	val path: String,
-	/**查询参数。*/
-	val query: String
-) {
-	/**是否存在查询参数。*/
-	val hasQueryParam = query.isNotEmpty()
-	
-	/**查询参数映射。*/
-	val queryParamMap = query.toQueryParamMap()
-}
-
-
+/**得到当前字符串对应的查询参数映射。*/
 internal fun String.toQueryParamMap(): QueryParamMap {
 	val map = if(this.isEmpty()) {
 		mapOf()
@@ -452,17 +404,4 @@ internal fun String.toQueryParamMap(): QueryParamMap {
 	return QueryParamMap(map)
 }
 
-/**查询参数映射。*/
-class QueryParamMap(
-	map: Map<String, Any>
-) : HashMap<String, Any>(map) {
-	/**得到指定名字的单个查询参数。*/
-	fun getParam(name: String): String? {
-		return this[name]?.let { (if(it is Iterable<*>) it.first() else it) as String }
-	}
-	
-	/**得到指定名字的所用查询参数。*/
-	fun getParams(name: String): List<String>? {
-		return this[name]?.let { (it as List<*>).filterIsInstance<String>() }
-	}
-}
+
