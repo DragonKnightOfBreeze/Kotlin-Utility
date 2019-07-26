@@ -1,4 +1,4 @@
-package com.windea.commons.kotlin.text
+package com.windea.commons.kotlin.domain
 
 import java.nio.file.*
 

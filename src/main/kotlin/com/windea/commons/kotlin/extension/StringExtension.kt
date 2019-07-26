@@ -3,8 +3,8 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.mark.*
+import com.windea.commons.kotlin.domain.*
 import com.windea.commons.kotlin.enums.*
-import com.windea.commons.kotlin.text.*
 import java.net.*
 import java.nio.file.*
 import java.text.*

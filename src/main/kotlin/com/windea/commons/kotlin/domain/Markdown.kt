@@ -1,4 +1,4 @@
-package com.windea.commons.kotlin.text
+package com.windea.commons.kotlin.domain
 
 import com.windea.commons.kotlin.extension.*
 import java.io.*

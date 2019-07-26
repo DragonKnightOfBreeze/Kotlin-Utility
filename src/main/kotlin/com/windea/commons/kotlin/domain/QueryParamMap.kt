@@ -1,4 +1,4 @@
-package com.windea.commons.kotlin.text
+package com.windea.commons.kotlin.domain
 
 /**查询参数映射。*/
 class QueryParamMap(
