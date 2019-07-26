@@ -21,4 +21,27 @@ data class PathInfo(
 	val hasFileDirectory = fileDirectory.isNotEmpty()
 	/**是否存在文件扩展名。*/
 	val hasFileExtension = fileExtension.isNotEmpty()
+	
+	
+	/**更改文件所在文件夹为新的文件夹[newFileDirectory]。*/
+	fun changeFileDirectory(newFileDirectory: String): String {
+		return newFileDirectory + "\\" + fileName
+	}
+	
+	/**更改文件名为新的文件名[newFileName]。*/
+	fun changeFileName(newFileName: String): String {
+		return fileDirectory + "\\" + newFileName
+	}
+	
+	/**更改不包含扩展名在内的文件名为新的文件名[newFileShotName]，可指定是否返回全路径[returnFullPath]，默认为true。*/
+	fun changeFileShotName(newFileShotName: String, returnFullPath: Boolean = true): String {
+		val newFileName = newFileShotName + fileExtension
+		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
+	}
+	
+	/**更改文件扩展名为新的扩展名[newFileExtension]，可指定是否返回全路径[returnFullPath]，默认为true。*/
+	fun changeFileExtension(newFileExtension: String, returnFullPath: Boolean = true): String {
+		val newFileName = fileShotName + newFileExtension
+		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
+	}
 }

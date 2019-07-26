@@ -6,8 +6,8 @@ import java.io.*
 /**Markdown对象。*/
 class Markdown(
 	var text: String,
-	var useExtendedSyntax: Boolean = false,
-	var userCriticalMarkup: Boolean = false
+	val useExtendedSyntax: Boolean = false,
+	val userCriticalMarkup: Boolean = false
 ) {
 	/**导入使用特殊语法`@import("...")`注明的文本文件的文本，或者图片文件的图片地址，或者其他类型文件的地址。*/
 	fun import() {
