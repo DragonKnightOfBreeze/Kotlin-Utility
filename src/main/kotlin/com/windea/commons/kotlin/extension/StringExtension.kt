@@ -93,7 +93,7 @@ fun <R> Sequence<String>.crossLine(block: (Sequence<String>) -> R): R {
 /**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
 fun String.crossLineSurroundsWith(prefix: String, suffix: String, ignoreCase: Boolean = false): Boolean {
 	if(!enableCrossLine) {
-		throw IllegalStateException("[ERROR] Cross line operations are not enabled. Can be enabled in crossLine{ ... } block.")
+		throw IllegalStateException("[ERROR] Cross line operations are not enabled. Can be enabled in crossLine { ... } block.")
 	}
 	val isBeginBound = this.startsWith(prefix, ignoreCase)
 	val isEndBound = this.startsWith(suffix, ignoreCase)
@@ -123,8 +123,8 @@ fun String.substring(regex: Regex): List<String> {
 	return regex.matchEntire(this)?.groupValues?.drop(0) ?: listOf()
 }
 
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以索引和待分割字符串为参数的计算得到的值。*/
-fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以待分割字符串为参数的从默认字符串列表中取出的值。*/
+fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<String>): List<String> {
 	if(delimiters.count { it == null } > 1) {
 		throw IllegalArgumentException("[ERROR] There should be at most one null value for separator in delimiters!")
 	}
@@ -137,16 +137,16 @@ fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, Strin
 	
 	for((index, delimiter) in fixedDelimiters.withIndex()) {
 		if(index < indexOfNull) {
-			result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
+			result += rawString.substringBefore(delimiter, defaultValue(delimiter).getOrEmpty(index))
 			if(index == size - 1) {
-				result += rawString.substringAfter(delimiter, defaultValue(index + 1, rawString))
+				result += rawString.substringAfter(delimiter, defaultValue(delimiter).getOrEmpty(index))
 			} else {
 				rawString = rawString.substringAfter(delimiter, rawString)
 			}
 		} else {
-			result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
+			result += rawString.substringBeforeLast(delimiter, defaultValue(delimiter).getOrEmpty(index))
 			if(index == size - 1) {
-				result += rawString.substringAfterLast(delimiter, defaultValue(index + 1, rawString))
+				result += rawString.substringAfterLast(delimiter, defaultValue(delimiter).getOrEmpty(index))
 			} else {
 				rawString = rawString.substringAfterLast(delimiter, rawString)
 			}
@@ -155,20 +155,8 @@ fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, Strin
 	return result
 }
 
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入默认值。*/
-fun String.substringOrDefault(vararg delimiters: String?, defaultValue: String): List<String> {
-	return this.substringOrElse(*delimiters) { _, _ -> defaultValue }
-}
-
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(vararg delimiters: String?): List<String> {
-	return this.substringOrElse(*delimiters) { _, _ -> "" }
-}
-
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入从默认字符串列表中对应索引取出的值。*/
-fun String.substringWithDefault(vararg delimiters: String?, defaultValue: (String) -> List<String>): List<String> {
-	return this.substringOrElse(*delimiters) { index, delimiter -> defaultValue(delimiter).getOrEmpty(index) }
-}
+fun String.substringOrEmpty(vararg delimiters: String?) = this.substring(*delimiters) { emptyList() }
 
 
 /**
@@ -427,17 +415,17 @@ fun String.toMarkdown(useExtendedSyntax: Boolean = false, userCriticalMarkup: Bo
 fun String.toPathInfo(): PathInfo {
 	val path = this.trim().replace("/", "\\")
 	val rootPath = path.substringBefore("\\")
-	val (fileDirectory, fileName) = path.substringWithDefault(null, "\\") { listOf("", it) }
-	val (fileShotName, fileExtension) = fileName.substringWithDefault(null, ".") { listOf(it, "") }
+	val (fileDirectory, fileName) = path.substring(null, "\\") { listOf("", it) }
+	val (fileShotName, fileExtension) = fileName.substring(null, ".") { listOf(it, "") }
 	return PathInfo(path, rootPath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
 /**得到当前字符串对应的的地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val url = this.trim()
-	val (fullPath, query) = url.substringWithDefault("?") { listOf(it, "") }
-	val (protocol, hostAndPort, path) = fullPath.substringWithDefault("://", "/") { listOf("http", "", it) }
-	val (host, port) = hostAndPort.substringWithDefault(":") { listOf(it, "") }
+	val (fullPath, query) = url.substring("?") { listOf(it, "") }
+	val (protocol, hostAndPort, path) = fullPath.substring("://", "/") { listOf("http", "", it) }
+	val (host, port) = hostAndPort.substring(":") { listOf(it, "") }
 	return UrlInfo(this, fullPath, protocol, host, port, path, query)
 }
 
