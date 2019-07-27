@@ -17,9 +17,5 @@ enum class StringCase {
 	/**dot.case。*/
 	DotCase,
 	/**whiteSpace case。*/
-	WhiteSpaceCase,
-	/**lSep\\case。*/
-	LeftSepCase,
-	/**rSep/case。*/
-	RightSepCase
+	WhiteSpaceCase
 }

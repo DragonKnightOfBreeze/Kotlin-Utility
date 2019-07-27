@@ -1,8 +1,11 @@
 package com.windea.commons.kotlin.loader
 
+import com.windea.commons.kotlin.annotation.mark.*
+
 //TODO 允许读取指定泛型类型的数据，并且保证较少的api
 
 /**数据读取器的接口。*/
+@NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
 interface DataLoader {
 	/**从指定字符串[string]加载数据，返回指定类型[T]的对象。*/
 	fun <T : Any> fromString(string: String, type: Class<T>): T

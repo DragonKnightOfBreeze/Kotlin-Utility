@@ -53,7 +53,7 @@ class SqlGenerator : TextGenerator {
 			|insert into $tableName ($columnNameSnippet) values
 			|${table.joinToString(",\n", "", ";\n") { data ->
 				val dataSnippet = data.values.joinToString(", ") { column ->
-					column?.toString()?.quote("'")?.unescape() ?: "null"
+					column?.toString()?.wrapQuote("'")?.unescape() ?: "null"
 				}
 				"""
 				|  ($dataSnippet)

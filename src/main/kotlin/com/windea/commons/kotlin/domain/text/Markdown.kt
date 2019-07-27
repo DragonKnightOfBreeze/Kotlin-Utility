@@ -23,7 +23,7 @@ class Markdown(
 					line
 				} else {
 					line.substring("@import(.*?)".toRegex()).map { params ->
-						val filePath = params.substringBefore(",").trim().unquote()
+						val filePath = params.substringBefore(",").trim().unwrapQuote()
 						val options = params.substringBefore(",").split(",").map { it.trim() }
 						//TODO 适用一些特定导入选项
 						val file = File(filePath)

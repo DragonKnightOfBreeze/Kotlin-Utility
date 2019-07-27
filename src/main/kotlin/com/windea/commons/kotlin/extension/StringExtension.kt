@@ -170,14 +170,12 @@ fun String.messageFormat(vararg args: Any): String {
 
 
 /**根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
-fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
-	val isEmpty = ignoreEmpty && this.isEmpty()
-	val result = prefix + this + suffix
-	return if(isEmpty) "" else result
+fun String.surrounding(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
+	return if(ignoreEmpty && this.isEmpty()) "" else prefix + this + suffix
 }
 
 /**根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
-fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
+fun String.surrounding(delimiter: String, ignoreEmpty: Boolean = true) = surrounding(delimiter, delimiter, ignoreEmpty)
 
 
 /**去除指定字符串。*/
@@ -201,11 +199,15 @@ fun String.removeBlank(): String {
 }
 
 
+private val escapeChars = arrayOf('\n', '\r', '\b', '\t', '\'', '\"', '\\')
+
+private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
+
 /**转义当前字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(Regex(unescapeString), escapeChar)
+			this.replace(unescapeString.toRegex(), escapeChar.toString())
 		}
 	}
 }
@@ -214,27 +216,31 @@ fun String.escape(): String {
 fun String.unescape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(Regex(escapeChar), unescapeString)
+			this.replace(escapeChar.toString().toRegex(), unescapeString)
 		}
 	}
 }
 
-private val escapeChars = arrayOf("\n", "\r", "\b", "\t", "\'", "\"", "\\")
 
-private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
+private val quoteChars = arrayOf('"', '\'', "`")
 
 /**使用双引号/单引号/反引号包围当前字符串。默认使用双引号。*/
-fun String.quote(delimiter: String = "\""): String {
-	if(delimiter !in quoteChars) return this
-	return this.surround(delimiter, ignoreEmpty = false)
+fun String.wrapQuote(quoteChar: Char = '"'): String {
+	if(quoteChar !in quoteChars) return this
+	return this.replace(quoteChar.toString(), "\\$quoteChar").surrounding(quoteChar.toString(), false)
 }
 
 /**去除当前字符串两侧的双引号/单引号/反引号。*/
-fun String.unquote(): String {
-	return quoteChars.fold(this) { init, quoteChar -> init.replace(quoteChar, "") }
+fun String.unwrapQuote(): String {
+	val quoteChar = this.first()
+	if(quoteChar !in quoteChars) return this
+	return this.removeSurrounding(quoteChar.toString()).replace("\\$quoteChar", quoteChar.toString())
 }
 
-private val quoteChars = arrayOf("\"", "'", "`")
+/**切换当前字符串两侧的双引号/单引号/反引号。*/
+fun String.swapQuote(quoteChar: Char = '"'): String {
+	return this.unwrapQuote().wrapQuote(quoteChar)
+}
 
 
 /**将第一个字符转为大写。*/
@@ -242,7 +248,7 @@ fun String.firstCharToUpperCase(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length)
 }
 
-/**仅将第一个字符转为大写。*/
+/**将第一个字符转为大写，将其他字符皆转为小写。*/
 fun String.firstCharToUpperCaseOnly(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length).toLowerCase()
 }
@@ -252,7 +258,7 @@ fun String.firstCharToLowerCase(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length)
 }
 
-/**仅将第一个字符转为小写。*/
+/**将第一个字符转为小写，将其他字符皆转为小写。*/
 fun String.firstCharToLowerCaseOnly(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length).toUpperCase()
 }
@@ -269,8 +275,6 @@ fun String.checkCase(): StringCase {
 		this.matches("^[a-z]+(-[a-z]+)*$".toRegex()) -> StringCase.KebabCase
 		this.matches("^[a-zA-z_]+(\\.[a-zA-z_]+)*$".toRegex()) -> StringCase.DotCase
 		this.matches("^[a-zA-Z]+(\\s[a-zA-Z]+)*$".toRegex()) -> StringCase.WhiteSpaceCase
-		this.matches("^[^/]+(/[^/]+)*$".toRegex()) -> StringCase.LeftSepCase
-		this.matches("^[^\\\\]+(\\\\[^\\\\]+)*$".toRegex()) -> StringCase.RightSepCase
 		else -> StringCase.Other
 	}
 }
@@ -291,8 +295,6 @@ fun String.splitByCase(case: StringCase): List<String> {
 		StringCase.KebabCase -> this.split("-")
 		StringCase.DotCase -> this.split(".")
 		StringCase.WhiteSpaceCase -> this.split(" ")
-		StringCase.LeftSepCase -> this.split("\\")
-		StringCase.RightSepCase -> this.split("/")
 	}
 }
 
@@ -307,8 +309,6 @@ fun List<String>.concatByCase(case: StringCase): String {
 		StringCase.KebabCase -> this.joinToString("_") { it.toLowerCase() }
 		StringCase.DotCase -> this.joinToString(".")
 		StringCase.WhiteSpaceCase -> this.joinToString(" ")
-		StringCase.LeftSepCase -> this.joinToString("\\")
-		StringCase.RightSepCase -> this.joinToString("/")
 	}
 }
 
