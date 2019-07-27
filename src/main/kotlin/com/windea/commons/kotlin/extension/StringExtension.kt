@@ -3,19 +3,28 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.mark.*
-import com.windea.commons.kotlin.domain.*
+import com.windea.commons.kotlin.domain.text.*
 import com.windea.commons.kotlin.enums.*
 import java.net.*
 import java.nio.file.*
 import java.text.*
 import kotlin.contracts.*
 
-operator fun String.times(n: Int): String {
-	return this.repeat(n)
+operator fun String.times(n: Int) = this.repeat(n)
+
+operator fun String.div(n: Int) = this.chunked(n)
+
+
+/**判断字符串是否相等。忽略大小写。*/
+infix fun String?.equalsIc(other: String?): Boolean {
+	return this.equals(other, true)
 }
 
-operator fun String.div(n: Int): List<String> {
-	return this.chunked(n)
+/**判断字符串是否相等。忽略显示格式。*/
+infix fun String?.equalsIsc(other: String?): Boolean {
+	val list1 = this?.splitByCase(this.checkCase()) ?: return false
+	val list2 = other?.splitByCase(this.checkCase()) ?: return false
+	return list1 allEquals list2
 }
 
 
@@ -58,27 +67,6 @@ infix fun CharSequence.endsWithIc(suffix: CharSequence): Boolean {
 infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean {
 	return suffixArray.any { this.endsWith(it, true) }
 }
-
-
-///**判断当前字符串是否同时带有指定前缀和后缀。*/
-//infix fun CharSequence.surroundsWith(delimiters: Pair<CharSequence, CharSequence>): Boolean {
-//	return this.startsWith(delimiters.first,false) && this.endsWith(delimiters.second,false)
-//}
-//
-///**判断当前字符串是否同时带有指定前缀和后缀。*/
-//infix fun CharSequence.surroundsWith(delimiter: CharSequence): Boolean {
-//	return this.startsWith(delimiter, false) && this.endsWith(delimiter, false)
-//}
-//
-///**判断当前字符串是否同时带有指定前缀和后缀。忽略大小写。*/
-//infix fun CharSequence.surroundsWithIc(delimiters: Pair<CharSequence, CharSequence>): Boolean {
-//	return this.startsWith(delimiters.first, true) && this.endsWith(delimiters.second, true)
-//}
-//
-///**判断当前字符串是否同时带有指定前缀和后缀。忽略大小写。*/
-//infix fun CharSequence.surroundsWithIc(delimiter: CharSequence): Boolean {
-//	return this.startsWith(delimiter, true) && this.endsWith(delimiter, true)
-//}
 
 
 private var enableCrossLine = false

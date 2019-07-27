@@ -4,12 +4,18 @@ package com.windea.commons.kotlin.extension
 
 import com.windea.commons.kotlin.annotation.mark.*
 
-operator fun <T> Iterable<T>.times(n: Int): List<T> {
-	return mutableListOf<T>().also { list -> repeat(n) { list += this } }
+operator fun <T> Iterable<T>.times(n: Int) = mutableListOf<T>().also { list -> repeat(n) { list += this } }
+
+operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
+
+/**判断两个列表的元素是否全部相等。同时判断长度是否相等、顺序是否相同。*/
+infix fun <T> List<T>.allEquals(other: List<T>): Boolean {
+	return this.size == other.size && (this zip other).all { it.first == it.second }
 }
 
-operator fun <T> Iterable<T>.div(n: Int): List<List<T>> {
-	return this.chunked(n)
+/**判断两个列表的元素是否有任意一个相等。*/
+infix fun <T> List<T>.anyEquals(other: List<T>): Boolean {
+	return (this.isEmpty() && other.isEmpty()) || this.any { it in other }
 }
 
 

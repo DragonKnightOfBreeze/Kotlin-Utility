@@ -53,4 +53,10 @@ class StringExtensionTests {
 		println(str.toUrlInfo().queryParamMap.getParam("weapon"))
 		println(str.toUrlInfo().queryParamMap.getParams("weapon"))
 	}
+	
+	@Test
+	fun test8() {
+		println("*" * 10)
+		println("******" / 3)
+	}
 }
