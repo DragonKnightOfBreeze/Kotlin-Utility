@@ -5,20 +5,40 @@ import java.io.*
 
 /**Markdown对象。*/
 class Markdown(
+	/**Markdown文本。*/
 	var text: String,
-	val useExtendedSyntax: Boolean = false,
-	val userCriticalMarkup: Boolean = false
+	/**是否启用扩展语法。*/
+	var enableExtendedSyntax: Boolean = false,
+	/**是否启用Critical Markup语法。*/
+	var enableCriticalMarkup: Boolean = false
 ) {
 	/**导入使用特殊语法`@import("...")`注明的文本文件的文本，或者图片文件的图片地址，或者其他类型文件的地址。*/
-	fun import() {
-		val importOptions = text.substring("@import(.*?)".toRegex())
-		for(importOption in importOptions) {
-			val filePath = importOption.trim().unquote()
-			File(filePath).also {
-				if(it.exists() && it.isTextFile()) {
-					TODO()
+	fun doImport() {
+		if(!enableExtendedSyntax) {
+			throw IllegalStateException("Extended Syntax is not enabled.")
+		}
+		text = text.lines().crossLine { lines ->
+			lines.map { line ->
+				if(line.crossLineSurroundsWith("```")) {
+					line
+				} else {
+					line.substring("@import(.*?)".toRegex()).map { params ->
+						val filePath = params.substringBefore(",").trim().unquote()
+						val options = params.substringBefore(",").split(",").map { it.trim() }
+						//TODO 适用一些特定导入选项
+						val file = File(filePath)
+						if(file.exists()) {
+							when {
+								file.isTextFile -> file.readText()
+								file.isImageFile -> "![${file.name}](${file.path})"
+								else -> "[${file.name}](${file.path})"
+							}
+						} else {
+							"[WARN] File \"${file.name}\" does not exist."
+						}
+					}
 				}
-			}
+			}.joinToString("\n")
 		}
 	}
 	
@@ -29,17 +49,21 @@ class Markdown(
 	
 	/**替换以CriticalMarkdown语法标记的删除文本。*/
 	fun doCriticalMarkupDelete() {
-		if(!userCriticalMarkup) println("Critical Markup Syntax is not enabled.")
+		if(!enableCriticalMarkup) {
+			throw IllegalStateException("Critical Markup Syntax is not enabled.")
+		}
 		text = text.remove("\\{--.*?--}".toRegex())
 	}
 	
 	/**替换以CriticalMarkdown语法标记的替换文本。*/
 	fun doCriticalMarkupReplace() {
-		if(!userCriticalMarkup) println("Critical Markup Syntax is not enabled.")
+		if(!enableCriticalMarkup) {
+			throw IllegalStateException("Critical Markup Syntax is not enabled.")
+		}
 		text = text.replace("\\{~~(.*?)~>(.*?)~~}".toRegex(), "$2")
 	}
 	
-	/**转化成html文本。*/
+	/**转化为html文本。*/
 	fun toHtml(indent: Int = 2): String {
 		val fixedIndent = indent.coerceIn(2..8)
 		TODO()

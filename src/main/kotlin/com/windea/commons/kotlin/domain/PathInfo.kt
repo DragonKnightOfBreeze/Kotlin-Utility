@@ -12,7 +12,7 @@ data class PathInfo(
 	val fileDirectory: String,
 	/**文件名。*/
 	val fileName: String,
-	/**不包含扩展名在内的文件名。*/
+	/**不包含扩展名的文件名。*/
 	val fileShotName: String,
 	/**包含"."的文件扩展名。*/
 	val fileExtension: String

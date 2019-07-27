@@ -19,19 +19,9 @@ operator fun String.div(n: Int): List<String> {
 }
 
 
-/**判断可空字符串是否为null，为空白。*/
-@ExperimentalContracts
-fun CharSequence?.isNullOrBlank(): Boolean {
-	contract {
-		returns(false) implies (this@isNullOrBlank != null)
-	}
-	return this == null || this.isBlank()
-}
-
-
 /**判断当前字符串是否以指定前缀开头。*/
 infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
-	return this.startsWith(prefix, ignoreCase = false)
+	return this.startsWith(prefix, false)
 }
 
 /**判断当前字符串是否以任意指定前缀开头。*/
@@ -41,32 +31,102 @@ infix fun CharSequence.startsWith(prefixArray: Array<CharSequence>): Boolean {
 
 /**判断当前字符串是否以指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffix: CharSequence): Boolean {
-	return this.endsWith(suffix, ignoreCase = false)
+	return this.endsWith(suffix, false)
 }
 
 /**判断当前字符串是否以任意指定后缀结尾。*/
 infix fun CharSequence.endsWith(suffixArray: Array<CharSequence>): Boolean {
-	return suffixArray.any { this.endsWith(it, ignoreCase = false) }
+	return suffixArray.any { this.endsWith(it, false) }
 }
 
 /**判断当前字符串是否以指定前缀开头。忽略大小写。*/
 infix fun CharSequence.startsWithIc(prefix: CharSequence): Boolean {
-	return this.startsWith(prefix, ignoreCase = true)
+	return this.startsWith(prefix, true)
 }
 
 /**判断当前字符串是否以任意指定前缀开头。忽略大小写。*/
 infix fun CharSequence.startsWithIc(prefixArray: Array<CharSequence>): Boolean {
-	return prefixArray.any { this.startsWith(it, ignoreCase = true) }
+	return prefixArray.any { this.startsWith(it, true) }
 }
 
 /**判断当前字符串是否以指定后缀结尾。忽略大小写。*/
 infix fun CharSequence.endsWithIc(suffix: CharSequence): Boolean {
-	return this.endsWith(suffix, ignoreCase = true)
+	return this.endsWith(suffix, true)
 }
 
 /**判断当前字符串是否以指定后缀结尾。忽略大小写。*/
 infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean {
-	return suffixArray.any { this.endsWith(it, ignoreCase = true) }
+	return suffixArray.any { this.endsWith(it, true) }
+}
+
+
+///**判断当前字符串是否同时带有指定前缀和后缀。*/
+//infix fun CharSequence.surroundsWith(delimiters: Pair<CharSequence, CharSequence>): Boolean {
+//	return this.startsWith(delimiters.first,false) && this.endsWith(delimiters.second,false)
+//}
+//
+///**判断当前字符串是否同时带有指定前缀和后缀。*/
+//infix fun CharSequence.surroundsWith(delimiter: CharSequence): Boolean {
+//	return this.startsWith(delimiter, false) && this.endsWith(delimiter, false)
+//}
+//
+///**判断当前字符串是否同时带有指定前缀和后缀。忽略大小写。*/
+//infix fun CharSequence.surroundsWithIc(delimiters: Pair<CharSequence, CharSequence>): Boolean {
+//	return this.startsWith(delimiters.first, true) && this.endsWith(delimiters.second, true)
+//}
+//
+///**判断当前字符串是否同时带有指定前缀和后缀。忽略大小写。*/
+//infix fun CharSequence.surroundsWithIc(delimiter: CharSequence): Boolean {
+//	return this.startsWith(delimiter, true) && this.endsWith(delimiter, true)
+//}
+
+
+private var enableCrossLine = false
+private var prepareCrossLineSurroundingWith = false
+
+/**执行跨行操作。*/
+fun <R> List<String>.crossLine(block: (List<String>) -> R): R {
+	enableCrossLine = true
+	return this.let(block).also {
+		enableCrossLine = false
+		prepareCrossLineSurroundingWith = false
+	}
+}
+
+/**执行跨行操作。*/
+fun <R> Sequence<String>.crossLine(block: (Sequence<String>) -> R): R {
+	enableCrossLine = true
+	return this.let(block).also {
+		enableCrossLine = false
+		prepareCrossLineSurroundingWith = false
+	}
+}
+
+/**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
+fun String.crossLineSurroundsWith(prefix: String, suffix: String, ignoreCase: Boolean = false): Boolean {
+	if(!enableCrossLine) {
+		throw IllegalStateException("[ERROR] Cross line operations are not enabled. Can be enabled in crossLine{ ... } block.")
+	}
+	val isBeginBound = this.startsWith(prefix, ignoreCase)
+	val isEndBound = this.startsWith(suffix, ignoreCase)
+	if(isBeginBound && !prepareCrossLineSurroundingWith) prepareCrossLineSurroundingWith = true
+	if(isEndBound) prepareCrossLineSurroundingWith = false
+	
+	return !isBeginBound && prepareCrossLineSurroundingWith
+}
+
+/**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
+fun String.crossLineSurroundsWith(delimiter: String, ignoreCase: Boolean = false) =
+	this.crossLineSurroundsWith(delimiter, delimiter, ignoreCase)
+
+
+/**判断当前可空字符串是否为null，为空白。*/
+@ExperimentalContracts
+fun CharSequence?.isNullOrBlank(): Boolean {
+	contract {
+		returns(false) implies (this@isNullOrBlank != null)
+	}
+	return this == null || this.isBlank()
 }
 
 

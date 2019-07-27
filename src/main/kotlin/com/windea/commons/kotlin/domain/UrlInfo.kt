@@ -8,7 +8,7 @@ import java.net.*
 data class UrlInfo(
 	/**完整地址。*/
 	val url: String,
-	/**排除查询参数的完整路径。*/
+	/**不包含查询参数的完整路径。*/
 	val fullPath: String,
 	/**协议。默认为http。*/
 	val protocol: String,
