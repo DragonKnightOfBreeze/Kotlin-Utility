@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.loader.*
+import com.windea.commons.kotlin.loaders.*
 import org.junit.*
 
 class DataLoaderTests {
@@ -10,7 +10,7 @@ class DataLoaderTests {
 		println(jsonMap1)
 		
 		//TESTED
-		val jsonPath = "D:\\My Documents\\My Projects\\Java Projects\\Utility\\Kotlin Utility\\src\\main\\resources\\test.json"
+		val jsonPath = "D:\\OneDrive\\My Documents\\My Projects\\Java\\Utility\\Kotlin-Utility\\src\\test\\resources\\test.json"
 		val jsonMap2 = JsonLoader.instance.fromFile(jsonPath)
 		println(jsonMap2)
 		
@@ -28,7 +28,7 @@ class DataLoaderTests {
 		println(yamlMap1)
 		
 		//TESTED
-		val yamlPath = "D:\\My Documents\\My Projects\\Java Projects\\Utility\\Kotlin Utility\\src\\main\\resources\\test.yml"
+		val yamlPath = "D:\\OneDrive\\My Documents\\My Projects\\Java\\Utility\\Kotlin-Utility\\src\\test\\resources\\test.yml"
 		val yamlMap2 = YamlLoader.instance.fromFile(yamlPath)
 		println(yamlMap2)
 		
@@ -38,6 +38,13 @@ class DataLoaderTests {
 		
 		//TESTED
 		val yamlData = mapOf("aaaa" to 1)
+		YamlLoader.instance.toFile(yamlData, yamlPath)
+	}
+	
+	@Test
+	fun test2() {
+		val yamlPath = "D:\\OneDrive\\My Documents\\My Projects\\Java\\Utility\\Kotlin-Utility\\src\\test\\resources\\test.yml"
+		val yamlData = mapOf("a" to 1, "b" to mapOf("c" to 2))
 		YamlLoader.instance.toFile(yamlData, yamlPath)
 	}
 }

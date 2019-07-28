@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.extension.*
+import com.windea.commons.kotlin.extensions.*
 import org.junit.*
 
 class StringExtensionTests {
