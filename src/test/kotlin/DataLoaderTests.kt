@@ -41,6 +41,7 @@ class DataLoaderTests {
 		YamlLoader.instance.toFile(yamlData, yamlPath)
 	}
 	
+	//TESTED
 	@Test
 	fun test2() {
 		val yamlPath = "D:\\OneDrive\\My Documents\\My Projects\\Java\\Utility\\Kotlin-Utility\\src\\test\\resources\\test.yml"

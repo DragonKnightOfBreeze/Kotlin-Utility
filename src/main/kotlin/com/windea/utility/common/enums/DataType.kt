@@ -4,7 +4,9 @@ import com.windea.utility.common.loaders.*
 
 /**数据类型。*/
 enum class DataType(
+	/**扩展名。*/
 	val extension: String,
+	/**对应的数据读取器。*/
 	val loader: DataLoader
 ) {
 	Json("json", JsonLoader.instance),

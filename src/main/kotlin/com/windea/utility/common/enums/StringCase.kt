@@ -1,25 +1,27 @@
 package com.windea.utility.common.enums
 
+import com.windea.utility.common.annotations.marks.*
+
 /**字符串的显示格式。*/
-enum class StringCase {
-	/**OtH_e r Ca  SE。*/
-	Other,
+@NotTested
+enum class StringCase(
+	val regex: Regex
+) {
+	Unknown("^$".toRegex()),
 	/**camelCase。*/
-	CamelCase,
+	CamelCase("^([a-z]+)([A-Z][a-z]*)*$".toRegex()),
 	/**PascalCase。*/
-	PascalCase,
-	/**SCREAMING_SNAKE_CASE。*/
-	ScreamingSnakeCase,
+	PascalCase("^([A-Z][a-z]*)*$".toRegex()),
 	/**snake_case。*/
-	SnakeCase,
+	SnakeCase("^([a-z]+)(?:_([a-z]+))*$".toRegex()),
+	/**SCREAMING_SNAKE_CASE。*/
+	ScreamingSnakeCase("^([A-Z]+)(_(?:[A-Z]+))*$".toRegex()),
 	/**kebab-case。*/
-	KebabCase,
+	KebabCase("^([a-z]+)(?:-([a-z]+))*$".toRegex()),
+	/**KEBAB-UPPERCASE*/
+	KebabUpperCase("^([A-Z]+)(?:-([A-Z]+))*$".toRegex()),
 	/**dot.case。*/
-	DotCase,
+	DotCase("^([a-zA-Z_]+)(?:\\.([a-zA-Z_]+))*$".toRegex()),
 	/**whiteSpace case。*/
-	WhiteSpaceCase,
-	/**lSep\\case。*/
-	LeftSepCase,
-	/**rSep/case。*/
-	RightSepCase
+	WhiteSpaceCase("^([a-zA-Z]+)(?:(\\s[a-zA-Z]+))*$".toRegex())
 }

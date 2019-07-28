@@ -2,14 +2,14 @@
 
 package com.windea.utility.common.generators.impl
 
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.extensions.*
-import com.windea.commons.kotlin.generators.*
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.extensions.*
+import com.windea.utility.common.generators.*
+import com.windea.utility.common.loaders.*
 import java.io.*
 
 /**Sql语句的生成器。*/
-@com.windea.utility.common.annotations.marks.NotTested
+@NotTested
 class SqlGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private var outputText = ""
@@ -53,7 +53,7 @@ class SqlGenerator : TextGenerator {
 			|insert into $tableName ($columnNameSnippet) values
 			|${table.joinToString(",\n", "", ";\n") { data ->
 				val dataSnippet = data.values.joinToString(", ") { column ->
-					column?.toString()?.wrapQuote('\'').unescape() ?: "null"
+					column?.toString()?.wrapQuote('\'')?.unescape() ?: "null"
 				}
 				"""
 				|  ($dataSnippet)

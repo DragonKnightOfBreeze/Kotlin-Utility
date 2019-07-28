@@ -2,9 +2,9 @@
 
 package com.windea.utility.common.extensions
 
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.domain.text.*
-import com.windea.commons.kotlin.enums.*
+import com.windea.utility.common.domain.text.*
+import com.windea.utility.common.enums.*
+import java.io.*
 import java.net.*
 import java.nio.file.*
 import java.text.*
@@ -20,11 +20,10 @@ infix fun String?.equalsIc(other: String?): Boolean {
 	return this.equals(other, true)
 }
 
-/**判断字符串是否相等。忽略显示格式。*/
+/**判断字符串是否相等。忽略显示格式[StringCase]。*/
 infix fun String?.equalsIsc(other: String?): Boolean {
-	val list1 = this?.splitByCase(this.checkCase()) ?: return false
-	val list2 = other?.splitByCase(this.checkCase()) ?: return false
-	return list1 allEquals list2
+	if(this == other) return true
+	return this != null && other != null && this.switchCase(this.getCase(), other.getCase()) == other
 }
 
 
@@ -35,7 +34,7 @@ infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
 
 /**判断当前字符串是否以任意指定前缀开头。*/
 infix fun CharSequence.startsWith(prefixArray: Array<CharSequence>): Boolean {
-	return prefixArray.any { this.startsWith(it, ignoreCase = false) }
+	return prefixArray.any { this.startsWith(it, false) }
 }
 
 /**判断当前字符串是否以指定后缀结尾。*/
@@ -170,14 +169,12 @@ fun String.messageFormat(vararg args: Any): String {
 
 
 /**根据指定的前缀[prefix]和后缀[suffix]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
-fun String.surround(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
-	val isEmpty = ignoreEmpty && this.isEmpty()
-	val result = prefix + this + suffix
-	return if(isEmpty) "" else result
+fun String.surrounding(prefix: String, suffix: String, ignoreEmpty: Boolean = true): String {
+	return if(ignoreEmpty && this.isEmpty()) "" else prefix + this + suffix
 }
 
 /**根据指定的前后缀[delimiter]，包围字符串，可指定是否忽略空字符串[ignoreEmpty]，默认为true。*/
-fun String.surround(delimiter: String, ignoreEmpty: Boolean = true) = surround(delimiter, delimiter, ignoreEmpty)
+fun String.surrounding(delimiter: String, ignoreEmpty: Boolean = true) = surrounding(delimiter, delimiter, ignoreEmpty)
 
 
 /**去除指定字符串。*/
@@ -201,11 +198,15 @@ fun String.removeBlank(): String {
 }
 
 
+private val escapeChars = arrayOf('\n', '\r', '\b', '\t', '\'', '\"', '\\')
+
+private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
+
 /**转义当前字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(Regex(unescapeString), escapeChar)
+			this.replace(unescapeString.toRegex(), escapeChar.toString())
 		}
 	}
 }
@@ -214,27 +215,26 @@ fun String.escape(): String {
 fun String.unescape(): String {
 	return buildString {
 		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(Regex(escapeChar), unescapeString)
+			this.replace(escapeChar.toString().toRegex(), unescapeString)
 		}
 	}
 }
 
-private val escapeChars = arrayOf("\n", "\r", "\b", "\t", "\'", "\"", "\\")
 
-private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
+private val quoteChars = arrayOf('"', '\'', "`")
 
 /**使用双引号/单引号/反引号包围当前字符串。默认使用双引号。*/
-fun String.quote(delimiter: String = "\""): String {
-	if(delimiter !in quoteChars) return this
-	return this.surround(delimiter, ignoreEmpty = false)
+fun String.wrapQuote(quoteChar: Char = '"'): String {
+	if(quoteChar !in quoteChars) return this
+	return this.replace(quoteChar.toString(), "\\$quoteChar").surrounding(quoteChar.toString(), false)
 }
 
 /**去除当前字符串两侧的双引号/单引号/反引号。*/
-fun String.unquote(): String {
-	return quoteChars.fold(this) { init, quoteChar -> init.replace(quoteChar, "") }
+fun String.unwrapQuote(): String {
+	val quoteChar = this.first()
+	if(quoteChar !in quoteChars) return this
+	return this.removeSurrounding(quoteChar.toString()).replace("\\$quoteChar", quoteChar.toString())
 }
-
-private val quoteChars = arrayOf("\"", "'", "`")
 
 
 /**将第一个字符转为大写。*/
@@ -242,7 +242,7 @@ fun String.firstCharToUpperCase(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length)
 }
 
-/**仅将第一个字符转为大写。*/
+/**将第一个字符转为大写，将其他字符皆转为小写。*/
 fun String.firstCharToUpperCaseOnly(): String {
 	return this[0].toUpperCase() + this.substring(1, this.length).toLowerCase()
 }
@@ -252,68 +252,104 @@ fun String.firstCharToLowerCase(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length)
 }
 
-/**仅将第一个字符转为小写。*/
+/**将第一个字符转为小写，将其他字符皆转为小写。*/
 fun String.firstCharToLowerCaseOnly(): String {
 	return this[0].toLowerCase() + this.substring(1, this.length).toUpperCase()
 }
 
 
-/**检查当前字符串的显示格式。*/
-@com.windea.utility.common.annotations.marks.NotTested
-fun String.checkCase(): StringCase {
+/**得到当前字符串的显示格式。*/
+fun String.getCase(): StringCase {
 	return when {
-		this.matches("^[a-z]+([A-Z][a-z]*)*$".toRegex()) -> StringCase.CamelCase
-		this.matches("^([A-Z][a-z]*)*$".toRegex()) -> StringCase.PascalCase
-		this.matches("^[A-Z]+(_[A-Z]+)*$".toRegex()) -> StringCase.ScreamingSnakeCase
-		this.matches("^[a-z]+(_[a-z]+)*$".toRegex()) -> StringCase.SnakeCase
-		this.matches("^[a-z]+(-[a-z]+)*$".toRegex()) -> StringCase.KebabCase
-		this.matches("^[a-zA-z_]+(\\.[a-zA-z_]+)*$".toRegex()) -> StringCase.DotCase
-		this.matches("^[a-zA-Z]+(\\s[a-zA-Z]+)*$".toRegex()) -> StringCase.WhiteSpaceCase
-		this.matches("^[^/]+(/[^/]+)*$".toRegex()) -> StringCase.LeftSepCase
-		this.matches("^[^\\\\]+(\\\\[^\\\\]+)*$".toRegex()) -> StringCase.RightSepCase
-		else -> StringCase.Other
+		this matches StringCase.CamelCase.regex -> StringCase.CamelCase
+		this matches StringCase.PascalCase.regex -> StringCase.PascalCase
+		this matches StringCase.SnakeCase.regex -> StringCase.SnakeCase
+		this matches StringCase.ScreamingSnakeCase.regex -> StringCase.ScreamingSnakeCase
+		this matches StringCase.KebabCase.regex -> StringCase.KebabCase
+		this matches StringCase.KebabUpperCase.regex -> StringCase.KebabUpperCase
+		this matches StringCase.DotCase.regex -> StringCase.DotCase
+		this matches StringCase.WhiteSpaceCase.regex -> StringCase.WhiteSpaceCase
+		else -> StringCase.Unknown
 	}
 }
 
-/**转换当前字符串的显示格式。*/
+/**切换当前字符串的显示格式。*/
 fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
-	return this.splitByCase(fromCase).concatByCase(toCase)
+	return this.splitByCase(fromCase).joinByCase(toCase)
 }
 
 /**根据显示格式分割当前字符串。*/
 fun String.splitByCase(case: StringCase): List<String> {
 	return when(case) {
-		StringCase.Other -> listOf(this)
-		StringCase.CamelCase -> this.firstCharToUpperCase().splitWordByWhiteSpace().split(" ")
-		StringCase.PascalCase -> this.splitWordByWhiteSpace().split(" ")
-		StringCase.ScreamingSnakeCase -> this.split("_")
+		StringCase.Unknown -> listOf(this)
+		StringCase.CamelCase -> this.firstCharToUpperCase().splitByWhiteSpace().split(" ")
+		StringCase.PascalCase -> this.splitByWhiteSpace().split(" ")
 		StringCase.SnakeCase -> this.split("_")
+		StringCase.ScreamingSnakeCase -> this.split("_")
 		StringCase.KebabCase -> this.split("-")
+		StringCase.KebabUpperCase -> this.split("-")
 		StringCase.DotCase -> this.split(".")
 		StringCase.WhiteSpaceCase -> this.split(" ")
-		StringCase.LeftSepCase -> this.split("\\")
-		StringCase.RightSepCase -> this.split("/")
 	}
 }
 
 /**根据显示格式连接当前字符串列表。*/
-fun List<String>.concatByCase(case: StringCase): String {
+fun List<String>.joinByCase(case: StringCase): String {
 	return when(case) {
-		StringCase.Other -> this[0]
+		StringCase.Unknown -> this.first()
 		StringCase.CamelCase -> this.joinToString("") { it.firstCharToUpperCaseOnly() }.firstCharToLowerCase()
 		StringCase.PascalCase -> this.joinToString("") { it.firstCharToUpperCaseOnly() }
-		StringCase.ScreamingSnakeCase -> this.joinToString("_") { it.toUpperCase() }
 		StringCase.SnakeCase -> this.joinToString("_") { it.toLowerCase() }
-		StringCase.KebabCase -> this.joinToString("_") { it.toLowerCase() }
+		StringCase.ScreamingSnakeCase -> this.joinToString("_") { it.toUpperCase() }
+		StringCase.KebabCase -> this.joinToString("-") { it.toLowerCase() }
+		StringCase.KebabUpperCase -> this.joinToString("-") { it.toUpperCase() }
 		StringCase.DotCase -> this.joinToString(".")
 		StringCase.WhiteSpaceCase -> this.joinToString(" ")
-		StringCase.LeftSepCase -> this.joinToString("\\")
-		StringCase.RightSepCase -> this.joinToString("/")
 	}
 }
 
-private fun String.splitWordByWhiteSpace(): String {
+private fun String.splitByWhiteSpace(): String {
 	return this.replace("\\B([A-Z]+)".toRegex(), " $1")
+}
+
+
+/**得到当前字符串的路径显示格式。*/
+fun String.getPathCase(): PathCase {
+	return when {
+		this matches PathCase.WindowsPath.regex -> PathCase.WindowsPath
+		this matches PathCase.UnixPath.regex -> PathCase.UnixPath
+		this matches PathCase.ReferencePath.regex -> PathCase.ReferencePath
+		this matches PathCase.JsonPath.regex -> PathCase.JsonPath
+		else -> PathCase.Unknown
+	}
+}
+
+/**切换当前字符串的路径显示格式。*/
+fun String.switchPathCase(fromCase: PathCase, toCase: PathCase): String {
+	return this.splitByPathCase(fromCase).joinByPathCase(toCase)
+}
+
+/**根据路径显示格式分割当前字符串，组成完整路径。*/
+fun String.splitByPathCase(case: PathCase): List<String> {
+	val fixedPath = this.removePrefix(".").removePrefix(".").removePrefix("#")
+	return when(case) {
+		PathCase.Unknown -> listOf(this)
+		PathCase.WindowsPath -> fixedPath.removeSurrounding("\\").split("\\")
+		PathCase.UnixPath -> fixedPath.removeSurrounding("/").split("/")
+		PathCase.ReferencePath -> fixedPath.split("[", "].", ".")
+		PathCase.JsonPath -> fixedPath.removeSurrounding("/").split("/")
+	}
+}
+
+/**根据路径显示格式连接当前字符串列表，组成完整路径。*/
+fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): String {
+	return when(case) {
+		PathCase.Unknown -> this.first()
+		PathCase.WindowsPath -> this.joinToString("\\").let { if(addPrefix) "\\$it" else it }
+		PathCase.UnixPath -> this.joinToString("/").let { if(addPrefix) "/$it" else it }
+		PathCase.ReferencePath -> this.joinToString(".").replace("\\.(\\d*)\\.".toRegex(), "[$1].")
+		PathCase.JsonPath -> "#/" + this.joinToString("/")
+	}
 }
 
 
@@ -395,6 +431,10 @@ fun String.toEnumConst(type: Class<*>): Any {
 	}
 }
 
+
+/**将当前字符串转化为文件。*/
+fun String.toFile(): File = File(this.trim())
+
 /**将当前字符串转化为路径。*/
 fun String.toPath(): Path = Path.of(this.trim())
 
@@ -402,13 +442,13 @@ fun String.toPath(): Path = Path.of(this.trim())
 fun String.toUrl(content: URL? = null, handler: URLStreamHandler? = null): URL = URL(content, this.trim(), handler)
 
 /**将当前字符串转化为统一资源定位符。*/
-fun String.toUri(): URI = URI.create(this)
+fun String.toUri(): URI = URI.create(this.trim())
 
 
 /**得到当前字符串对应的Markdown对象。*/
-fun String.toMarkdown(useExtendedSyntax: Boolean = false, userCriticalMarkup: Boolean = false): Markdown {
+fun String.toMarkdown(enableExtendedSyntax: Boolean = false, enableCriticalMarkup: Boolean = false): Markdown {
 	val text = this.asMarkdownText()
-	return Markdown(text, useExtendedSyntax, userCriticalMarkup)
+	return Markdown(text, enableExtendedSyntax, enableCriticalMarkup)
 }
 
 /**得到当前字符串对应的路径信息。*/

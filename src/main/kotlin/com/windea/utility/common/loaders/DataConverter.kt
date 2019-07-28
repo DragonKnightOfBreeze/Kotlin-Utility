@@ -1,14 +1,14 @@
 package com.windea.utility.common.loaders
 
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.enums.*
-import com.windea.commons.kotlin.extensions.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.enums.*
+import com.windea.utility.common.extensions.*
 
 /**数据转化器。*/
-@com.windea.utility.common.annotations.marks.NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
+@NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
 class DataConverter constructor(
-	private val fromType: DataFormat,
-	private val toType: DataFormat
+	private val fromType: DataType,
+	private val toType: DataType
 ) {
 	/**将一种数据文件转换成另一种数据文件，分别指定输入、输出路径。*/
 	fun convert(fromPath: String, toPath: String) {

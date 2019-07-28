@@ -2,11 +2,13 @@
 
 package com.windea.utility.common.extensions
 
-import com.windea.commons.kotlin.annotations.marks.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.enums.*
 
 operator fun <T> Iterable<T>.times(n: Int) = mutableListOf<T>().also { list -> repeat(n) { list += this } }
 
 operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
+
 
 /**判断两个列表的元素是否全部相等。同时判断长度是否相等、顺序是否相同。*/
 infix fun <T> List<T>.allEquals(other: List<T>): Boolean {
@@ -71,43 +73,43 @@ fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 }
 
 
-/**
- * 根据指定路径[path]查询当前数组，返回匹配的元素列表。
- *
- * @see privateQueryValue
- */
-fun <T> Array<T>.query(path: String) = privateQueryValue(this.toList(), path)
+/**递归平滑映射当前数组，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
+fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**
- * 根据指定路径[path]查询当前集合，返回匹配的元素列表。
- *
- * @see privateQueryValue
- */
-fun <E> Iterable<E>.query(path: String) = privateQueryValue(this.toList(), path)
+/**递归平滑映射当前集合，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
+fun <E> Iterable<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
 
-/**
- * 根据指定路径[path]查询当前映射，返回匹配的值列表。
- *
- * @see privateQueryValue
- */
-fun <K, V> Map<K, V>.queryValue(path: String) = privateQueryValue(this, path)
+/**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
+fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
 
-/**
- * * 示例： `#/{Category}/{Name}/Name`。
- *
- * 允许的子路径格式：
- * * `[]` 表示一个列表。
- * * `1..10` 表示一个所应在指定范围内的列表。包含上下限。
- * * `1` 表示一个列表的索引。
- * * `{}` 表示一个对象/映射。
- * * `{Category}` 表示一个注为指定占位符的对象/映射。
- * * `re:Name.*` 表示一个属性/键匹配指定正则的对象/映射。
- * * `Name` 表示一个对象/映射的属性/键。
- */
-@com.windea.utility.common.annotations.marks.NotTested("某些特殊情况？")
-private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
-	val fixedPath = path.trim().removePrefix("#").removePrefix("/")
-	val subPaths = fixedPath.split("/")
+@NotTested("某些特殊情况？")
+private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+	return map.flatMap { (key, value) ->
+		prePaths += key
+		when(value) {
+			is Map<*, *> -> privateDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
+			is List<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
+			else -> {
+				val fullPath = prePaths.joinByPathCase(PathCase.ReferencePath)
+				listOf(fullPath to value)
+			}
+		}
+	}.toMap()
+}
+
+
+/**根据指定路径[path]递归查询当前数组，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
+fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+
+/**根据指定路径[path]递归查询当前集合，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
+fun <E> Iterable<E>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+
+/**根据指定路径[path]递归查询当前映射，返回匹配的值列表。使用Json路径[PathCase.JsonPath]。*/
+fun <K, V> Map<K, V>.deepQueryValue(path: String) = privateDeepQueryValue(this, path)
+
+@NotTested("某些特殊情况？")
+private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
+	val subPaths = path.trim().splitByPathCase(PathCase.JsonPath)
 	var valueList = listOf(collection)
 	
 	for(subPath in subPaths) {
@@ -134,7 +136,7 @@ private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
 			subPath matches Regex("\\{.+}") -> {
 				valueList.flatMap { (it as Map<String, Any?>).values }
 			}
-			//如果子路径表示一个正则表达式，例如："/Name.*/"
+			//如果子路径表示一个正则表达式，例如："/.*Name/"
 			subPath matches Regex("/.*/") -> {
 				val pattern = subPath.removeSurrounding("/")
 				valueList.flatMap { (it as Map<String, Any?>).filterKeys { k -> k matches Regex(pattern) }.values }
@@ -146,31 +148,6 @@ private fun privateQueryValue(collection: Any?, path: String): List<Any?> {
 		}
 	}
 	return valueList
-}
-
-
-/**向下递归平滑映射当前数组，返回路径-值映射。*/
-fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
-
-/**向下递归平滑映射当前集合，返回路径-值映射。*/
-fun <E> Iterable<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
-
-/**向下递归平滑映射当前映射，返回路径-值映射。*/
-fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
-
-@com.windea.utility.common.annotations.marks.NotTested("某些特殊情况？")
-private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
-	return map.flatMap { (key, value) ->
-		prePaths += key
-		when(value) {
-			is Map<*, *> -> privateDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
-			is List<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
-			else -> {
-				val fullPath = prePaths.joinToString(".").replace(Regex("\\.(\\d*)\\."), "[$1].")
-				listOf(Pair(fullPath, value))
-			}
-		}
-	}.toMap()
 }
 
 
@@ -209,7 +186,7 @@ fun <T> Iterable<T>.toIndexedMap(): Map<String, T> {
 /**将当前映射转化为指定类型[T]的对象。可指定是否递归转化[recursive]，默认为true。*/
 fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
-@com.windea.utility.common.annotations.marks.NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
+@NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
 private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = true): T {
 	val newObject = type.getConstructor().newInstance()
 	val propertyMap = type.setterMap

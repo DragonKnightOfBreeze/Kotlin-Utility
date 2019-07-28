@@ -2,16 +2,16 @@
 
 package com.windea.utility.common.generators.impl
 
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.extensions.*
-import com.windea.commons.kotlin.generators.*
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.extensions.*
+import com.windea.utility.common.generators.*
+import com.windea.utility.common.loaders.*
 import java.util.concurrent.*
 
 typealias SchemaRule = (originRule: Pair<String, Any?>) -> Map<String, Any?>
 
 /**Json/Yaml Schema的生成器。*/
-@com.windea.utility.common.annotations.marks.NotTested("未发现")
+@NotTested("未发现")
 class SchemaGenerator : TextGenerator {
 	private val inputMap = mutableMapOf<String, Any?>()
 	private val dataMap = mutableMapOf<String, Any?>()
@@ -36,7 +36,7 @@ class SchemaGenerator : TextGenerator {
 			},
 			"\$gen" to { (_, value) ->
 				//提取$dataMap中的路径`$value`对应的值列表
-				val newValue = dataMap.queryValue(value as String)
+				val newValue = dataMap.deepQueryValue(value as String)
 				when {
 					newValue.isNotEmpty() -> mapOf("enum" to newValue)
 					else -> mapOf()
