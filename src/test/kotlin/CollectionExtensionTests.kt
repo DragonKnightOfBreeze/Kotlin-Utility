@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.extensions.*
+import com.windea.utility.common.extensions.*
 import org.junit.*
 
 class CollectionExtensionTests {

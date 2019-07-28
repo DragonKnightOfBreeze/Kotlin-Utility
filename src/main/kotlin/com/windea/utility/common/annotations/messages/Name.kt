@@ -1,6 +1,6 @@
 package com.windea.utility.common.annotations.messages
 
-import com.windea.commons.kotlin.extensions.*
+import com.windea.utility.common.extensions.*
 
 /**本地化名字的注解。*/
 @MustBeDocumented
@@ -13,5 +13,5 @@ annotation class Name(
 
 /**得到目标的本地化名字。*/
 fun Any.annotatedName(locale: String = "Chs"): String? {
-	return this::class.findAnnotation<Name> { it.locale == locale }.text
+	return this::class.findAnnotation<Name> { it.locale == locale }?.text
 }

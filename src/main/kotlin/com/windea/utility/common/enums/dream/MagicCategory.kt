@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.dream
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.dream.MagicSuperCategory.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.dream.MagicSuperCategory.*
 
 /**魔法分类。*/
 @Name("魔法分类")

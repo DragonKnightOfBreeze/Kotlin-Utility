@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.extensions.*
+import com.windea.utility.common.extensions.*
 import org.junit.*
 
 class StringExtensionTests {
@@ -58,5 +58,13 @@ class StringExtensionTests {
 	fun test8() {
 		println("*" * 10)
 		println("******" / 3)
+	}
+	
+	@Test
+	fun test9() {
+		println("AbcAbc" equalsIc "ABCABC")
+		println("AbcAbc" equalsIsc "abcAbc")
+		println("AbcAbc" equalsIsc "abc_abc")
+		println("AbcAbc" equalsIsc "Abc.Abc")
 	}
 }

@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.dream
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.dream.WeaponSuperCategory.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.dream.WeaponSuperCategory.*
 
 /**武器分类。*/
 @Name("武器分类")

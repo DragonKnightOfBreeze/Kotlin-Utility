@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.math.extended
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.math.extended.Dimension.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.math.extended.Dimension.*
 
 /**七维方向。第七维指代变量时间线。*/
 @Name("七维方向。")

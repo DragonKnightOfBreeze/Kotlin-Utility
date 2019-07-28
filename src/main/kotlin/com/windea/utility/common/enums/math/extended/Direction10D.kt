@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.math.extended
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.math.extended.Dimension.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.math.extended.Dimension.*
 
 /**十维方向。第九维指代变量世界线。*/
 @Name("十维方向。")

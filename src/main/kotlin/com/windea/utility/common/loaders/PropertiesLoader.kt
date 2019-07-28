@@ -1,6 +1,6 @@
 package com.windea.utility.common.loaders
 
-import com.windea.commons.kotlin.loaders.impl.*
+import com.windea.utility.common.loaders.impl.*
 
 /**Properties数据读取器的接口。*/
 interface PropertiesLoader : DataLoader {

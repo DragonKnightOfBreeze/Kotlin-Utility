@@ -1,6 +1,6 @@
 package com.windea.utility.common.enums.dream
 
-import com.windea.commons.kotlin.annotations.messages.*
+import com.windea.utility.common.annotations.messages.*
 
 /**作用属性。*/
 @Name("作用属性")

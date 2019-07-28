@@ -3,12 +3,12 @@
 package com.windea.utility.common.loaders.impl
 
 import com.fasterxml.jackson.dataformat.javaprop.*
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.loaders.*
 import java.io.*
 import java.util.*
 
-@com.windea.utility.common.annotations.marks.NotTested
+@NotTested
 class JacksonPropertiesLoader : PropertiesLoader {
 	private val mapper = JavaPropsMapper()
 	private val schema = JavaPropsSchema()

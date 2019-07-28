@@ -1,6 +1,6 @@
 package com.windea.utility.common.domain.text
 
-import com.windea.commons.kotlin.extensions.*
+import com.windea.utility.common.extensions.*
 import java.net.*
 
 

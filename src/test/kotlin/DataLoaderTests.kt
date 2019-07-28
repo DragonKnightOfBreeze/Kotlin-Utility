@@ -1,4 +1,4 @@
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.loaders.*
 import org.junit.*
 
 class DataLoaderTests {

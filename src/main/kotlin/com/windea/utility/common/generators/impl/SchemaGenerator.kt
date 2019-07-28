@@ -79,10 +79,10 @@ class SchemaGenerator : TextGenerator {
 	fun from(inputPath: String) = from(inputPath, "ExtendedYamlSchema")
 	
 	
-	/**@param dataFormat Json, Yaml*/
-	fun loadDataMap(dataPath: String, dataFormat: String): SchemaGenerator {
+	/**@param dataType Json, Yaml*/
+	fun loadDataMap(dataPath: String, dataType: String): SchemaGenerator {
 		runCatching {
-			when(dataFormat) {
+			when(dataType) {
 				"Json" -> this.dataMap += JsonLoader.instance.fromFile(dataPath)
 				"Yaml" -> this.dataMap += YamlLoader.instance.fromFile(dataPath)
 			}

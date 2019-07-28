@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.math
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.math.SuperDimension.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.math.SuperDimension.*
 
 /**维度。*/
 @Name("维度")

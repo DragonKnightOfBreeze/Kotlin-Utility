@@ -1,6 +1,6 @@
 package com.windea.utility.common.enums.dream
 
-import com.windea.commons.kotlin.annotations.messages.*
+import com.windea.utility.common.annotations.messages.*
 
 /**武器顶级分类。*/
 @Name("武器顶级分类")

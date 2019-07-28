@@ -3,7 +3,7 @@
 package com.windea.utility.common.loaders.impl
 
 import com.google.gson.*
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.loaders.*
 import java.io.*
 
 class GsonJsonLoader : JsonLoader {

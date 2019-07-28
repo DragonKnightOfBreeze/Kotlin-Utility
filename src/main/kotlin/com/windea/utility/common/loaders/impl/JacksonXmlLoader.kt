@@ -3,11 +3,11 @@
 package com.windea.utility.common.loaders.impl
 
 import com.fasterxml.jackson.dataformat.xml.*
-import com.windea.commons.kotlin.annotations.marks.*
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.loaders.*
 import java.io.*
 
-@com.windea.utility.common.annotations.marks.NotTested
+@NotTested
 class JacksonXmlLoader : XmlLoader {
 	private val mapper = XmlMapper()
 	

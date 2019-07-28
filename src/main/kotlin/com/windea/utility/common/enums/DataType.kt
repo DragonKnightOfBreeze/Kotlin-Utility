@@ -1,12 +1,10 @@
 package com.windea.utility.common.enums
 
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.loaders.*
 
-/**数据格式。*/
-enum class DataFormat(
-	/**扩展名。*/
+/**数据类型。*/
+enum class DataType(
 	val extension: String,
-	/**对应的数据读取器。*/
 	val loader: DataLoader
 ) {
 	Json("json", JsonLoader.instance),

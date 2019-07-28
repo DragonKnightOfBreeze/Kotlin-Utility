@@ -1,6 +1,6 @@
 package com.windea.utility.common.enums.math
 
-import com.windea.commons.kotlin.annotations.messages.*
+import com.windea.utility.common.annotations.messages.*
 
 /**地理方向。*/
 @Name("地理方向")

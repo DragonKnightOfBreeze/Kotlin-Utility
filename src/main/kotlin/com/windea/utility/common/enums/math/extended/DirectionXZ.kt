@@ -1,7 +1,7 @@
 package com.windea.utility.common.enums.math.extended
 
-import com.windea.commons.kotlin.annotations.messages.*
-import com.windea.commons.kotlin.enums.math.extended.Dimension.*
+import com.windea.utility.common.annotations.messages.*
+import com.windea.utility.common.enums.math.extended.Dimension.*
 
 /**基于XZ轴的二维方向。*/
 @Name("基于XZ轴的二维方向")

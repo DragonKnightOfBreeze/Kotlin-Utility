@@ -2,7 +2,7 @@
 
 package com.windea.utility.common.loaders.impl
 
-import com.windea.commons.kotlin.loaders.*
+import com.windea.utility.common.loaders.*
 import org.yaml.snakeyaml.*
 import org.yaml.snakeyaml.constructor.*
 import org.yaml.snakeyaml.representer.*
