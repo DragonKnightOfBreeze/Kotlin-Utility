@@ -6,5 +6,5 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class NotSuitable(
-	val condition: String = "Not suitable."
+	val condition: String = "All condition."
 )

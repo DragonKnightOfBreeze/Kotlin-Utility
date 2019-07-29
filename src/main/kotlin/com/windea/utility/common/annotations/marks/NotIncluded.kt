@@ -6,5 +6,5 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class NotIncluded(
-	val condition: String = "Not included."
+	val condition: String = "All condition."
 )

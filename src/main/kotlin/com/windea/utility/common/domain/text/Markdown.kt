@@ -6,6 +6,7 @@ import com.windea.utility.common.extensions.*
 import java.io.*
 
 /**Markdown对象。*/
+@Deprecated("待重构")
 class Markdown(
 	/**Markdown文本。*/
 	var text: String,

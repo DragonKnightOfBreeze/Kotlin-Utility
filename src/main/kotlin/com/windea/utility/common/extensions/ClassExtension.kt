@@ -24,12 +24,14 @@ val <T> Class<T>.isMap: Boolean get() = this.checkInterface(Map::class.java)
 /**判断是否是可序列类/接口。*/
 val <T> Class<T>.isSerializable: Boolean get() = this.checkInterface(Serializable::class.java)
 
-private fun Class<*>.checkClass(clazz: Class<*>): Boolean {
-	return this == clazz || superclass?.checkClass(clazz) ?: false
+private tailrec fun Class<*>.checkClass(clazz: Class<*>): Boolean {
+	if(this != clazz || this.superclass == null) return false
+	return superclass.checkClass(clazz)
 }
 
 private fun Class<*>.checkInterface(clazz: Class<*>): Boolean {
-	return this == clazz || interfaces.any { it.checkInterface(clazz) } || superclass?.checkInterface(clazz) ?: false
+	if(this != clazz || this.superclass == null) return false
+	return this.interfaces.any { it.checkInterface(clazz) } || superclass.checkInterface(clazz)
 }
 
 

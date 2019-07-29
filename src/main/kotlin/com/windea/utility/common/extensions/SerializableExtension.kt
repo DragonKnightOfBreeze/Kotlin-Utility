@@ -1,20 +1,11 @@
 package com.windea.commons.kotlin.extension
 
 import com.windea.utility.common.enums.*
-import com.windea.utility.common.extensions.*
 import java.io.*
-
-/**得到可序列化对象的属性名数组。*/
-val <T : Serializable> T.propertyNames: Array<String>
-	get() {
-		return this::class.java.getterMap.keys.toTypedArray<String>()
-	}
+import kotlin.reflect.full.*
 
 /**得到可序列化对象的属性名-属性值映射。*/
-val <T : Serializable> T.propertyMap: Map<String, Any?>
-	get() {
-		return this::class.java.getterMap.mapValues { (_, v1) -> v1.invoke(this) }.filterKeys { it != "class" }
-	}
+val <T : Serializable> T.propertyMap get() = this::class.memberProperties.associate { it.name to it.call(this) }
 
 
 /**序列化可序列化对象，返回序列化后的指定格式[dataType]的字符串。*/

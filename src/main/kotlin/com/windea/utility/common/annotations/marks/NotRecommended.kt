@@ -6,5 +6,5 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class NotRecommended(
-	val message: String = "Not recommended."
+	val condition: String = "All condition."
 )

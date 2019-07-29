@@ -119,12 +119,12 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 				valueList.flatMap { it as List<Any?> }
 			}
 			//如果子路径表示一个范围，例如："1..10"
-			subPath matches Regex("\\d+\\.\\.\\d+") -> {
+			subPath matches "\\d+\\.\\.\\d+".toRegex() -> {
 				val (fromIndex, toIndex) = subPath.split("..").map { it.toInt() }
 				valueList.flatMap { (it as List<Any?>) }.subList(fromIndex, toIndex + 1)
 			}
 			//如果子路径表示一个列表索引，例如："1"
-			subPath matches Regex("\\d+") -> {
+			subPath matches "\\d+".toRegex() -> {
 				val index = subPath.toInt()
 				valueList.map { (it as List<Any?>)[index] }
 			}
@@ -133,12 +133,12 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 				valueList.flatMap { (it as Map<String, Any>).values }
 			}
 			//如果子路径表示一个占位符，例如："{Category}"
-			subPath matches Regex("\\{.+}") -> {
+			subPath matches "\\{.+}".toRegex() -> {
 				valueList.flatMap { (it as Map<String, Any?>).values }
 			}
-			//如果子路径表示一个正则表达式，例如："/.*Name/"
-			subPath matches Regex("/.*/") -> {
-				val pattern = subPath.removeSurrounding("/")
+			//如果子路径表示一个正则表达式，例如："regex.*Name"
+			subPath startsWith "regex:" -> {
+				val pattern = subPath.removePrefix("regex:")
 				valueList.flatMap { (it as Map<String, Any?>).filterKeys { k -> k matches Regex(pattern) }.values }
 			}
 			//如果是其他情况，例如："Name"
