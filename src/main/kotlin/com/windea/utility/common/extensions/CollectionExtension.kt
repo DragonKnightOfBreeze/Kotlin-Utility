@@ -236,6 +236,19 @@ fun Array<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
 fun List<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
 
 
+/**去除第一行空白行。*/
+fun Array<CharSequence>.dropBlank() = this.dropWhile { it.isBlank() }
+
+/**去除最后一行空白行。*/
+fun Array<CharSequence>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+
+/**去除第一行空白行。*/
+fun Iterable<CharSequence>.dropBlank() = this.dropWhile { it.isBlank() }
+
+/**去除最后一行空白行。*/
+fun List<CharSequence>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+
+
 /**过滤空字符串。*/
 fun Array<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 

@@ -80,4 +80,23 @@ class StringExtensionTests {
 		println("AbcAbc" equalsIsc "ABC_ABC")
 		println("AbcAbc" equalsIsc "abc-abc")
 	}
+	
+	@Test
+	fun test10() {
+		val str1 = """
+		  "abc
+		  abc
+		    abc
+		  abc"
+		""".trimIndent()
+		println(str1)
+		
+		val str2 = """
+		  "abc
+		  abc
+		    abc
+		  abc"
+		""".asMultilineText()
+		println(str2)
+	}
 }

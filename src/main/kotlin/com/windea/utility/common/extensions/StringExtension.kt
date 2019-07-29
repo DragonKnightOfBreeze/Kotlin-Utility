@@ -353,42 +353,17 @@ fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): Stri
 }
 
 
-/**
- * 将当前字符串转为折行文本。
- *
- * 去除首尾换行符，尾部空白以及其他所有的换行符。
- */
+/**将当前字符串转为折行文本。（去除所有换行符以及尾随空白。）*/
 fun String.asWrappedText(): String {
 	return this.remove("\n").trimEnd()
 }
 
-/**
- * 将当前字符串转化为多行文本。
- *
- * 去除首尾换行符，尾部空白，然后基于最后一行的缩进，去除每一行的缩进。如果无法判定缩进，则使用[trimIndent]这个方法。
- */
+/**将当前字符串转化为多行文本。（去除首尾空白行，然后基于最后一行的缩进，去除每一行的缩进。）*/
 fun String.asMultilineText(): String {
-	val trimmedIndent = this.lines().last().let { if(it.isBlank()) it.count() else 0 }
-	return if(trimmedIndent != 0) {
-		this.removePrefix("\n").trimEnd().lines().joinToString("\n") { it.drop(trimmedIndent) }
-	} else {
-		this.trimIndent()
-	}
-}
-
-/**
- * 将当前字符串转换为Markdown文本。
- *
- * 转化为多行文本，然后为未折行的行末尾添加两个空格。如果已添加，则应直接使用[asMultilineText]这个方法。
- */
-fun String.asMarkdownText(): String {
-	var isNotInCodeFence = true
-	return this.removePrefix("\n").trimEnd().lines().joinToString("\n") {
-		val isCodeFenceBound = it startsWith "```"
-		val isFoldedLine = it endsWith "  "
-		if(isCodeFenceBound) isNotInCodeFence = !isNotInCodeFence
-		if(isNotInCodeFence && it.isNotEmpty() && !isCodeFenceBound && !isFoldedLine) "$it  " else it
-	}
+	val lines = this.lines()
+	val trimmedIndent = lines.last().let { if(it.isBlank()) it.count() else 0 }
+	if(trimmedIndent == 0) return this.trimIndent()
+	return lines.dropBlank().dropLastBlank().joinToString("\n") { it.drop(trimmedIndent) }
 }
 
 
@@ -446,9 +421,9 @@ fun String.toUri(): URI = URI.create(this.trim())
 
 
 /**得到当前字符串对应的Markdown对象。*/
+@Deprecated("")
 fun String.toMarkdown(enableExtendedSyntax: Boolean = false, enableCriticalMarkup: Boolean = false): Markdown {
-	val text = this.asMarkdownText()
-	return Markdown(text, enableExtendedSyntax, enableCriticalMarkup)
+	return Markdown(this, enableExtendedSyntax, enableCriticalMarkup)
 }
 
 /**得到当前字符串对应的路径信息。*/
