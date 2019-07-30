@@ -42,5 +42,5 @@ enum class PathCase(
 	 * * `1..10` 表示一个列表的指定范围的切片。包含上下限。
 	 * * `1` 表示一个列表的索引。
 	 */
-	JsonPath("^#(?:/(.+))+$".toRegex())
+	JsonPath("^#?(?:/(.+))+$".toRegex())
 }

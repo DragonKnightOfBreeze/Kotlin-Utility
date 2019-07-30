@@ -37,13 +37,9 @@ private fun Class<*>.checkInterface(clazz: Class<*>): Boolean {
 
 /**得到类型的属性名-取值方法映射。*/
 val <T> Class<T>.getterMap: Map<String, Method>
-	get() {
-		return this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
-	}
+	get() = this.methods.filter { it.name.startsWith("get") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
 
 
 /**得到类型的属性名-赋值方法映射。*/
 val <T> Class<T>.setterMap: Map<String, Method>
-	get() {
-		return this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }
-	}
+	get() = this.methods.filter { it.name.startsWith("set") }.associateBy { it.name.substring(3).firstCharToLowerCase() }

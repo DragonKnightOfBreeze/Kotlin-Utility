@@ -155,7 +155,9 @@ fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<
 }
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(vararg delimiters: String?) = this.substring(*delimiters) { emptyList() }
+fun String.substringOrEmpty(vararg delimiters: String?): List<String> {
+	return this.substring(*delimiters) { emptyList() }
+}
 
 
 /**
@@ -383,25 +385,25 @@ fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
 }
 
 /**将当前字符串转化为对应的枚举常量。*/
+inline fun <reified E : Enum<E>> String.toEnumConst() = this.toEnumConst(E::class.java)
+
+/**将当前字符串转化为对应的枚举常量。*/
 fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
-	val enumConsts = type.enumConstants
-	val constName = this.trim()
 	return try {
-		enumConsts.first { it.toString() == constName }
+		type.enumConstants.first { it.toString() == this }
 	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
-		enumConsts.first()
+		println("[WARN] No matched enum const found. Convert to default.")
+		type.enumConstants.first()
 	}
 }
 
 /**将当前字符串转化为对应的枚举常量。*/
 fun String.toEnumConst(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not a enum class!")
-	val constName = this.trim()
+	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not an enum class!")
 	return try {
-		enumConsts.first { it.toString() == constName }
+		enumConsts.first { it.toString() == this }
 	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default. Enum: ${type.name}, Const: $constName.")
+		println("[WARN] No matched enum const found. Convert to default.")
 		enumConsts.first()
 	}
 }

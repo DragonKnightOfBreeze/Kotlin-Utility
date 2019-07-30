@@ -73,77 +73,133 @@ fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 }
 
 
+/**根据路得到当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <T> Array<T>.deepGet(path: String) = privateDeepGet(this.toIndexedMap(), path)
+
+/**根据路径得到当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <E> List<E>.deepGet(path: String) = privateDeepGet(this.toIndexedMap(), path)
+
+/**根据路径得到当前映射中的值。使用引用路径[PathCase.ReferencePath]。*/
+fun <K, V> Map<K, V>.deepGet(path: String) = privateDeepGet(this.toStringKeyMap(), path)
+
+private fun privateDeepGet(map: Map<String, Any?>, path: String) =
+	privateDeepGet(map, path.splitByPathCase(PathCase.ReferencePath))
+
+@NotTested
+private tailrec fun privateDeepGet(map: Map<String, Any?>, subPaths: List<String>): Any? {
+	if(subPaths.size == 1) {
+		return map[subPaths.first()]
+	}
+	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
+		is Map<*, *> -> deepValue.toStringKeyMap()
+		is Array<*> -> deepValue.toIndexedMap()
+		is Iterable<*> -> deepValue.toIndexedMap()
+		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
+	}
+	val fixedSubPaths = subPaths.drop(1)
+	return privateDeepGet(fixedDeepValue, fixedSubPaths)
+}
+
+
+/**根据路径设置当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <T> Array<T>.deepSet(path: String, value: Any?) = privateDeepSet(this.toIndexedMap().toMutableMap(), path, value)
+
+/**根据路径设置当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <E> MutableList<E>.deepSet(path: String, value: Any?) = privateDeepSet(this.toIndexedMap().toMutableMap(), path, value)
+
+/**根据路径设置当前集合中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <K, V> MutableMap<K, V>.deepSet(path: String, value: Any?) = privateDeepSet(this.toStringKeyMap().toMutableMap(), path, value)
+
+private fun privateDeepSet(map: MutableMap<String, Any?>, path: String, value: Any?) =
+	privateDeepSet(map, path.splitByPathCase(PathCase.ReferencePath), value)
+
+@NotTested
+private tailrec fun privateDeepSet(map: MutableMap<String, Any?>, subPaths: List<String>, value: Any?) {
+	if(subPaths.size == 1) {
+		map[subPaths.first()] = value
+		return
+	}
+	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
+		is Map<*, *> -> deepValue.toStringKeyMap().toMutableMap()
+		is Array<*> -> deepValue.toIndexedMap().toMutableMap()
+		is Iterable<*> -> deepValue.toIndexedMap().toMutableMap()
+		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
+	}
+	val fixedSubPaths = subPaths.drop(1)
+	privateDeepSet(fixedDeepValue, fixedSubPaths, value)
+}
+
+
 /**递归平滑映射当前数组，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
+fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(toIndexedMap())
 
 /**递归平滑映射当前集合，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <E> Iterable<E>.deepFlatMap() = privateDeepFlatMap(this.toIndexedMap(), mutableListOf())
+fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(toIndexedMap())
 
 /**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this as Map<String, Any?>, mutableListOf())
+fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap())
 
-@NotTested("某些特殊情况？")
+private fun privateDeepFlatMap(map: Map<String, Any?>) = privateDeepFlatMap(map, mutableListOf())
+
+@NotTested("某些特殊情况")
 private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
 		prePaths += key
 		when(value) {
-			is Map<*, *> -> privateDeepFlatMap(value as Map<String, Any?>, prePaths).toList()
-			is List<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
-			else -> {
-				val fullPath = prePaths.joinByPathCase(PathCase.ReferencePath)
-				listOf(fullPath to value)
-			}
+			is Array<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
+			is Iterable<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
+			is Map<*, *> -> privateDeepFlatMap(value.toStringKeyMap(), prePaths).toList()
+			else -> listOf(prePaths.joinByPathCase(PathCase.ReferencePath) to value)
 		}
 	}.toMap()
 }
 
 
 /**根据指定路径[path]递归查询当前数组，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(toList(), path)
 
 /**根据指定路径[path]递归查询当前集合，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <E> Iterable<E>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+fun <T> Iterable<T>.deepQuery(path: String) = privateDeepQueryValue(toList(), path)
 
 /**根据指定路径[path]递归查询当前映射，返回匹配的值列表。使用Json路径[PathCase.JsonPath]。*/
 fun <K, V> Map<K, V>.deepQueryValue(path: String) = privateDeepQueryValue(this, path)
 
-@NotTested("某些特殊情况？")
+@NotTested("某些特殊情况")
 private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 	val subPaths = path.trim().splitByPathCase(PathCase.JsonPath)
 	var valueList = listOf(collection)
-	
 	for(subPath in subPaths) {
 		valueList = when {
 			//如果子路径表示一个列表，例如："[]"
 			subPath == "[]" -> {
-				valueList.flatMap { it as List<Any?> }
+				valueList.flatMap { it as List<*> }
 			}
 			//如果子路径表示一个范围，例如："1..10"
 			subPath matches "\\d+\\.\\.\\d+".toRegex() -> {
 				val (fromIndex, toIndex) = subPath.split("..").map { it.toInt() }
-				valueList.flatMap { (it as List<Any?>) }.subList(fromIndex, toIndex + 1)
+				valueList.flatMap { (it as List<*>) }.subList(fromIndex, toIndex + 1)
 			}
 			//如果子路径表示一个列表索引，例如："1"
 			subPath matches "\\d+".toRegex() -> {
 				val index = subPath.toInt()
-				valueList.map { (it as List<Any?>)[index] }
+				valueList.map { (it as List<*>)[index] }
 			}
 			//如果子路径表示一个对象，例如："{}"
 			subPath == "{}" -> {
-				valueList.flatMap { (it as Map<String, Any>).values }
+				valueList.flatMap { (it as Map<*, *>).toStringKeyMap().values }
 			}
 			//如果子路径表示一个占位符，例如："{Category}"
 			subPath matches "\\{.+}".toRegex() -> {
-				valueList.flatMap { (it as Map<String, Any?>).values }
+				valueList.flatMap { (it as Map<*, *>).toStringKeyMap().values }
 			}
 			//如果子路径表示一个正则表达式，例如："regex.*Name"
 			subPath startsWith "regex:" -> {
-				val pattern = subPath.removePrefix("regex:")
-				valueList.flatMap { (it as Map<String, Any?>).filterKeys { k -> k matches Regex(pattern) }.values }
+				val regex = subPath.removePrefix("regex:")
+				valueList.flatMap { (it as Map<*, *>).toStringKeyMap().filterKeys { k -> k matches regex.toRegex() }.values }
 			}
-			//如果是其他情况，例如："Name"
+			//如果是其他情况，例如："Name"`
 			else -> {
-				valueList.map { (it as Map<String, Any?>)[subPath] }
+				valueList.map { (it as Map<*, *>).toStringKeyMap()[subPath] }
 			}
 		}
 	}
@@ -158,10 +214,10 @@ fun <E> MutableList<E>.removeAllAt(indices: IntRange) {
 
 
 /**将指定索引的元素插入到另一索引处。后者为移动前的索引，而非移动后的索引。*/
-fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int) {
+fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int): E {
 	val element = this[fromIndices]
 	this.add(toIndex, element)
-	this.removeAt(fromIndices)
+	return this.removeAt(fromIndices)
 }
 
 /**将指定索引范围内的元素插入到以另一索引为起点处。后者为移动前的索引，而非移动后的索引。*/
@@ -182,19 +238,25 @@ fun <T> Iterable<T>.toIndexedMap(): Map<String, T> {
 	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
 }
 
+/**将当前映射转换成以字符串为键的映射。*/
+fun <K, V> Map<K, V>.toStringKeyMap(): Map<String, V> {
+	return this.mapKeys { it.toString() }
+}
 
-/**将当前映射转化为指定类型[T]的对象。可指定是否递归转化[recursive]，默认为true。*/
-fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true) = privateToObject(this, type, recursive)
 
-@NotTested("不存在无参构造方法，转化需要转化元素的数组时，其他特殊情况？")
-private fun <T> privateToObject(map: Map<String, Any?>, type: Class<T>, recursive: Boolean = true): T {
+/**将当前映射转化为指定类型的对象。可指定是否递归转化[recursive]，默认为true。*/
+inline fun <reified T> Map<String, Any?>.toObject(recursive: Boolean = true) = this.toObject(T::class.java, recursive)
+
+/**将当前映射转化为指定类型的对象。可指定是否递归转化[recursive]，默认为true。*/
+@NotTested("不存在无参构造方法，转化需要转化元素的数组时，某些特殊情况")
+fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true): T {
 	val newObject = type.getConstructor().newInstance()
 	val propertyMap = type.setterMap
 	for((propertyName, setMethod) in propertyMap) {
 		if(!propertyMap.containsKey(propertyName)) {
 			continue
 		}
-		val propertyValue = map[propertyName]
+		val propertyValue = this[propertyName]
 		try {
 			val propertyType = type.getDeclaredField(propertyName).type
 			val fixedPropertyValue = convertProperty(propertyType, propertyValue, recursive)
@@ -222,7 +284,7 @@ private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursi
 			v?.let { convertProperty(v.javaClass, v, recursive) }
 		}
 		propertyType.isSerializable && recursive -> {
-			privateToObject((propertyValue as Map<String, Any?>), propertyType)
+			(propertyValue as Map<*, *>).toStringKeyMap().toObject(propertyType)
 		}
 		else -> null
 	}

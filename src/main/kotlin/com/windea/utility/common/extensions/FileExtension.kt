@@ -24,5 +24,5 @@ fun File.changeName(newName: String): File {
 
 /**更改当前文件的扩展名，返回新的文件对象。*/
 fun File.changeExtension(newExtension: String): File {
-	return File("${this.path.substringBeforeLast(".")}.$newExtension")
+	return File("${this.shotName}.$newExtension")
 }

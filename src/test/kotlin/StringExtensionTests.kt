@@ -99,4 +99,11 @@ class StringExtensionTests {
 		""".asMultilineText()
 		println(str2)
 	}
+	
+	enum class Abc { A, B, C }
+	
+	@Test
+	fun test11() {
+		println("A".toEnumConst<Abc>().name)
+	}
 }

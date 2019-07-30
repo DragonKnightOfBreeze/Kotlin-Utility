@@ -3,7 +3,7 @@ package com.windea.utility.common.generators.string
 /**地址的生成器。*/
 object UrlGenerator : StringGenerator {
 	/**根据指定参数生成Html链接。*/
-	fun generateHtmlUrl(name: String = "", url: String, title: String? = null, useDoubleQuote: Boolean = true): String {
+	fun generateHtmlUrl(name: String, url: String, title: String? = null, useDoubleQuote: Boolean = true): String {
 		val quote = if(useDoubleQuote) "\"" else "'"
 		val titleSnippet = title?.let { " title=$quote$title$quote" } ?: ""
 		return "<a href=$quote$url$quote$titleSnippet>$name</a>"
