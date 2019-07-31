@@ -10,8 +10,10 @@ import java.nio.file.*
 import java.text.*
 import kotlin.contracts.*
 
+/**@see kotlin.text.repeat*/
 operator fun String.times(n: Int) = this.repeat(n)
 
+/**@see kotlin.text.chunked*/
 operator fun String.div(n: Int) = this.chunked(n)
 
 
@@ -91,14 +93,12 @@ fun <R> Sequence<String>.crossLine(block: (Sequence<String>) -> R): R {
 
 /**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
 fun String.crossLineSurroundsWith(prefix: String, suffix: String, ignoreCase: Boolean = false): Boolean {
-	if(!enableCrossLine) {
-		throw IllegalStateException("[ERROR] Cross line operations are not enabled. Can be enabled in crossLine { ... } block.")
-	}
+	check(enableCrossLine) { "[ERROR] Cross line operations are not enabled. Can be enabled in crossLine { ... } block." }
+	
 	val isBeginBound = this.startsWith(prefix, ignoreCase)
 	val isEndBound = this.startsWith(suffix, ignoreCase)
 	if(isBeginBound && !prepareCrossLineSurroundingWith) prepareCrossLineSurroundingWith = true
 	if(isEndBound) prepareCrossLineSurroundingWith = false
-	
 	return !isBeginBound && prepareCrossLineSurroundingWith
 }
 
@@ -124,9 +124,7 @@ fun String.substring(regex: Regex): List<String> {
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以待分割字符串为参数的从默认字符串列表中取出的值。*/
 fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<String>): List<String> {
-	if(delimiters.count { it == null } > 1) {
-		throw IllegalArgumentException("[ERROR] There should be at most one null value for separator in delimiters!")
-	}
+	require(delimiters.count { it == null } > 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
 	
 	var rawString = this
 	val fixedDelimiters = delimiters.filterNotNull()

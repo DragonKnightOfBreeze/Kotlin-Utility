@@ -5,8 +5,10 @@ package com.windea.utility.common.extensions
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.enums.*
 
-operator fun <T> Iterable<T>.times(n: Int) = mutableListOf<T>().also { list -> repeat(n) { list += this } }
+/**@see com.windea.utility.common.extensions.repeat*/
+operator fun <T> Iterable<T>.times(n: Int) = this.repeat(n)
 
+/**@see kotlin.collections.chunked*/
 operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
 
 
@@ -73,17 +75,46 @@ fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
 }
 
 
-/**根据路得到当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepGet(path: String) = privateDeepGet(this.toIndexedMap(), path)
+/**重复当前集合中的元素到指定次数。*/
+fun <T> Iterable<T>.repeat(n: Int): List<T> {
+	require(n >= 0) { "Count 'n' must be non-negative, but was $n." }
+	
+	return mutableListOf<T>().also { list -> repeat(n) { list += this } }
+}
+
+
+/**移除指定范围内的元素。*/
+fun <E> MutableList<E>.removeAllAt(indices: IntRange) {
+	for(index in indices.reversed()) this.removeAt(index)
+}
+
+
+/**将指定索引的元素插入到另一索引处。后者为移动前的索引，而非移动后的索引。*/
+fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int): E {
+	val element = this[fromIndices]
+	this.add(toIndex, element)
+	return this.removeAt(fromIndices)
+}
+
+/**将指定索引范围内的元素插入到以另一索引为起点处。后者为移动前的索引，而非移动后的索引。*/
+fun <E> MutableList<E>.moveAll(fromIndices: IntRange, toIndex: Int) {
+	val elements = this.slice(fromIndices)
+	this.addAll(toIndex, elements)
+	this.removeAllAt(fromIndices)
+}
+
+
+/**根据路径得到当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
+fun <T> Array<T>.deepGet(path: String) =
+	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <E> List<E>.deepGet(path: String) = privateDeepGet(this.toIndexedMap(), path)
+fun <E> List<E>.deepGet(path: String) =
+	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前映射中的值。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> Map<K, V>.deepGet(path: String) = privateDeepGet(this.toStringKeyMap(), path)
-
-private fun privateDeepGet(map: Map<String, Any?>, path: String) =
-	privateDeepGet(map, path.splitByPathCase(PathCase.ReferencePath))
+fun <K, V> Map<K, V>.deepGet(path: String) =
+	privateDeepGet(this.toStringKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
 @NotTested
 private tailrec fun privateDeepGet(map: Map<String, Any?>, subPaths: List<String>): Any? {
@@ -92,8 +123,8 @@ private tailrec fun privateDeepGet(map: Map<String, Any?>, subPaths: List<String
 	}
 	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
 		is Map<*, *> -> deepValue.toStringKeyMap()
-		is Array<*> -> deepValue.toIndexedMap()
-		is Iterable<*> -> deepValue.toIndexedMap()
+		is Array<*> -> deepValue.toIndexKeyMap()
+		is Iterable<*> -> deepValue.toIndexKeyMap()
 		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
 	}
 	val fixedSubPaths = subPaths.drop(1)
@@ -102,16 +133,16 @@ private tailrec fun privateDeepGet(map: Map<String, Any?>, subPaths: List<String
 
 
 /**根据路径设置当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepSet(path: String, value: Any?) = privateDeepSet(this.toIndexedMap().toMutableMap(), path, value)
+fun <T> Array<T>.deepSet(path: String, value: Any?) =
+	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
 
 /**根据路径设置当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <E> MutableList<E>.deepSet(path: String, value: Any?) = privateDeepSet(this.toIndexedMap().toMutableMap(), path, value)
+fun <E> MutableList<E>.deepSet(path: String, value: Any?) =
+	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
 
 /**根据路径设置当前集合中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> MutableMap<K, V>.deepSet(path: String, value: Any?) = privateDeepSet(this.toStringKeyMap().toMutableMap(), path, value)
-
-private fun privateDeepSet(map: MutableMap<String, Any?>, path: String, value: Any?) =
-	privateDeepSet(map, path.splitByPathCase(PathCase.ReferencePath), value)
+fun <K, V> MutableMap<K, V>.deepSet(path: String, value: Any?) =
+	privateDeepSet(this.toStringKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
 
 @NotTested
 private tailrec fun privateDeepSet(map: MutableMap<String, Any?>, subPaths: List<String>, value: Any?) {
@@ -121,8 +152,8 @@ private tailrec fun privateDeepSet(map: MutableMap<String, Any?>, subPaths: List
 	}
 	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
 		is Map<*, *> -> deepValue.toStringKeyMap().toMutableMap()
-		is Array<*> -> deepValue.toIndexedMap().toMutableMap()
-		is Iterable<*> -> deepValue.toIndexedMap().toMutableMap()
+		is Array<*> -> deepValue.toIndexKeyMap().toMutableMap()
+		is Iterable<*> -> deepValue.toIndexKeyMap().toMutableMap()
 		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
 	}
 	val fixedSubPaths = subPaths.drop(1)
@@ -131,23 +162,21 @@ private tailrec fun privateDeepSet(map: MutableMap<String, Any?>, subPaths: List
 
 
 /**递归平滑映射当前数组，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(toIndexedMap())
+fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(toIndexKeyMap(), mutableListOf())
 
 /**递归平滑映射当前集合，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(toIndexedMap())
+fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(toIndexKeyMap(), mutableListOf())
 
 /**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap())
-
-private fun privateDeepFlatMap(map: Map<String, Any?>) = privateDeepFlatMap(map, mutableListOf())
+fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap(), mutableListOf())
 
 @NotTested("某些特殊情况")
 private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
 		prePaths += key
 		when(value) {
-			is Array<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
-			is Iterable<*> -> privateDeepFlatMap(value.toIndexedMap(), prePaths).toList()
+			is Array<*> -> privateDeepFlatMap(value.toIndexKeyMap(), prePaths).toList()
+			is Iterable<*> -> privateDeepFlatMap(value.toIndexKeyMap(), prePaths).toList()
 			is Map<*, *> -> privateDeepFlatMap(value.toStringKeyMap(), prePaths).toList()
 			else -> listOf(prePaths.joinByPathCase(PathCase.ReferencePath) to value)
 		}
@@ -207,34 +236,13 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 }
 
 
-/**移除指定范围内的元素。*/
-fun <E> MutableList<E>.removeAllAt(indices: IntRange) {
-	for(index in indices.reversed()) this.removeAt(index)
-}
-
-
-/**将指定索引的元素插入到另一索引处。后者为移动前的索引，而非移动后的索引。*/
-fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int): E {
-	val element = this[fromIndices]
-	this.add(toIndex, element)
-	return this.removeAt(fromIndices)
-}
-
-/**将指定索引范围内的元素插入到以另一索引为起点处。后者为移动前的索引，而非移动后的索引。*/
-fun <E> MutableList<E>.moveAll(fromIndices: IntRange, toIndex: Int) {
-	val elements = this.slice(fromIndices)
-	this.addAll(toIndex, elements)
-	this.removeAllAt(fromIndices)
-}
-
-
 /**将当前数组转化成以键为值的映射。*/
-fun <T> Array<T>.toIndexedMap(): Map<String, T> {
+fun <T> Array<T>.toIndexKeyMap(): Map<String, T> {
 	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
 }
 
 /**将当前集合转化成以键为值的映射。*/
-fun <T> Iterable<T>.toIndexedMap(): Map<String, T> {
+fun <T> Iterable<T>.toIndexKeyMap(): Map<String, T> {
 	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
 }
 

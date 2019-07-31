@@ -12,6 +12,9 @@ fun Int.pow(n: Float) = this.toFloat().pow(n).toInt()
 /**限制在指定的绝对值之间。*/
 fun Float.coerceInAbs(value: Float) = this.coerceIn(-value, value)
 
+/**限制在指定的绝对值之间。*/
+fun Double.coerceInAbs(value: Double) = this.coerceIn(-value, value)
+
 /**限制在指定0到1之间。*/
 fun Float.coerceIn01() = this.coerceIn(0f, 1f)
 

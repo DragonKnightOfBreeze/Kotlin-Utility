@@ -106,4 +106,12 @@ class StringExtensionTests {
 	fun test11() {
 		println("A".toEnumConst<Abc>().name)
 	}
+	
+	@Test
+	fun test12() {
+		println("A" * 3)
+		println("AAAAAAAAA" / 3)
+		println("A" * -3)
+		println("AAAAAAAAA" / -3)
+	}
 }
