@@ -11,6 +11,7 @@ object RandomExtension {
 	/**得到0到指定范围内的随机数。包含上下限。*/
 	fun range(max: Int) = range(0, max)
 	
+	
 	/**得到指定范围内的随机数。包含上下限。*/
 	fun range(min: Long, max: Long): Long {
 		return Random.nextLong(min, max + 1L)
