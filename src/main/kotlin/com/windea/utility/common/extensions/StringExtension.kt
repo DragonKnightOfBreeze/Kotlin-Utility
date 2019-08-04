@@ -2,6 +2,7 @@
 
 package com.windea.utility.common.extensions
 
+import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.domain.text.*
 import com.windea.utility.common.enums.*
 import java.io.*
@@ -353,13 +354,20 @@ fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): Stri
 }
 
 
+/**反序列化当前字符串，返回指定泛型的对象。*/
+@NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
+inline fun <reified T : Any> String.deserialize(dataType: DataType): T {
+	return dataType.loader.fromString(this, T::class.java)
+}
+
+
 /**将当前字符串转为折行文本。（去除所有换行符以及尾随空白。）*/
-fun String.asWrappedText(): String {
+fun String.toWrappedText(): String {
 	return this.remove("\n").trimEnd()
 }
 
 /**将当前字符串转化为多行文本。（去除首尾空白行，然后基于最后一行的缩进，去除每一行的缩进。）*/
-fun String.asMultilineText(): String {
+fun String.toMultilineText(): String {
 	val lines = this.lines()
 	val trimmedIndent = lines.last().let { if(it.isBlank()) it.count() else 0 }
 	if(trimmedIndent == 0) return this.trimIndent()

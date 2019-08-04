@@ -8,5 +8,5 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class NotImplemented(
-	val condition: String = "All condition."
+	val message: String = "Not implemented."
 )

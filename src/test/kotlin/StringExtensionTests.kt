@@ -1,3 +1,4 @@
+import com.windea.utility.common.enums.*
 import com.windea.utility.common.extensions.*
 import org.junit.*
 
@@ -96,7 +97,7 @@ class StringExtensionTests {
 		  abc
 		    abc
 		  abc"
-		""".asMultilineText()
+		""".toMultilineText()
 		println(str2)
 	}
 	
@@ -113,5 +114,16 @@ class StringExtensionTests {
 		println("AAAAAAAAA" / 3)
 		println("A" * -3)
 		println("AAAAAAAAA" / -3)
+	}
+	
+	@Test
+	fun test13() {
+		println("""
+		Name: Windea
+		Weapon:
+		- BreezesLanding
+		- Wind Bow
+		- Breath Of Breeze
+		""".toMultilineText().deserialize<Any>(DataType.Yaml))
 	}
 }

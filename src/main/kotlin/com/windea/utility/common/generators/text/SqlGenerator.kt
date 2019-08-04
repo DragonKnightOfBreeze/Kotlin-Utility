@@ -32,9 +32,9 @@ object SqlGenerator : TextGenerator {
 				
 				"""  ($columnsSnippet)"""
 			}}
-			""".asMultilineText()
+			""".toMultilineText()
 		}}
-		""".asMultilineText()
+		""".toMultilineText()
 	}
 	
 	/**

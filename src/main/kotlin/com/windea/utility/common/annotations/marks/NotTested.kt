@@ -6,5 +6,5 @@ import java.lang.annotation.*
 @MustBeDocumented
 @Inherited
 annotation class NotTested(
-	val condition: String = "All condition."
+	val message: String = "Not tested."
 )

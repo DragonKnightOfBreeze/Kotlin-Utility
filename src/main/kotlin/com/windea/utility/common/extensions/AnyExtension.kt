@@ -1,6 +1,15 @@
 package com.windea.commons.kotlin.extension
 
+import com.windea.utility.common.annotations.marks.*
+import com.windea.utility.common.enums.*
 import kotlin.reflect.full.*
+
+/**序列化当前对象。*/
+@NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
+fun Any.serialize(dataType: DataType): String {
+	return dataType.loader.toString(this)
+}
+
 
 /**将当前对象转化为对应的属性名-属性值映射。*/
 fun Any.toPropertyMap(): Map<String, Any?> {

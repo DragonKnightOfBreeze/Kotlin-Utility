@@ -57,10 +57,10 @@ object IdeaConfigGenerator : TextGenerator {
 			      <option name="XML" value="false"/>
 			    </context>
 			  </template>
-			""".asMultilineText()
+			""".toMultilineText()
 		}.joinToString("\n\n")}
 		</templateSet>
-		""".asMultilineText()
+		""".toMultilineText()
 	}
 	
 	/**
