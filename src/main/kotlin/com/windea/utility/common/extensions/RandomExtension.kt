@@ -1,7 +1,9 @@
 package com.windea.utility.common.extensions
 
+import com.windea.utility.common.annotations.marks.*
 import kotlin.random.*
 
+@NotTested
 object RandomExtension {
 	/**得到指定范围内的随机数。包含上下限。*/
 	fun range(min: Int, max: Int): Int {

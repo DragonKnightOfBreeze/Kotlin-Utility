@@ -2,13 +2,6 @@ package com.windea.utility.common.extensions
 
 import kotlin.math.*
 
-/**进行乘方运算。*/
-fun Int.pow(n: Int) = this.toFloat().pow(n).toInt()
-
-/**进行乘方运算。*/
-fun Int.pow(n: Float) = this.toFloat().pow(n).toInt()
-
-
 /**取当前数值在指定范围内的夹值。*/
 infix fun Int.clamp(range: ClosedRange<Int>) = this.coerceIn(range)
 
@@ -20,6 +13,13 @@ infix fun Float.clamp(range: ClosedRange<Float>) = this.coerceIn(range)
 
 /**取当前数值在指定范围内的夹值。*/
 infix fun Double.clamp(range: ClosedRange<Double>) = this.coerceIn(range)
+
+
+/**进行乘方运算。*/
+fun Int.pow(n: Int) = this.toFloat().pow(n).toInt()
+
+/**进行乘方运算。*/
+fun Int.pow(n: Float) = this.toFloat().pow(n).toInt()
 
 
 /**限制在指定的相反数之间。*/

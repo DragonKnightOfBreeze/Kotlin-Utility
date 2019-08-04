@@ -6,6 +6,7 @@ import com.windea.utility.common.annotations.marks.*
 
 /**数据读取器的接口。*/
 @NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
+@NotSuitable("当类型中包含具体的泛型时")
 interface DataLoader {
 	/**从指定字符串[string]加载数据，返回指定类型[T]的对象。*/
 	fun <T : Any> fromString(string: String, type: Class<T>): T

@@ -170,7 +170,6 @@ fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(toIndexKeyMap(), mutableL
 /**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
 fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap(), mutableListOf())
 
-@NotTested("某些特殊情况")
 private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
 		prePaths += key
@@ -193,7 +192,6 @@ fun <T> Iterable<T>.deepQuery(path: String) = privateDeepQueryValue(toList(), pa
 /**根据指定路径[path]递归查询当前映射，返回匹配的值列表。使用Json路径[PathCase.JsonPath]。*/
 fun <K, V> Map<K, V>.deepQueryValue(path: String) = privateDeepQueryValue(this, path)
 
-@NotTested("某些特殊情况")
 private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 	val subPaths = path.trim().splitByPathCase(PathCase.JsonPath)
 	var valueList = listOf(collection)
@@ -256,7 +254,7 @@ fun <K, V> Map<K, V>.toStringKeyMap(): Map<String, V> {
 inline fun <reified T> Map<String, Any?>.toObject(recursive: Boolean = true) = this.toObject(T::class.java, recursive)
 
 /**将当前映射转化为指定类型的对象。可指定是否递归转化[recursive]，默认为true。*/
-@NotTested("不存在无参构造方法，转化需要转化元素的数组时，某些特殊情况")
+@NotSuitable("不存在无参构造方法时，转化需要转化元素的数组时")
 fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true): T {
 	val newObject = type.getConstructor().newInstance()
 	val propertyMap = type.setterMap

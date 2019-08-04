@@ -2,7 +2,6 @@
 
 package com.windea.utility.common.extensions
 
-import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.domain.text.*
 import com.windea.utility.common.enums.*
 import java.io.*
@@ -123,8 +122,13 @@ fun String.substring(regex: Regex): List<String> {
 	return regex.matchEntire(this)?.groupValues?.drop(0) ?: listOf()
 }
 
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以待分割字符串为参数的从默认字符串列表中取出的值。*/
-fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<String>): List<String> {
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以剩余字符串为参数的从默认字符串列表中取出的值。*/
+fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<String>) =
+	substringOrElse(*delimiters) { index, str -> defaultValue(str).getOrEmpty(index) }
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以索引和剩余字符串为参数得到的默认值。*/
+fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
 	require(delimiters.count { it == null } > 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
 	
 	var rawString = this
@@ -135,18 +139,18 @@ fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<
 	
 	for((index, delimiter) in fixedDelimiters.withIndex()) {
 		if(index < indexOfNull) {
-			result += rawString.substringBefore(delimiter, defaultValue(delimiter).getOrEmpty(index))
+			result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
 			if(index == size - 1) {
-				result += rawString.substringAfter(delimiter, defaultValue(delimiter).getOrEmpty(index))
+				result += rawString.substringAfter(delimiter, defaultValue(index, rawString))
 			} else {
-				rawString = rawString.substringAfter(delimiter, rawString)
+				rawString = rawString.substringAfter(delimiter, defaultValue(index, rawString))
 			}
 		} else {
-			result += rawString.substringBeforeLast(delimiter, defaultValue(delimiter).getOrEmpty(index))
+			result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
 			if(index == size - 1) {
-				result += rawString.substringAfterLast(delimiter, defaultValue(delimiter).getOrEmpty(index))
+				result += rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
 			} else {
-				rawString = rawString.substringAfterLast(delimiter, rawString)
+				rawString = rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
 			}
 		}
 	}
@@ -154,9 +158,10 @@ fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<
 }
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(vararg delimiters: String?): List<String> {
-	return this.substring(*delimiters) { emptyList() }
-}
+fun String.substringOrEmpty(vararg delimiters: String?) = this.substringOrElse(*delimiters) { _, _ -> "" }
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入剩余字符串。*/
+fun String.substringOrRemain(vararg delimiters: String?) = this.substringOrElse(*delimiters) { _, str -> str }
 
 
 /**
@@ -355,7 +360,6 @@ fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): Stri
 
 
 /**反序列化当前字符串，返回指定泛型的对象。*/
-@NotSure("考虑使用扩展库`kotlinx-serialization`，但是缺少具体的对于yaml、xml等格式的实现")
 inline fun <reified T : Any> String.deserialize(dataType: DataType): T {
 	return dataType.loader.fromString(this, T::class.java)
 }
@@ -376,19 +380,31 @@ fun String.toMultilineText(): String {
 
 
 /**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
-fun String.toIntOrDefault(defaultValue: Int = 0): Int {
-	return runCatching { this.trim().toInt() }.getOrDefault(defaultValue)
+fun String.toIntOrDefault(defaultValue: Int = 0) = this.toIntOrDefault(10, defaultValue)
+
+/**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制，默认为十进制。*/
+fun String.toIntOrDefault(radix: Int = 10, defaultValue: Int = 0): Int {
+	return this.trim().toIntOrNull(radix) ?: defaultValue
+}
+
+/**去空白后，将当前字符串转化为对应的长整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
+fun String.toLongOrDefault(defaultValue: Long = 0) = this.toLongOrDefault(10, defaultValue)
+
+/**去空白后，将当前字符串转化为对应的长整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制，默认为十进制。*/
+fun String.toLongOrDefault(radix: Int = 10, defaultValue: Long = 0): Long {
+	return this.trim().toLongOrNull(radix) ?: defaultValue
 }
 
 /**去空白后，将当前字符串转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/
 fun String.toFloatOrDefault(defaultValue: Float = 0.0f): Float {
-	return runCatching { this.trim().toFloat() }.getOrDefault(defaultValue)
+	return this.trim().toFloatOrNull() ?: defaultValue
 }
 
 /**去空白后，将当前字符串转化为对应的双精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0。*/
 fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double {
-	return runCatching { this.toDouble() }.getOrDefault(defaultValue)
+	return this.trim().toDoubleOrNull() ?: defaultValue
 }
+
 
 /**将当前字符串转化为对应的枚举常量。*/
 inline fun <reified E : Enum<E>> String.toEnumConst() = this.toEnumConst(E::class.java)
@@ -427,12 +443,6 @@ fun String.toUrl(content: URL? = null, handler: URLStreamHandler? = null): URL =
 /**将当前字符串转化为统一资源定位符。*/
 fun String.toUri(): URI = URI.create(this.trim())
 
-
-/**得到当前字符串对应的Markdown对象。*/
-@Deprecated("")
-fun String.toMarkdown(enableExtendedSyntax: Boolean = false, enableCriticalMarkup: Boolean = false): Markdown {
-	return Markdown(this, enableExtendedSyntax, enableCriticalMarkup)
-}
 
 /**得到当前字符串对应的路径信息。*/
 fun String.toPathInfo(): PathInfo {
