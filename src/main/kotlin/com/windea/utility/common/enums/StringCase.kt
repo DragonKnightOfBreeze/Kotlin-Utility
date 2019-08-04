@@ -5,6 +5,7 @@ import com.windea.utility.common.annotations.marks.*
 /**字符串的显示格式。*/
 @NotTested
 enum class StringCase(
+	/**匹配的正则。*/
 	val regex: Regex
 ) {
 	Unknown("^$".toRegex()),

@@ -6,7 +6,6 @@ import com.windea.utility.common.enums.*
 import com.windea.utility.common.extensions.*
 import java.io.*
 
-
 /**Intellij IDEA配置文件文本的生成器。*/
 object IdeaConfigGenerator : TextGenerator {
 	/**

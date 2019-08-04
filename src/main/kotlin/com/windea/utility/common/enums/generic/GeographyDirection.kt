@@ -1,4 +1,4 @@
-package com.windea.utility.common.enums.math.extended
+package com.windea.utility.common.enums.generic
 
 import com.windea.utility.common.annotations.messages.*
 
@@ -14,13 +14,5 @@ enum class GeographyDirection {
 	@Name("西")
 	West,
 	@Name("北")
-	North,
-	@Name("东南")
-	SouthEast,
-	@Name("西南")
-	SouthWest,
-	@Name("东北")
-	NorthEast,
-	@Name("西北")
-	NorthWest
+	North
 }

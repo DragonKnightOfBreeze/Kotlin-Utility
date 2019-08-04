@@ -17,6 +17,6 @@ enum class WeaponSuperCategory {
 	ShootWeapon,
 	@Name("盾牌")
 	Shield,
-	@Name("魔法盾牌")
+	@Name("魔法媒介")
 	MagicInterface
 }
