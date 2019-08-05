@@ -3,6 +3,13 @@ package com.windea.commons.kotlin.extension
 import com.windea.utility.common.enums.*
 import kotlin.reflect.full.*
 
+/**取在指定范围内的夹值。*/
+infix fun <T : Comparable<T>> T.clamp(range: ClosedRange<T>) = this.coerceIn(range)
+
+/**从二元素元组构造三元素元组。*/
+infix fun <A, B, C> Pair<A, B>.with(third: C) = Triple(this.first, this.second, third)
+
+
 /**序列化当前对象。*/
 fun Any.serialize(dataType: DataType): String {
 	return dataType.loader.toString(this)
