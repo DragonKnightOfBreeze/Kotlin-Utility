@@ -7,16 +7,16 @@ import com.windea.utility.common.enums.*
 
 
 /**@see com.windea.utility.common.extensions.repeat*/
-operator fun <T> Iterable<T>.times(n: Int) = this.repeat(n)
+operator fun <T> Iterable<T>.times(n: Int): List<T> = this.repeat(n)
 
 /**@see kotlin.collections.chunked*/
-operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
+operator fun <T> Iterable<T>.div(n: Int): List<List<T>> = this.chunked(n)
 
 /**@see kotlin.collections.slice*/
-operator fun <T> Array<T>.get(indexRange: IntRange) = this.slice(indexRange)
+operator fun <T> Array<T>.get(indexRange: IntRange): List<T> = this.slice(indexRange)
 
 /**@see kotlin.collections.slice*/
-operator fun <T> List<T>.get(range: IntRange) = this.slice(range)
+operator fun <T> List<T>.get(range: IntRange): List<T> = this.slice(range)
 
 
 /**判断两个列表的结构是否相等。即，判断长度、元素、元素顺序是否相等。*/

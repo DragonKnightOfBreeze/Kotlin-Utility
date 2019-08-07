@@ -5,10 +5,10 @@ import com.windea.utility.common.enums.*
 import kotlin.reflect.full.*
 
 /**取在指定范围内的夹值。*/
-infix fun <T : Comparable<T>> T.clamp(range: ClosedRange<T>) = this.coerceIn(range)
+infix fun <T : Comparable<T>> T.clamp(range: ClosedRange<T>): T = this.coerceIn(range)
 
 /**从二元素元组构造三元素元组。*/
-infix fun <A, B, C> Pair<A, B>.with(third: C) = Triple(this.first, this.second, third)
+infix fun <A, B, C> Pair<A, B>.with(third: C): Triple<A, B, C> = Triple(this.first, this.second, third)
 
 
 /**抛出一个[IllegalArgumentException]，带有懒加载的信息。*/

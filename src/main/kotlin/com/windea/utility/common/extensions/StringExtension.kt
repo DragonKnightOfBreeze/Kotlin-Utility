@@ -12,13 +12,13 @@ import java.text.*
 import kotlin.contracts.*
 
 /**@see kotlin.text.repeat*/
-operator fun String.times(n: Int) = this.repeat(n)
+operator fun String.times(n: Int): String = this.repeat(n)
 
 /**@see kotlin.text.chunked*/
-operator fun String.div(n: Int) = this.chunked(n)
+operator fun String.div(n: Int): List<String> = this.chunked(n)
 
 /**@see kotlin.text.substring*/
-operator fun String.get(indexRange: IntRange) = this.substring(indexRange)
+operator fun String.get(indexRange: IntRange): String = this.substring(indexRange)
 
 
 /**判断字符串是否相等。忽略大小写。*/
@@ -425,7 +425,8 @@ fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
 
 /**将当前字符串转化为对应的枚举常量。*/
 fun String.toEnumConst(type: Class<*>): Any {
-	val enumConsts = type.enumConstants ?: throw IllegalArgumentException("[ERROR] $type is not an enum class!")
+	val enumConsts = type.enumConstants
+	requireNotNull(enumConsts) { "[ERROR] $type is not an enum class!" }
 	return try {
 		enumConsts.first { it.toString() == this }
 	} catch(e: Exception) {
