@@ -140,78 +140,52 @@ fun <T> List<T>.deepGet(path: String) =
 fun <K, V> Map<K, V>.deepGet(path: String) =
 	privateDeepGet(this.toStringKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
-@NotTested
-private tailrec fun privateDeepGet(map: Map<String, Any?>, subPaths: List<String>): Any? {
-	if(subPaths.size == 1) {
-		return map[subPaths.first()]
+private tailrec fun privateDeepGet(map: Map<String, Any?>, sufSubPaths: List<String>): Any? {
+	//如果已递归到最后一个子路径，则从映射中返回对应元素
+	if(sufSubPaths.size == 1) {
+		return map[sufSubPaths.first()]
 	}
-	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
+	//否则检查递归遍历的值的类型，继续递归调用这个方法
+	val fixedDeepValue = when(val deepValue = map[sufSubPaths.first()]) {
 		is Map<*, *> -> deepValue.toStringKeyMap()
 		is Array<*> -> deepValue.toIndexKeyMap()
 		is Iterable<*> -> deepValue.toIndexKeyMap()
 		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
 	}
-	val fixedSubPaths = subPaths.drop(1)
+	val fixedSubPaths = sufSubPaths.drop(1)
 	return privateDeepGet(fixedDeepValue, fixedSubPaths)
 }
 
 
-/**根据路径设置当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepSet(path: String, value: Any?) =
-	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
-
-/**根据路径设置当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> MutableList<T>.deepSet(path: String, value: Any?) =
-	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
-
-/**根据路径设置当前集合中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> MutableMap<K, V>.deepSet(path: String, value: Any?) =
-	privateDeepSet(this.toStringKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
-
-@NotTested
-private tailrec fun privateDeepSet(map: MutableMap<String, Any?>, subPaths: List<String>, value: Any?) {
-	if(subPaths.size == 1) {
-		map[subPaths.first()] = value
-		return
-	}
-	val fixedDeepValue = when(val deepValue = map[subPaths.first()]) {
-		is Map<*, *> -> deepValue.toStringKeyMap().toMutableMap()
-		is Array<*> -> deepValue.toIndexKeyMap().toMutableMap()
-		is Iterable<*> -> deepValue.toIndexKeyMap().toMutableMap()
-		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
-	}
-	val fixedSubPaths = subPaths.drop(1)
-	privateDeepSet(fixedDeepValue, fixedSubPaths, value)
-}
-
-
 /**递归平滑映射当前数组，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(toIndexKeyMap(), mutableListOf())
+fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexKeyMap(), mutableListOf())
 
 /**递归平滑映射当前集合，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(toIndexKeyMap(), mutableListOf())
+fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexKeyMap(), mutableListOf())
 
 /**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
 fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap(), mutableListOf())
 
-private fun privateDeepFlatMap(map: Map<String, Any?>, prePaths: MutableList<String>): Map<String, Any?> {
+private fun privateDeepFlatMap(map: Map<String, Any?>, preSubPaths: MutableList<String>): Map<String, Any?> {
 	return map.flatMap { (key, value) ->
-		prePaths += key
+		//每次递归需要创建新的子路径列表
+		val subPaths = (preSubPaths + key).toMutableList()
+		//如果不是集合类型，则拼接成完整路径，与值一同返回
 		when(value) {
-			is Array<*> -> privateDeepFlatMap(value.toIndexKeyMap(), prePaths).toList()
-			is Iterable<*> -> privateDeepFlatMap(value.toIndexKeyMap(), prePaths).toList()
-			is Map<*, *> -> privateDeepFlatMap(value.toStringKeyMap(), prePaths).toList()
-			else -> listOf(prePaths.joinByPathCase(PathCase.ReferencePath) to value)
+			is Array<*> -> privateDeepFlatMap(value.toIndexKeyMap(), subPaths).toList()
+			is Iterable<*> -> privateDeepFlatMap(value.toIndexKeyMap(), subPaths).toList()
+			is Map<*, *> -> privateDeepFlatMap(value.toStringKeyMap(), subPaths).toList()
+			else -> listOf(subPaths.joinByPathCase(PathCase.ReferencePath) to value)
 		}
 	}.toMap()
 }
 
 
 /**根据指定路径[path]递归查询当前数组，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(toList(), path)
+fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
 
 /**根据指定路径[path]递归查询当前集合，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <T> Iterable<T>.deepQuery(path: String) = privateDeepQueryValue(toList(), path)
+fun <T> Iterable<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
 
 /**根据指定路径[path]递归查询当前映射，返回匹配的值列表。使用Json路径[PathCase.JsonPath]。*/
 fun <K, V> Map<K, V>.deepQueryValue(path: String) = privateDeepQueryValue(this, path)
@@ -226,12 +200,12 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 				valueList.flatMap { it as List<*> }
 			}
 			//如果子路径表示一个范围，例如："1..10"
-			subPath matches "\\d+\\.\\.\\d+".toRegex() -> {
+			subPath matches "^\\d+\\.\\.\\d+$".toRegex() -> {
 				val (fromIndex, toIndex) = subPath.split("..").map { it.toInt() }
 				valueList.flatMap { (it as List<*>) }.subList(fromIndex, toIndex + 1)
 			}
 			//如果子路径表示一个列表索引，例如："1"
-			subPath matches "\\d+".toRegex() -> {
+			subPath matches "^\\d+$".toRegex() -> {
 				val index = subPath.toInt()
 				valueList.map { (it as List<*>)[index] }
 			}
@@ -329,29 +303,29 @@ fun List<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
 
 
 /**去除第一行空白行。*/
-fun Array<CharSequence>.dropBlank() = this.dropWhile { it.isBlank() }
+fun Array<String>.dropBlank() = this.dropWhile { it.isBlank() }
 
 /**去除最后一行空白行。*/
-fun Array<CharSequence>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+fun Array<String>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
 
 /**去除第一行空白行。*/
-fun Iterable<CharSequence>.dropBlank() = this.dropWhile { it.isBlank() }
+fun Iterable<String>.dropBlank() = this.dropWhile { it.isBlank() }
 
 /**去除最后一行空白行。*/
-fun List<CharSequence>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+fun List<String>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
 
 
 /**过滤空字符串。*/
-fun Array<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+fun Array<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 
 /**过滤空白字符串。*/
-fun Array<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }
+fun Array<String>.filterNotBlank() = this.filter { it.isNotEmpty() }
 
 /**过滤空字符串。*/
-fun Iterable<CharSequence>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+fun Iterable<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 
 /**过滤空白字符串。*/
-fun Iterable<CharSequence>.filterNotBlank() = this.filter { it.isNotEmpty() }
+fun Iterable<String>.filterNotBlank() = this.filter { it.isNotEmpty() }
 
 
 /**映射当前带索引值集合的索引，返回带有新的索引的带索引值集合。*/

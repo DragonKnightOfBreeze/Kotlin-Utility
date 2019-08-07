@@ -45,7 +45,7 @@ object SchemaGenerator : TextGenerator {
 		},
 		"enumConsts" to { (_, value) ->
 			//提取路径`enumSchema/value`对应的值列表
-			val newValue = (value as List<Map<String, Any?>>).map { it["value"] }.filterNotNull()
+			val newValue = (value as List<Map<String, Any?>>).mapNotNull { it["value"] }
 			when {
 				newValue.isNotEmpty() -> mapOf("enum" to newValue)
 				else -> mapOf()

@@ -107,3 +107,4 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 /src/main/kotlin/com/windea/utility/common/domain/collections/
+/src/main/kotlin/com/windea/utility/common/domain/dsl/

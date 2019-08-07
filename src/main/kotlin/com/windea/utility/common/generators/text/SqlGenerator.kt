@@ -15,7 +15,7 @@ object SqlGenerator : TextGenerator {
 	 */
 	fun generateSqlData(inputText: String, inputType: DataType = DataType.Yaml): String {
 		val rawInputMap = inputType.loader.fromString(inputText)
-		val inputMap = rawInputMap as? SqlDataMap ?: throw IllegalArgumentException("Invalid input text.")
+		val inputMap = rawInputMap as SqlDataMap
 		val databaseName = inputMap.keys.first()
 		val database = inputMap.values.first()
 		

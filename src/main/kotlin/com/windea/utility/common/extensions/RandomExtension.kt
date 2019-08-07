@@ -1,10 +1,8 @@
 package com.windea.utility.common.extensions
 
-import com.windea.utility.common.annotations.marks.*
 import java.util.*
 import kotlin.random.Random
 
-@NotTested
 object RandomExtension {
 	/**得到随机的uuid。*/
 	fun uuid(): String {

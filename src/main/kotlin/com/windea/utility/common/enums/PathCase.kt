@@ -1,9 +1,6 @@
 package com.windea.utility.common.enums
 
-import com.windea.utility.common.annotations.marks.*
-
 /**路径的显示格式。*/
-@NotTested
 enum class PathCase(
 	/**匹配的正则。*/
 	val regex: Regex

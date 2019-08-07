@@ -15,14 +15,14 @@ object IdeaConfigGenerator : TextGenerator {
 	 */
 	fun generateYamlAnnotation(inputText: String, inputType: DataType): String {
 		val rawInputMap = inputType.loader.fromString(inputText)
-		val inputMap = rawInputMap as? SchemaMap ?: throw IllegalArgumentException("Invalid input text.")
-		val definitions = inputMap["definitions"] ?: throw IllegalArgumentException("Invalid input text.")
+		val inputMap = rawInputMap as SchemaDefinitionMap
+		val definitions = inputMap["definitions"] as SchemaMap
 		
 		return """
 		<templateSet group="YamlAnnotation">
 		${definitions.map { (templateName, template) ->
-			val description = template["description"]
-			val params = if("properties" in template) template["properties"] as SchemaPropertiesMap else mapOf()
+			val description = template.getOrDefault("description", "")
+			val params = if("properties" in template) template["properties"] as SchemaMap else mapOf()
 			val paramSnippet = ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
 			
 			"""

@@ -344,10 +344,10 @@ fun String.splitByPathCase(case: PathCase): List<String> {
 	val fixedPath = this.removePrefix(".").removePrefix(".").removePrefix("#")
 	return when(case) {
 		PathCase.Unknown -> listOf(this)
-		PathCase.WindowsPath -> fixedPath.removeSurrounding("\\").split("\\")
-		PathCase.UnixPath -> fixedPath.removeSurrounding("/").split("/")
-		PathCase.ReferencePath -> fixedPath.split("[", "].", ".")
-		PathCase.JsonPath -> fixedPath.removeSurrounding("/").split("/")
+		PathCase.WindowsPath -> fixedPath.split("\\").filterNotEmpty()
+		PathCase.UnixPath -> fixedPath.split("/").filterNotEmpty()
+		PathCase.ReferencePath -> fixedPath.split("[", "]", ".").filterNotEmpty()
+		PathCase.JsonPath -> fixedPath.split("/").filterNotEmpty()
 	}
 }
 
@@ -357,8 +357,8 @@ fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): Stri
 		PathCase.Unknown -> this.first()
 		PathCase.WindowsPath -> this.joinToString("\\").let { if(addPrefix) "\\$it" else it }
 		PathCase.UnixPath -> this.joinToString("/").let { if(addPrefix) "/$it" else it }
-		PathCase.ReferencePath -> this.joinToString(".").replace("\\.(\\d*)\\.".toRegex(), "[$1].")
-		PathCase.JsonPath -> "#/" + this.joinToString("/")
+		PathCase.ReferencePath -> this.joinToString(".").replace("^(\\d+)$|\\.?(\\d+)\\.?".toRegex(), "[$1$2]")
+		PathCase.JsonPath -> this.joinToString("/").let { if(addPrefix) "#$it" else it }
 	}
 }
 
