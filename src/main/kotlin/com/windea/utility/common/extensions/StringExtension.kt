@@ -4,6 +4,7 @@ package com.windea.utility.common.extensions
 
 import com.windea.utility.common.domain.text.*
 import com.windea.utility.common.enums.*
+import java.awt.*
 import java.io.*
 import java.net.*
 import java.nio.file.*
@@ -467,13 +468,42 @@ fun String.toUrlInfo(): UrlInfo {
 
 /**得到当前字符串对应的查询参数映射。*/
 internal fun String.toQueryParamMap(): QueryParamMap {
-	val map = if(this.isEmpty()) {
-		mapOf()
-	} else {
-		this.split("&").map { s -> s.split("=") }.groupBy({ it[0] }, { it[1] })
+	val map = when {
+		this.isEmpty() -> mapOf()
+		else -> this.split("&").map { s -> s.split("=") }.groupBy({ it[0] }, { it[1] })
 			.mapValues { (_, v) -> if(v.size == 1) v[0] else v }
 	}
 	return QueryParamMap(map)
 }
 
+
+/**将当前字符串转化为颜色。*/
+fun String.toColor(): Color {
+	return when {
+		//#333
+		this startsWith "#" && this.length == 4 -> Color(this.substring(1).mapPerRepeat(2).toInt(16))
+		//#3333
+		this startsWith "#" && this.length == 5 -> Color(this.substring(1).mapPerRepeat(2).toInt(16), true)
+		//#333333
+		this startsWith "#" && this.length == 7 -> Color(this.substring(1).toInt(16))
+		//#33333333
+		this startsWith "#" && this.length == 9 -> Color(this.substring(1).toInt(16), true)
+		//rgb(0,0,0)
+		this startsWith "rgb(" -> {
+			val (r, g, b) = this.substring(4, this.length - 1).split(",").map { it.trim().toInt(16) }
+			Color(r, g, b)
+		}
+		//rgba(0,0,0,255)
+		this startsWith "rgba(" -> {
+			val (r, g, b, a) = this.substring(5, this.length - 1).split(",").map { it.trim().toInt(16) }
+			Color(r, g, b, a)
+		}
+		//white || EXCEPTION
+		else -> Color.getColor(this)
+	}
+}
+
+private fun String.mapPerRepeat(n: Int): String {
+	return this.chunked(1).joinToString("") { it.repeat(n) }
+}
 
