@@ -16,6 +16,9 @@ operator fun String.times(n: Int) = this.repeat(n)
 /**@see kotlin.text.chunked*/
 operator fun String.div(n: Int) = this.chunked(n)
 
+/**@see kotlin.text.substring*/
+operator fun String.get(indexRange: IntRange) = this.substring(indexRange)
+
 
 /**判断字符串是否相等。忽略大小写。*/
 infix fun String?.equalsIc(other: String?): Boolean {

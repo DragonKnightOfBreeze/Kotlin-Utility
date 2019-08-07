@@ -22,6 +22,14 @@ class CollectionExtensionTests {
 		println(listOf(1) * -3)
 		println(listOf(1) / -3)
 	}
+	
+	@Test
+	fun test3() {
+		println(listOf(1, 2, 3)[1])
+		println(listOf(1, 2, 3)[1..2])
+		println("123"[1])
+		println("123"[1..2])
+	}
 }
 
 

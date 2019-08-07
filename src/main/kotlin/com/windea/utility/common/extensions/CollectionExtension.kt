@@ -5,21 +5,45 @@ package com.windea.utility.common.extensions
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.enums.*
 
+
 /**@see com.windea.utility.common.extensions.repeat*/
 operator fun <T> Iterable<T>.times(n: Int) = this.repeat(n)
 
 /**@see kotlin.collections.chunked*/
 operator fun <T> Iterable<T>.div(n: Int) = this.chunked(n)
 
+/**@see kotlin.collections.slice*/
+operator fun <T> Array<T>.get(indexRange: IntRange) = this.slice(indexRange)
 
-/**判断两个列表的元素是否全部相等。同时判断长度是否相等、顺序是否相同。*/
-infix fun <T> List<T>.allEquals(other: List<T>): Boolean {
-	return this.size == other.size && (this zip other).all { it.first == it.second }
+/**@see kotlin.collections.slice*/
+operator fun <T> List<T>.get(range: IntRange) = this.slice(range)
+
+
+/**判断两个列表的结构是否相等。即，判断长度、元素、元素顺序是否相等。*/
+infix fun <T> List<T>.contentEquals(other: List<T>): Boolean {
+	return this == other || this.size == other.size && (this zip other).all { (a, b) -> a == b }
 }
 
-/**判断两个列表的元素是否有任意一个相等。*/
-infix fun <T> List<T>.anyEquals(other: List<T>): Boolean {
-	return (this.isEmpty() && other.isEmpty()) || this.any { it in other }
+/**判断两个列表的结构是否递归相等。即，判断长度、元素、元素顺序是否递归相等。*/
+infix fun <T> List<T>.contentDeepEquals(other: List<T>): Boolean {
+	return this == other || this.size == other.size && (this zip other).all { (a, b) ->
+		when {
+			a is Array<*> && b is Array<*> -> a contentDeepEquals b
+			a is List<*> && b is List<*> -> a contentDeepEquals b
+			else -> a == b
+		}
+	}
+}
+
+
+/**判断当前数组中的任意元素是否被另一数组包含。*/
+infix fun <T> Array<T>.anyIn(other: Array<T>): Boolean {
+	return this.any { it in other }
+}
+
+/**判断当前集合中的任意元素是否被另一集合包含。*/
+infix fun <T> Iterable<T>.anyIn(other: Iterable<T>): Boolean {
+	return this.any { it in other }
 }
 
 
@@ -70,7 +94,7 @@ fun <T> Array<T>.getOrDefault(index: Int, defaultValue: T): T {
 }
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
-fun <E> List<E>.getOrDefault(index: Int, defaultValue: E): E {
+fun <T> List<T>.getOrDefault(index: Int, defaultValue: T): T {
 	return this.getOrElse(index) { defaultValue }
 }
 
@@ -84,20 +108,20 @@ fun <T> Iterable<T>.repeat(n: Int): List<T> {
 
 
 /**移除指定范围内的元素。*/
-fun <E> MutableList<E>.removeAllAt(indices: IntRange) {
+fun <T> MutableList<T>.removeAllAt(indices: IntRange) {
 	for(index in indices.reversed()) this.removeAt(index)
 }
 
 
 /**将指定索引的元素插入到另一索引处。后者为移动前的索引，而非移动后的索引。*/
-fun <E> MutableList<E>.move(fromIndices: Int, toIndex: Int): E {
+fun <T> MutableList<T>.move(fromIndices: Int, toIndex: Int): T {
 	val element = this[fromIndices]
 	this.add(toIndex, element)
 	return this.removeAt(fromIndices)
 }
 
 /**将指定索引范围内的元素插入到以另一索引为起点处。后者为移动前的索引，而非移动后的索引。*/
-fun <E> MutableList<E>.moveAll(fromIndices: IntRange, toIndex: Int) {
+fun <T> MutableList<T>.moveAll(fromIndices: IntRange, toIndex: Int) {
 	val elements = this.slice(fromIndices)
 	this.addAll(toIndex, elements)
 	this.removeAllAt(fromIndices)
@@ -109,7 +133,7 @@ fun <T> Array<T>.deepGet(path: String) =
 	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <E> List<E>.deepGet(path: String) =
+fun <T> List<T>.deepGet(path: String) =
 	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前映射中的值。使用引用路径[PathCase.ReferencePath]。*/
@@ -137,7 +161,7 @@ fun <T> Array<T>.deepSet(path: String, value: Any?) =
 	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
 
 /**根据路径设置当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
-fun <E> MutableList<E>.deepSet(path: String, value: Any?) =
+fun <T> MutableList<T>.deepSet(path: String, value: Any?) =
 	privateDeepSet(this.toIndexKeyMap().toMutableMap(), path.splitByPathCase(PathCase.ReferencePath), value)
 
 /**根据路径设置当前集合中的元素。使用引用路径[PathCase.ReferencePath]。*/
