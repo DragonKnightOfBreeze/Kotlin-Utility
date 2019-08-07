@@ -1,6 +1,5 @@
 package com.windea.utility.common.annotations.messages
 
-import com.windea.utility.common.extensions.*
 import org.intellij.lang.annotations.*
 
 /**本地化概述的注解。*/
@@ -11,9 +10,3 @@ annotation class Summary(
 	val text: String,
 	val locale: String = "Chs"
 )
-
-
-/**得到目标的本地化概述。*/
-fun Any.annotatedSummary(locale: String = "Chs"): String? {
-	return this::class.findAnnotation<Summary> { it.locale == locale }?.text
-}
