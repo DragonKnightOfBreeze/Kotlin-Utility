@@ -7,7 +7,7 @@
 
   <groupId>com.windea</groupId>
   <artifactId>kotlin-utility</artifactId>
-  <version>1.4.4</version>
+  <version>1.4.5</version>
 
   <name>Kotlin Utility</name>
   <description>Kotlin实用代码整理。</description>
