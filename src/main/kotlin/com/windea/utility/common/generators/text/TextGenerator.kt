@@ -1,6 +1,6 @@
 package com.windea.utility.common.generators.text
 
-/**文本生成器的接口。*/
+/**文本生成器。*/
 interface TextGenerator
 
 
