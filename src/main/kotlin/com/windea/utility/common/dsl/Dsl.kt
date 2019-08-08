@@ -1,10 +1,10 @@
 package com.windea.utility.common.dsl
 
+import com.windea.utility.common.annotations.marks.*
+
 /**领域专用语言。*/
+@NotSuitable("允许行内元素包含其他的行内元素")
 interface Dsl {
-	/**生成对应的文本。*/
-	fun generate(): String
-	
 	companion object
 }
 

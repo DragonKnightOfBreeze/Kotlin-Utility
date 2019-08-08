@@ -370,7 +370,7 @@ inline fun <reified T : Any> String.deserialize(dataType: DataType): T {
 
 
 /**将当前字符串转为折行文本。（去除所有换行符以及尾随空白。）*/
-fun String.toWrappedText(): String {
+fun String.toBreakLineText(): String {
 	return this.remove("\n").trimEnd()
 }
 

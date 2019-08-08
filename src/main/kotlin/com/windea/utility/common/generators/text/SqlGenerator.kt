@@ -28,7 +28,9 @@ object SqlGenerator : TextGenerator {
 			"""
 			insert into $tableName ($columnNamesSnippet) values
 			${table.joinToString(",\n", "", ";\n") { data ->
-				val columnsSnippet = data.values.joinToString { it?.toString()?.wrapQuote('\'')?.unescape() ?: "null" }
+				val columnsSnippet = data.values.joinToString {
+					it?.toString()?.wrapQuote('\'')?.unescape() ?: "null"
+				}
 				
 				"""  ($columnsSnippet)"""
 			}}

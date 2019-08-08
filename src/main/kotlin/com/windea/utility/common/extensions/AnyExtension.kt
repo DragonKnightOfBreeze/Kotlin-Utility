@@ -19,8 +19,8 @@ inline fun check(lazyMessage: () -> Any) = check(false, lazyMessage)
 
 
 /**序列化当前对象。*/
-fun Any.serialize(dataType: DataType): String {
-	return dataType.loader.toString(this)
+fun Any?.serialize(dataType: DataType): String {
+	return this?.let { dataType.loader.toString(it) } ?: ""
 }
 
 

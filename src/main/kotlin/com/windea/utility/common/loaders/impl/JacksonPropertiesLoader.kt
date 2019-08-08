@@ -42,8 +42,7 @@ class JacksonPropertiesLoader : PropertiesLoader {
 	}
 	
 	override fun <T : Any> toString(data: T): String {
-		val separator = schema.keyValueSeparator()
-		return mapper.writeValueAsProperties(data).entries.joinToString("\n") { (key, value) -> "$key$separator$value" }
+		return mapper.writeValueAsString(data)
 	}
 	
 	override fun <T : Any> toFile(data: T, path: String) {
