@@ -7,6 +7,7 @@ import com.windea.utility.common.dsl.text.MarkdownDslConfig.addTrailingHeaderMar
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indent
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.initialMarker
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.performImport
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quote
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quoteIndentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.repeatableMarkerSize
@@ -49,6 +50,11 @@ object MarkdownDslConfig : DslConfig {
 	var preferAsteriskInitialMaker: Boolean = true
 	var addTrailingHeaderMarkers: Boolean = false
 	var addTrailingBreakSpaces: Boolean = true
+	
+	@ExtendedMarkdownFeature
+	var generateToc: Boolean = false
+	@ExtendedMarkdownFeature
+	var performImport: Boolean = false
 	
 	internal val indent get() = " ".repeat(indentSize)
 	internal val quoteIndent get() = " ".repeat(quoteIndentSize)
@@ -600,9 +606,9 @@ data class MarkdownCodeFence(
 	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty
 ) : MarkdownCode(code), MarkdownDslBlockElement {
 	override fun toString(): String {
-		val tempAttributeSnippet = arrayOf(id.toString(), classes.toString(), properties.toString()).joinToString(" ")
-		val attributeSnippet = if(tempAttributeSnippet.isEmpty()) "" else " $tempAttributeSnippet"
-		return "```$languageName$attributeSnippet\n$code\n```"
+		val tempAttributesSnippet = arrayOf(id.toString(), classes.toString(), properties.toString()).joinToString(" ")
+		val attributesSnippet = if(tempAttributesSnippet.isEmpty()) "" else " $tempAttributesSnippet"
+		return "```$languageName$attributesSnippet\n$code\n```"
 	}
 }
 
@@ -702,6 +708,25 @@ data class MarkdownFrontMatter(
 ) : MarkdownDslBlockElement {
 	override fun toString(): String {
 		return "---\n$text\n---"
+	}
+}
+
+
+/**Markdown导入。用于导入相对路径的图片或文本。*/
+@ExtendedMarkdownFeature
+data class MarkdownImport(
+	val path: String,
+	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty
+) : MarkdownDslLineElement {
+	fun import(): String {
+		TODO()
+	}
+	
+	override fun toString(): String {
+		if(performImport) return import()
+		val tempPropertiesSnippet = properties.toString()
+		val propertiesSnippet = if(tempPropertiesSnippet.isEmpty()) "" else " $tempPropertiesSnippet"
+		return "@import $quote$path$quote$propertiesSnippet"
 	}
 }
 
