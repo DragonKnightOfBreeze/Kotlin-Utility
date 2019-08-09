@@ -9,8 +9,10 @@ class DslTests {
 		val str = Dsl.xml {
 			comment("123456")
 			element("123", "a" to 1) {
-				comment("333")
-				element("abc", text = "123")
+				comment("333").n()
+				element("abc")
+				element("a") { text("text") }
+				element("a") { +"text2" }.un()
 			}
 		}.toString()
 		//<!--123456-->
@@ -23,21 +25,41 @@ class DslTests {
 	
 	@Test
 	fun starBoundTextDslTest() {
-		//可以使用dsl，也可以使用模版字符串。
-		
-		val str = Dsl.starBoundTextString {
-			"${pht("player_name")}：这是一段${ct("blue") { "彩色" }}文本。"
-		}
-		//<player_name>：这是一段^blue;彩色^reset;文本。
-		println(str)
-		
-		val dsl = Dsl.starBoundText {
+		val str1 = Dsl.starBoundText {
 			pht("player_name")
-			t { "：这是一段" }
-			ct("blue") { "彩色" }
-			t { "文本" }
+			+"：这是一段"
+			ct("blue") {
+				ct("green") { +"彩" }
+				+"色"
+			}
+			+"文本。"
 		}
-		//<player_name>：这是一段^blue;彩色^reset;文本。
-		println(dsl)
+		//<player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
+		println(str1)
+		
+		val str2 = Dsl.starBoundText {
+			pht("player_name");+"：这是一段";ct("blue") { ct("green") { +"彩" };+"色" };+"文本。"
+		}
+		//<player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
+		println(str2)
+		
+		val str3 = Dsl.starBoundText {
+			+"信息 " + pht("player_name") + (+"：这是一段") + ct("blue") { ct("green") { +"彩" } + (+"色") } + (+"文本。")
+		}
+		//信息 <player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
+		println(str3)
+		
+		val str4 = Dsl.starBoundText {
+			+"信息 " + pht("player_name") + "：这是一段" + ct("blue") { ct("green") { +"彩" } + "色" } + "文本。"
+		}
+		//信息 <player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
+		println(str4)
+		
+		//NOTE 不能直接使用模版字符串。因为难以提取单独的文本
+		val str5 = Dsl.starBoundText {
+			"信息 ${pht("player_name")}：这是一段${ct("blue") { ct("green") { +"彩" } + "色" }}文本。"
+		}
+		//信息 <player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
+		println(str5)
 	}
 }

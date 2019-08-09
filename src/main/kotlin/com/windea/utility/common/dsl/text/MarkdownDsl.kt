@@ -2,23 +2,25 @@ package com.windea.utility.common.dsl.text
 
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.dsl.*
+import com.windea.utility.common.dsl.data.*
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.addTrailingHeaderMarkers
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indent
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.initialMarker
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quote
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.quoteIndentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.repeatableMarkerSize
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.truncated
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
-//TODO
 //TODO 关联Html标签
 
 @NotTested
 /**Markdown的领域专用语言。*/
-class MarkdownDsl : Dsl, MarkdownDslSuperElement {
+data class MarkdownDsl(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
-	
+) : Dsl, MarkdownDslSuperElement<MarkdownDslElement> {
 	override fun toString(): String {
 		return content.joinToString("\n", "", "\n") { it.toString() }
 	}
@@ -26,7 +28,11 @@ class MarkdownDsl : Dsl, MarkdownDslSuperElement {
 
 /**Markdown领域专用语言的配置。*/
 object MarkdownDslConfig : DslConfig {
-	var indentSize: Int = 2
+	var indentSize: Int = 4
+		set(value) {
+			field = value.coerceIn(2, 8)
+		}
+	var quoteIndentSize: Int = 4
 		set(value) {
 			field = value.coerceIn(2, 8)
 		}
@@ -38,12 +44,14 @@ object MarkdownDslConfig : DslConfig {
 		set(value) {
 			field = value.coerceIn(3, 6)
 		}
+	var truncated = "..."
 	var preferDoubleQuote: Boolean = true
 	var preferAsteriskInitialMaker: Boolean = true
 	var addTrailingHeaderMarkers: Boolean = false
 	var addTrailingBreakSpaces: Boolean = true
 	
 	internal val indent get() = " ".repeat(indentSize)
+	internal val quoteIndent get() = " ".repeat(quoteIndentSize)
 	internal val codeIndent get() = " ".repeat(codeIndentSize)
 	internal val quote get() = if(preferDoubleQuote) "\"" else "'"
 	internal val initialMarker get() = if(preferAsteriskInitialMaker) "*" else "-"
@@ -61,7 +69,7 @@ interface MarkdownDslLineElement : MarkdownDslElement
 interface MarkdownDslInlineElement : MarkdownDslElement
 
 /**Markdown领域专用语言的引用元素。*/
-interface MarkdownDslReferenceElement : MarkdownDslElement {
+interface MarkdownDslReferenceElement : MarkdownDslElement, MarkdownDslInlineElement {
 	fun toPairString(): Pair<String, String>
 }
 
@@ -69,8 +77,24 @@ interface MarkdownDslReferenceElement : MarkdownDslElement {
 interface MarkdownDslBlockElement : MarkdownDslElement
 
 /**Markdown领域专用语言的父级元素。*/
-interface MarkdownDslSuperElement : MarkdownDslElement {
-	val content: MutableList<MarkdownDslElement>
+interface MarkdownDslSuperElement<in T : MarkdownDslElement> : MarkdownDslElement {
+	val content: MutableList<in T>
+	
+	operator fun MarkdownDslElement.plus(element: MarkdownDslElement) = element
+}
+
+/**Markdown领域专用语言的行内父级元素。*/
+interface MarkdownDslInlineSuperElement : MarkdownDslSuperElement<MarkdownDslInlineElement> {
+	operator fun String.unaryPlus() = this@MarkdownDslInlineSuperElement.text(this)
+	
+	operator fun XmlDslElement.plus(text: String) = (+text)
+}
+
+/**Markdown领域专用语言的全局父级元素。*/
+interface MarkdownDslAllSuperElement : MarkdownDslSuperElement<MarkdownDslElement> {
+	operator fun String.unaryPlus() = this@MarkdownDslAllSuperElement.text(this)
+	
+	operator fun XmlDslElement.plus(text: String) = (+text)
 }
 
 
@@ -83,7 +107,7 @@ annotation class ExtendedMarkdownFeature
 /**Markdown文本。*/
 data class MarkdownText(
 	val text: String
-) : MarkdownDslBlockElement {
+) : MarkdownDslInlineElement {
 	override fun toString(): String {
 		return text
 	}
@@ -430,43 +454,81 @@ data class MarkdownAttributeProperties(
 
 //TODO
 /**Markdown列表。*/
-abstract class MarkdownList : MarkdownDslBlockElement
+data class MarkdownList(
+	override val content: MutableList<MarkdownListNode> = mutableListOf()
+) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownListNode>
 
 /**Markdown列表节点。*/
-abstract class MarkdownListNode : MarkdownDslLineElement
+abstract class MarkdownListNode(
+	override val content: MutableList<MarkdownDslInlineElement>
+) : MarkdownDslBlockElement, MarkdownDslInlineSuperElement
 
 /**Markdown有序列表节点。*/
-abstract class MarkdownOrderedListNode : MarkdownListNode()
+data class MarkdownOrderedListNode(
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
+) : MarkdownListNode(content)
 
 /**Markdown无序列表节点。*/
-abstract class MarkdownUnorderedListNode : MarkdownListNode()
+data class MarkdownUnorderedListNode(
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
+) : MarkdownListNode(content)
 
 /**Markdown任务列表节点。*/
-abstract class MarkdownTaskListNode : MarkdownListNode()
+data class MarkdownTaskListNode(
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
+) : MarkdownListNode(content)
 
 
-//TODO
 /**Markdown定义列表。*/
 @ExtendedMarkdownFeature
-abstract class MarkdownDefinitionList : MarkdownDslBlockElement
+data class MarkdownDefinitionList(
+	val title: String,
+	override val content: MutableList<MarkdownDefinitionListNode> = mutableListOf(),
+	val blankLineSize: Int = 0
+) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownDefinitionListNode> {
+	override fun toString(): String {
+		val blankLines = "\n".repeat(blankLineSize)
+		val titleSnippet = if(title.isEmpty()) truncated else title
+		val contentSnippet = when {
+			content.isEmpty() -> ":" + " ".repeat(indentSize - 1) + truncated
+			else -> content.joinToString("\n$blankLines")
+		}
+		return "$titleSnippet\n$contentSnippet"
+	}
+}
 
 /**Markdown定义列表节点。*/
 @ExtendedMarkdownFeature
-abstract class MarkdownDefinitionListNode : MarkdownDslLineElement
+data class MarkdownDefinitionListNode(
+	override val content: MutableList<MarkdownDslElement> = mutableListOf()
+) : MarkdownDslBlockElement, MarkdownDslAllSuperElement {
+	override fun toString(): String {
+		return when {
+			content.isEmpty() -> ":" + " ".repeat(indentSize - 1) + truncated
+			else -> ":" + content.joinToString("\n").prependIndent(indent).drop(1)
+		}
+	}
+}
 
 
 //TODO
 /**Markdown表格。*/
-abstract class MarkdownTable : MarkdownDslBlockElement
+abstract class MarkdownTable : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownTableRow>
 
 /**Markdown表格头部。*/
-abstract class MarkdownTableHeader : MarkdownDslLineElement
+data class MarkdownTableHeader(
+	override val content: MutableList<MarkdownTableColumn> = mutableListOf()
+) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn>
 
 /**Markdown表格行。*/
-abstract class MarkdownTableRow : MarkdownDslLineElement
+data class MarkdownTableRow(
+	override val content: MutableList<MarkdownTableColumn> = mutableListOf()
+) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn>
 
 /**Markdown表格列。*/
-abstract class MarkdownTableColumn : MarkdownDslInlineElement
+data class MarkdownTableColumn(
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
+) : MarkdownDslInlineElement, MarkdownDslInlineSuperElement
 
 
 //TODO
@@ -478,21 +540,21 @@ abstract class MarkdownToc : MarkdownDslBlockElement
 /**Markdown引文。*/
 abstract class MarkdownQuote(
 	override val content: MutableList<MarkdownDslElement>
-) : MarkdownDslBlockElement, MarkdownDslSuperElement
+) : MarkdownDslBlockElement, MarkdownDslAllSuperElement
 
-/**Markdown引文块。格式：`> $line`。*/
+/**Markdown引文块。*/
 data class MarkdownBlockQuote(
-	override val content: MutableList<MarkdownDslElement>
+	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
 		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
-		return contentSnippet.prependIndent(">" + " ".repeat(indentSize - 1))
+		return contentSnippet.prependIndent(">" + " ".repeat(quoteIndentSize - 1))
 	}
 }
 
-/**Markdown缩进块。格式：`  $line`。*/
+/**Markdown缩进块。*/
 data class MarkdownIndentedBlock(
-	override val content: MutableList<MarkdownDslElement>
+	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
 		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
@@ -500,10 +562,10 @@ data class MarkdownIndentedBlock(
 	}
 }
 
-/**Markdown侧边块。格式：`| $line`。*/
+/**Markdown侧边块。*/
 @ExtendedMarkdownFeature
 data class MarkdownSideBlock(
-	override val content: MutableList<MarkdownDslElement>
+	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
 		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
@@ -527,7 +589,7 @@ data class MarkdownInlineCode(
 }
 
 /**Markdown代码块。*/
-data class MarkdownBlockCode(
+data class MarkdownCodeFence(
 	override val code: String,
 	val languageName: String,
 	@ExtendedMarkdownFeature
@@ -569,15 +631,40 @@ data class MarkdownMultilineMath(
 }
 
 
-//TODO
 /**Markdown警告框。*/
 @ExtendedMarkdownFeature
 abstract class MarkdownAlertBox(
 	val type: MarkdownAlertBoxType,
-	val qualifier: String,
-	val title: String,
-	val text: String
-)
+	open val qualifier: String,
+	open val title: String,
+	override val content: MutableList<MarkdownDslElement>
+) : MarkdownDslBlockElement, MarkdownDslAllSuperElement {
+	override fun toString(): String {
+		val contentSnippet = if(content.isEmpty()) indent else content.joinToString("\n").prependIndent(indent)
+		return "${type.prefixMarkers} $qualifier $quote$title$quote\n$contentSnippet"
+	}
+}
+
+/**普通的Markdown警告框。*/
+data class MarkdownNormalAlertBox(
+	override val qualifier: String,
+	override val title: String,
+	override val content: MutableList<MarkdownDslElement>
+) : MarkdownAlertBox(MarkdownAlertBoxType.Normal, qualifier, title, content)
+
+/**折叠的Markdown警告框。*/
+data class MarkdownCollapsedAlertBox(
+	override val qualifier: String,
+	override val title: String,
+	override val content: MutableList<MarkdownDslElement>
+) : MarkdownAlertBox(MarkdownAlertBoxType.Collapsed, qualifier, title, content)
+
+/**打开的Markdown警告框。*/
+data class MarkdownOpenedAlertBox(
+	override val qualifier: String,
+	override val title: String,
+	override val content: MutableList<MarkdownDslElement>
+) : MarkdownAlertBox(MarkdownAlertBoxType.Opened, qualifier, title, content)
 
 /**Markdown警告框的类型。*/
 @ExtendedMarkdownFeature
@@ -593,7 +680,18 @@ enum class MarkdownAlertBoxQualifier(
 	val style: String,
 	val text: String
 ) {
-	//TODO
+	Abstract("abstract", "abstract"), Summary("abstract", "summary"), Tldr("abstract", "tldr"),
+	Bug("bug", "bug"),
+	Danger("danger", "danger"), Error("danger", "error"),
+	Example("example", "example"), Snippet("example", "snippet"),
+	Fail("fail", "fail"), Failure("fail", "failure"), Missing("fail", "missing"),
+	Question("fag", "question"), Help("fag", "help"), Fag("fag", "fag"),
+	Info("info", "info"), Todo("info", "todo"),
+	Note("note", "note"), SeeAlso("note", "seealso"),
+	Quote("quote", "quote"), Cite("quote", "cite"),
+	Success("success", "successs"), Check("success", "check"), Done("success", "done"),
+	Tip("tip", "tip"), Hint("tip", "hint"), Important("tip", "important"),
+	Warning("warning", "warning"), Caution("warning", "caution"), Attention("warning", "attention")
 }
 
 
@@ -612,7 +710,7 @@ data class MarkdownFrontMatter(
 data class MarkdownMacros(
 	val name: String,
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
-) : MarkdownDslReferenceElement, MarkdownDslSuperElement {
+) : MarkdownDslReferenceElement, MarkdownDslAllSuperElement {
 	override fun toPairString(): Pair<String, String> {
 		val contentSnippet = if(content.isEmpty()) "\n" else content.joinToString("\n", "\n", "\n") { it.toString() }
 		return "<<< $name >>>" to ">>> $name$contentSnippet<<<"
@@ -621,4 +719,22 @@ data class MarkdownMacros(
 	override fun toString(): String {
 		return toPairString().first
 	}
+}
+
+
+/**构建Xml的领域专用语言。*/
+fun Dsl.Companion.markdown(content: MarkdownDsl.() -> Unit): MarkdownDsl {
+	return MarkdownDsl().also { it.content() }
+}
+
+/**配置xml的领域专用语言。*/
+fun DslConfig.Companion.markdown(config: MarkdownDslConfig.() -> Unit) {
+	MarkdownDslConfig.config()
+}
+
+
+//TODO Dsl构建方法
+/**创建Xml文本。*/
+fun MarkdownDslSuperElement<MarkdownText>.text(text: String): MarkdownText {
+	return MarkdownText(text).also { this.content += it }
 }
