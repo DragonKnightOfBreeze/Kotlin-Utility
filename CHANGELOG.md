@@ -49,6 +49,7 @@
 * 1.4.6 修复一些bug。
 * 1.4.7 更新Dsl中。
 * 1.4.8 完成Xml、StarBound富文本的Dsl，更新Markdown的Dsl中。
+* 1.4.9 初步完成Markdown的Dsl的元素结构和字符串转化逻辑，更新字符串扩展。
 
 # TODO
 

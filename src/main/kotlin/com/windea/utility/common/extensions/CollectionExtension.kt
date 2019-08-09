@@ -234,12 +234,12 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 
 /**将当前数组转化成以键为值的映射。*/
 fun <T> Array<T>.toIndexKeyMap(): Map<String, T> {
-	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
+	return this.withIndex().associate { (i, e) -> i.toString() to e }
 }
 
 /**将当前集合转化成以键为值的映射。*/
 fun <T> Iterable<T>.toIndexKeyMap(): Map<String, T> {
-	return this.withIndex().associate { (i, e) -> Pair(i.toString(), e) }
+	return this.withIndex().associate { (i, e) -> i.toString() to e }
 }
 
 /**将当前映射转换成以字符串为键的映射。*/
@@ -303,29 +303,29 @@ fun List<String>.getOrEmpty(index: Int) = this.getOrElse(index) { "" }
 
 
 /**去除第一行空白行。*/
-fun Array<String>.dropBlank() = this.dropWhile { it.isBlank() }
+fun <C : CharSequence> Array<C>.dropBlank() = this.dropWhile { it.isBlank() }
 
 /**去除最后一行空白行。*/
-fun Array<String>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+fun <C : CharSequence> Array<C>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
 
 /**去除第一行空白行。*/
-fun Iterable<String>.dropBlank() = this.dropWhile { it.isBlank() }
+fun <C : CharSequence> Iterable<C>.dropBlank() = this.dropWhile { it.isBlank() }
 
 /**去除最后一行空白行。*/
-fun List<String>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
+fun <C : CharSequence> List<C>.dropLastBlank() = this.dropLastWhile { it.isBlank() }
 
 
 /**过滤空字符串。*/
-fun Array<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Array<C>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 
 /**过滤空白字符串。*/
-fun Array<String>.filterNotBlank() = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Array<C>.filterNotBlank() = this.filter { it.isNotEmpty() }
 
 /**过滤空字符串。*/
-fun Iterable<String>.filterNotEmpty() = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Iterable<C>.filterNotEmpty() = this.filter { it.isNotEmpty() }
 
 /**过滤空白字符串。*/
-fun Iterable<String>.filterNotBlank() = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Iterable<C>.filterNotBlank() = this.filter { it.isNotEmpty() }
 
 
 /**映射当前带索引值集合的索引，返回带有新的索引的带索引值集合。*/

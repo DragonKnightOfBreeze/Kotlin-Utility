@@ -115,7 +115,7 @@ object SchemaGenerator : TextGenerator {
 				}
 				//如果找到了对应规则名的规则，则执行规则并替换
 				else -> ruleMap[key]?.let {
-					val newRule = it.invoke(Pair(key, value))
+					val newRule = it(key to value)
 					//居然还能直接这样写？
 					map -= key
 					map += newRule

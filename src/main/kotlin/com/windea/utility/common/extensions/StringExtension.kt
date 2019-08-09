@@ -97,7 +97,7 @@ fun <R> Sequence<String>.crossLine(block: (Sequence<String>) -> R): R {
 
 /**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
 fun String.crossLineSurroundsWith(prefix: String, suffix: String, ignoreCase: Boolean = false): Boolean {
-	check(enableCrossLine) { "[ERROR] Cross line operations are not enabled. Can be enabled in crossLine { ... } block." }
+	check(enableCrossLine) { "[ERROR] Cross line operations are not enabled. Please enable it in crossLine { ... } block." }
 	
 	val isBeginBound = this.startsWith(prefix, ignoreCase)
 	val isEndBound = this.startsWith(suffix, ignoreCase)
@@ -118,6 +118,27 @@ fun CharSequence?.isNullOrBlank(): Boolean {
 		returns(false) implies (this@isNullOrBlank != null)
 	}
 	return this == null || this.isBlank()
+}
+
+
+/**如果当前字符串为空，则返回转化后的值。*/
+inline fun <C : CharSequence> C.ifEmpty(transform: (C) -> C): C {
+	return if(this.isEmpty()) transform(this) else this
+}
+
+/**如果当前字符串为空白，则返回转化后的值。*/
+inline fun <C : CharSequence> C.ifBlank(transform: (C) -> C): C {
+	return if(this.isBlank()) transform(this) else this
+}
+
+/**如果当前字符串不为空，则返回转换后的值。*/
+inline fun <C : CharSequence> C.ifNotEmpty(transform: (C) -> C): C {
+	return if(this.isEmpty()) this else transform(this)
+}
+
+/**如果当前字符串不为空白，则返回转换后的值。*/
+inline fun <C : CharSequence> C.ifNotBlank(transform: (C) -> C): C {
+	return if(this.isBlank()) this else transform(this)
 }
 
 

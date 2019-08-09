@@ -4,10 +4,13 @@ import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.dsl.*
 import com.windea.utility.common.dsl.data.*
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.addTrailingHeaderMarkers
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.enableImport
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.enableMacros
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.enableTocGenerate
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indent
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.indentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.initialMarker
-import com.windea.utility.common.dsl.text.MarkdownDslConfig.performImport
+import com.windea.utility.common.dsl.text.MarkdownDslConfig.listIndentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quote
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quoteIndentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.repeatableMarkerSize
@@ -21,9 +24,9 @@ import java.lang.annotation.*
 /**Markdown的领域专用语言。*/
 data class MarkdownDsl(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
-) : Dsl, MarkdownDslSuperElement<MarkdownDslElement> {
+) : Dsl, MarkdownDslAllSuperElement {
 	override fun toString(): String {
-		return content.joinToString("\n", "", "\n") { it.toString() }
+		return content.joinToString("\n", "", "\n")
 	}
 }
 
@@ -33,7 +36,11 @@ object MarkdownDslConfig : DslConfig {
 		set(value) {
 			field = value.coerceIn(2, 8)
 		}
-	var quoteIndentSize: Int = 4
+	var listIndentSize: Int = 4
+		set(value) {
+			field = value.coerceIn(2, 8)
+		}
+	var quoteIndentSize: Int = 2
 		set(value) {
 			field = value.coerceIn(2, 8)
 		}
@@ -48,19 +55,28 @@ object MarkdownDslConfig : DslConfig {
 	var truncated = "..."
 	var preferDoubleQuote: Boolean = true
 	var preferAsteriskInitialMaker: Boolean = true
+	var preferUpperCompleteMarker: Boolean = true
 	var addTrailingHeaderMarkers: Boolean = false
 	var addTrailingBreakSpaces: Boolean = true
 	
+	/**允许使用 `>` / `^` 来向右/向上合并单元格。*/
 	@ExtendedMarkdownFeature
-	var generateToc: Boolean = false
+	var enableTableSpan: Boolean = true
 	@ExtendedMarkdownFeature
-	var performImport: Boolean = false
+	var enableTocGenerate: Boolean = false
+	@ExtendedMarkdownFeature
+	var enableImport: Boolean = false
+	@ExtendedMarkdownFeature
+	var enableMacros: Boolean = false
+	
 	
 	internal val indent get() = " ".repeat(indentSize)
+	internal val listIndent get() = " ".repeat(listIndentSize)
 	internal val quoteIndent get() = " ".repeat(quoteIndentSize)
 	internal val codeIndent get() = " ".repeat(codeIndentSize)
 	internal val quote get() = if(preferDoubleQuote) "\"" else "'"
 	internal val initialMarker get() = if(preferAsteriskInitialMaker) "*" else "-"
+	internal val completeMarker get() = if(preferUpperCompleteMarker) "X" else "x"
 	internal val breakSpaces get() = if(addTrailingHeaderMarkers) "  " else ""
 }
 
@@ -145,12 +161,15 @@ abstract class MarkdownSetextHeader(
 /**Atx风格的Markdown标题。*/
 abstract class MarkdownAtxHeader(
 	override val text: String,
-	override val headerLevel: Int
+	override val headerLevel: Int,
+	@ExtendedMarkdownFeature
+	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty
 ) : MarkdownHeader(text, headerLevel) {
 	override fun toString(): String {
 		val prefixMarkers = "#".repeat(headerLevel) + " "
 		val suffixMarkers = if(addTrailingHeaderMarkers) " " + "#".repeat(headerLevel) else ""
-		return "$prefixMarkers$text$suffixMarkers"
+		val propertiesSnippet = properties.toString().ifNotEmpty { " $it" }
+		return "$prefixMarkers$text$suffixMarkers$propertiesSnippet"
 	}
 }
 
@@ -462,31 +481,62 @@ data class MarkdownAttributeProperties(
 }
 
 
-//TODO
 /**Markdown列表。*/
 data class MarkdownList(
-	override val content: MutableList<MarkdownListNode> = mutableListOf()
-) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownListNode>
+	override val content: MutableList<MarkdownListNode> = mutableListOf(),
+	val blankLineSize: Int = 0
+) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownListNode> {
+	override fun toString(): String {
+		return when {
+			content.isEmpty() -> ""
+			else -> content.joinToString("\n" + "\n".repeat(blankLineSize))
+		}
+	}
+	
+	companion object {
+		val empty = MarkdownList(mutableListOf())
+	}
+}
 
 /**Markdown列表节点。*/
 abstract class MarkdownListNode(
-	override val content: MutableList<MarkdownDslInlineElement>
-) : MarkdownDslBlockElement, MarkdownDslInlineSuperElement
+	val prefixMarker: String,
+	override val content: MutableList<MarkdownDslInlineElement>,
+	open val list: MarkdownList
+) : MarkdownDslBlockElement, MarkdownDslInlineSuperElement {
+	override fun toString(): String {
+		val contentSnippet = when {
+			content.isEmpty() -> prefixMarker + " ".repeat(listIndentSize - 1) + truncated
+			else -> prefixMarker + content.joinToString("\n").prependIndent(indent).drop(1)
+		}
+		val listSnippet = when {
+			list.content.isEmpty() -> ""
+			else -> "\n" + list.toString().prependIndent(indent)
+		}
+		return "$contentSnippet$listSnippet"
+	}
+}
 
 /**Markdown有序列表节点。*/
 data class MarkdownOrderedListNode(
-	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
-) : MarkdownListNode(content)
+	val order: String,
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf(),
+	override val list: MarkdownList = MarkdownList.empty
+) : MarkdownListNode(order, content, list)
 
 /**Markdown无序列表节点。*/
 data class MarkdownUnorderedListNode(
-	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
-) : MarkdownListNode(content)
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf(),
+	override val list: MarkdownList = MarkdownList.empty
+) : MarkdownListNode(initialMarker, content, list)
 
 /**Markdown任务列表节点。*/
 data class MarkdownTaskListNode(
-	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
-) : MarkdownListNode(content)
+	val completeStatus: Boolean,
+	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf(),
+	override val list: MarkdownList = MarkdownList.empty,
+	val completeMarkers: String = "$initialMarker [${if(completeStatus) MarkdownDslConfig.completeMarker else " "}]"
+) : MarkdownListNode(completeMarkers, content, list)
 
 
 /**Markdown定义列表。*/
@@ -520,30 +570,53 @@ data class MarkdownDefinitionListNode(
 }
 
 
-//TODO
 /**Markdown表格。*/
-abstract class MarkdownTable : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownTableRow>
+data class MarkdownTable(
+	val header: MarkdownTableHeader,
+	override val content: MutableList<MarkdownTableRow> = mutableListOf()
+) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownTableRow> {
+	override fun toString(): String {
+		require(content.isNotEmpty()) { "Table row size must be greater than 0." }
+		
+		val contentSnippet = content.joinToString("\n")
+		return "$header\n$contentSnippet"
+	}
+}
 
 /**Markdown表格头部。*/
 data class MarkdownTableHeader(
 	override val content: MutableList<MarkdownTableColumn> = mutableListOf()
-) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn>
+) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn> {
+	override fun toString(): String {
+		require(content.isNotEmpty()) { "Table header column size must be greater than 0." }
+		
+		val contentStringList = content.map { it.toString() }
+		val contentSnippet = contentStringList.joinToString(" | ", "| ", " |")
+		val delimiterLine = contentStringList.joinToString("-|-", "|-", "-|") { "-".repeat(it.count()) }
+		return "$contentSnippet\n$delimiterLine"
+	}
+}
 
 /**Markdown表格行。*/
 data class MarkdownTableRow(
 	override val content: MutableList<MarkdownTableColumn> = mutableListOf()
-) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn>
+) : MarkdownDslLineElement, MarkdownDslSuperElement<MarkdownTableColumn> {
+	override fun toString(): String {
+		require(content.isNotEmpty()) { "Table row column size must be greater than 0." }
+		
+		return content.joinToString(" | ", "| ", " |")
+	}
+}
 
 /**Markdown表格列。*/
 data class MarkdownTableColumn(
 	override val content: MutableList<MarkdownDslInlineElement> = mutableListOf()
-) : MarkdownDslInlineElement, MarkdownDslInlineSuperElement
-
-
-//TODO
-/**Markdown目录。*/
-@ExtendedMarkdownFeature
-abstract class MarkdownToc : MarkdownDslBlockElement
+) : MarkdownDslInlineElement, MarkdownDslInlineSuperElement {
+	override fun toString(): String {
+		//需要将内容中的转义换行符替换成html换行符
+		return if(content.isEmpty()) "" else content.joinToString("").replace("\n", "<br>")
+	}
+}
 
 
 /**Markdown引文。*/
@@ -556,7 +629,7 @@ data class MarkdownBlockQuote(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
-		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
+		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n")
 		return contentSnippet.prependIndent(">" + " ".repeat(quoteIndentSize - 1))
 	}
 }
@@ -566,7 +639,7 @@ data class MarkdownIndentedBlock(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
-		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
+		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n")
 		return contentSnippet.prependIndent(indent)
 	}
 }
@@ -577,7 +650,7 @@ data class MarkdownSideBlock(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownQuote(content) {
 	override fun toString(): String {
-		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n") { it.toString() }
+		val contentSnippet = if(content.isEmpty()) "" else content.joinToString("\n")
 		return contentSnippet.prependIndent("|" + " ".repeat(indentSize - 1))
 	}
 }
@@ -610,7 +683,7 @@ data class MarkdownCodeFence(
 ) : MarkdownCode(code), MarkdownDslBlockElement {
 	override fun toString(): String {
 		val tempAttributesSnippet = arrayOf(id.toString(), classes.toString(), properties.toString()).joinToString(" ")
-		val attributesSnippet = if(tempAttributesSnippet.isEmpty()) "" else " $tempAttributesSnippet"
+		val attributesSnippet = tempAttributesSnippet.ifEmpty { " $it" }
 		return "```$languageName$attributesSnippet\n$code\n```"
 	}
 }
@@ -649,7 +722,7 @@ abstract class MarkdownAlertBox(
 	override val content: MutableList<MarkdownDslElement>
 ) : MarkdownDslBlockElement, MarkdownDslAllSuperElement {
 	override fun toString(): String {
-		val contentSnippet = if(content.isEmpty()) indent else content.joinToString("\n").prependIndent(indent)
+		val contentSnippet = if(content.isEmpty()) "$indent$truncated" else content.joinToString("\n").prependIndent(indent)
 		return "${type.prefixMarkers} $qualifier $quote$title$quote\n$contentSnippet"
 	}
 }
@@ -715,20 +788,34 @@ data class MarkdownFrontMatter(
 }
 
 
+/**Markdown目录。用于生成当前文档的目录。*/
+@ExtendedMarkdownFeature
+class MarkdownToc : MarkdownDslLineElement {
+	fun generateToc(): String {
+		TODO()
+	}
+	
+	override fun toString(): String {
+		if(enableTocGenerate) return generateToc()
+		
+		return "[TOC]"
+	}
+}
+
 /**Markdown导入。用于导入相对路径的图片或文本。*/
 @ExtendedMarkdownFeature
 data class MarkdownImport(
 	val path: String,
 	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty
 ) : MarkdownDslLineElement {
-	fun import(): String {
+	fun replaceImport(): String {
 		TODO()
 	}
 	
 	override fun toString(): String {
-		if(performImport) return import()
-		val tempPropertiesSnippet = properties.toString()
-		val propertiesSnippet = if(tempPropertiesSnippet.isEmpty()) "" else " $tempPropertiesSnippet"
+		if(enableImport) return replaceImport()
+		
+		val propertiesSnippet = properties.toString().ifNotEmpty { " $it" }
 		return "@import $quote$path$quote$propertiesSnippet"
 	}
 }
@@ -739,12 +826,18 @@ data class MarkdownMacros(
 	val name: String,
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : MarkdownDslReferenceElement, MarkdownDslAllSuperElement {
+	fun replaceMacros(): String {
+		TODO()
+	}
+	
 	override fun toPairString(): Pair<String, String> {
-		val contentSnippet = if(content.isEmpty()) "\n" else content.joinToString("\n", "\n", "\n") { it.toString() }
+		val contentSnippet = if(content.isEmpty()) "\n" else content.joinToString("\n", "\n", "\n")
 		return "<<< $name >>>" to ">>> $name$contentSnippet<<<"
 	}
 	
 	override fun toString(): String {
+		if(enableMacros) return replaceMacros()
+		
 		return toPairString().first
 	}
 }
@@ -762,6 +855,7 @@ fun DslConfig.Companion.markdown(config: MarkdownDslConfig.() -> Unit) {
 
 
 //TODO Dsl构建方法
+
 /**创建Xml文本。*/
 fun MarkdownDslSuperElement<MarkdownText>.text(text: String, clearContent: Boolean = false): MarkdownText {
 	return MarkdownText(text).also {

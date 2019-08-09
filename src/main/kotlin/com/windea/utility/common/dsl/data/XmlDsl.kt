@@ -13,7 +13,7 @@ data class XmlDsl(
 	override val content: MutableList<XmlDslElement> = mutableListOf()
 ) : Dsl, XmlDslSuperElement {
 	override fun toString(): String {
-		return if(content.isEmpty()) "" else content.joinToString("\n", "", "\n") { it.toString() }
+		return if(content.isEmpty()) "" else content.joinToString("\n", "", "\n")
 	}
 }
 
