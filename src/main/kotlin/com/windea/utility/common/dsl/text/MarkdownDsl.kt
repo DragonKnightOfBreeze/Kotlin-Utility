@@ -497,11 +497,10 @@ data class MarkdownDefinitionList(
 	val blankLineSize: Int = 0
 ) : MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownDefinitionListNode> {
 	override fun toString(): String {
-		val blankLines = "\n".repeat(blankLineSize)
 		val titleSnippet = if(title.isEmpty()) truncated else title
 		val contentSnippet = when {
 			content.isEmpty() -> ":" + " ".repeat(indentSize - 1) + truncated
-			else -> content.joinToString("\n$blankLines")
+			else -> content.joinToString("\n" + "\n".repeat(blankLineSize))
 		}
 		return "$titleSnippet\n$contentSnippet"
 	}
@@ -752,7 +751,7 @@ data class MarkdownMacros(
 
 
 /**构建Xml的领域专用语言。*/
-fun Dsl.Companion.markdown(content: MarkdownDsl.() -> Unit): MarkdownDsl {
+fun Dsl.Companion.markdown(content: MarkdownDsl.() -> MarkdownDslElement): MarkdownDsl {
 	return MarkdownDsl().also { it.content() }
 }
 

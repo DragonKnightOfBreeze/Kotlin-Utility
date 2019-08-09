@@ -77,7 +77,7 @@ enum class StarBoundColor(
 
 
 /**构建StarBound富文本的领域专用语言。*/
-fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> Unit): StarBoundTextDsl {
+fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> StarBoundTextDslElement): StarBoundTextDsl {
 	return StarBoundTextDsl().also { it.content() }
 }
 
@@ -99,10 +99,10 @@ fun StarBoundTextDslSuperElement.pht(placeHolder: String): StarBoundPlaceHolderT
 fun StarBoundTextDslSuperElement.pht(placeHolder: StarBoundPlaceHolder) = this.pht(placeHolder.text)
 
 /**创建StarBound彩色文本。*/
-fun StarBoundTextDslSuperElement.ct(color: String, content: StarBoundColorText.() -> Unit): StarBoundColorText {
+fun StarBoundTextDslSuperElement.ct(color: String, content: StarBoundColorText.() -> StarBoundTextDslElement): StarBoundColorText {
 	return StarBoundColorText(color).also { it.content() }.also { this.content += it }
 }
 
 /**创建StarBound彩色文本。*/
-fun StarBoundTextDslSuperElement.ct(color: StarBoundColor, content: StarBoundColorText.() -> Unit) = this.ct(color.text, content)
+fun StarBoundTextDslSuperElement.ct(color: StarBoundColor, content: StarBoundColorText.() -> StarBoundTextDslElement) = this.ct(color.text, content)
 

@@ -4,6 +4,7 @@ package com.windea.utility.common.dsl.data
 
 import com.windea.utility.common.dsl.*
 import com.windea.utility.common.dsl.data.XmlDslConfig.indent
+import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.dsl.text.*
 
@@ -23,6 +24,7 @@ object XmlDslConfig : DslConfig {
 			field = value.coerceIn(2, 8)
 		}
 	var preferDoubleQuote: Boolean = true
+	var preferAutoClosedTag: Boolean = false
 	
 	internal val indent get() = " ".repeat(indentSize)
 	internal val quote get() = if(preferDoubleQuote) "\"" else "'"
@@ -68,7 +70,8 @@ data class XmlElement(
 	val attributes: Map<String, Any?>,
 	val text: String? = null,
 	override val content: MutableList<XmlDslElement> = mutableListOf(),
-	override var newLine: Boolean = false
+	override var newLine: Boolean = false,
+	val blankLineSize: Int = 0
 ) : XmlDslSuperElement, XmlDslNewLineElement {
 	override fun toString(): String {
 		val attributesSnippet = when {
@@ -78,13 +81,15 @@ data class XmlElement(
 		val textSnippet = text?.let { if(newLine) "\n${it.prependIndent(indent)}\n" else text } ?: ""
 		val innerTextSnippet = when {
 			textSnippet.isEmpty() -> when {
-				newLine -> "\n${content.joinToString("\n").prependIndent(indent)}\n"
+				newLine -> "\n${content.joinToString("\n" + "\n".repeat(blankLineSize)).prependIndent(indent)}\n"
 				else -> content.joinToString("")
 			}
 			textSnippet.isEmpty() && content.isEmpty() -> ""
 			else -> textSnippet
 		}
-		return "<$name$attributesSnippet>$innerTextSnippet</$name>"
+		val prefixMarkers = "<$name$attributesSnippet>"
+		val suffixMarkers = if(innerTextSnippet.isEmpty() && preferAutoClosedTag) "/>" else "</$name>"
+		return "$prefixMarkers$innerTextSnippet$suffixMarkers"
 	}
 }
 
@@ -99,7 +104,7 @@ data class XmlText(
 
 
 /**构建Xml的领域专用语言。*/
-fun Dsl.Companion.xml(content: XmlDsl.() -> Unit): XmlDsl {
+fun Dsl.Companion.xml(content: XmlDsl.() -> XmlDslElement): XmlDsl {
 	return XmlDsl().also { it.content() }
 }
 
@@ -120,7 +125,7 @@ fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any
 }
 
 /**创建Xml元素。默认缩进子元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit): XmlElement {
+fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> XmlDslElement): XmlElement {
 	return XmlElement(name, attributes.toMap(), newLine = true).also { it.content() }.also { this.content += it }
 }
 

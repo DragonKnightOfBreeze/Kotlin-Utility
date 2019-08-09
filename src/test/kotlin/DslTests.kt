@@ -17,8 +17,14 @@ class DslTests {
 		}.toString()
 		//<!--123456-->
 		//<123 a="1">
-		//  <!--333-->
-		//  <abc>abc</abc>
+		//  <!--
+		//    333
+		//  -->
+		//  <abc></abc>
+		//  <a>
+		//    text
+		//  </a>
+		//  <a>text2</a>
 		//</123>
 		println(str)
 	}
