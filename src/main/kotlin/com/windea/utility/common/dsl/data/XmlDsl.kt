@@ -38,6 +38,8 @@ interface XmlDslSuperElement : XmlDslElement {
 	
 	operator fun String.unaryPlus() = this@XmlDslSuperElement.text(this)
 	
+	operator fun String.unaryMinus() = this@XmlDslSuperElement.text(this, true)
+	
 	operator fun XmlDslElement.plus(text: String) = (+text)
 	
 	operator fun XmlDslElement.plus(element: StarBoundTextDslElement) = element
@@ -123,8 +125,11 @@ fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any
 }
 
 /**创建Xml文本。*/
-fun XmlDslSuperElement.text(text: String): XmlText {
-	return XmlText(text).also { this.content += it }
+fun XmlDslSuperElement.text(text: String, clearContent: Boolean = false): XmlText {
+	return XmlText(text).also {
+		if(clearContent) this.content.clear()
+		this.content += it
+	}
 }
 
 /**对可换行元素进行换行。例如，对注释文本、标签的子标签进行换行。*/

@@ -23,9 +23,11 @@ class DslTests {
 		println(str)
 	}
 	
+	//任意一种形式都是可以的！！！推荐纯dsl或者纯模版字符串。
 	@Test
 	fun starBoundTextDslTest() {
 		val str1 = Dsl.starBoundText {
+			t("信息 ")
 			pht("player_name")
 			+"：这是一段"
 			ct("blue") {
@@ -38,7 +40,7 @@ class DslTests {
 		println(str1)
 		
 		val str2 = Dsl.starBoundText {
-			pht("player_name");+"：这是一段";ct("blue") { ct("green") { +"彩" };+"色" };+"文本。"
+			t("信息 ");pht("player_name");+"：这是一段";ct("blue") { ct("green") { +"彩" };+"色" };+"文本。"
 		}
 		//<player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
 		println(str2)
@@ -55,9 +57,8 @@ class DslTests {
 		//信息 <player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
 		println(str4)
 		
-		//NOTE 不能直接使用模版字符串。因为难以提取单独的文本
 		val str5 = Dsl.starBoundText {
-			"信息 ${pht("player_name")}：这是一段${ct("blue") { ct("green") { +"彩" } + "色" }}文本。"
+			-"信息 ${pht("player_name")}：这是一段${ct("blue") { ct("green") { +"彩" } + "色" }}文本。"
 		}
 		//信息 <player_name>：这是一段^blue;^green;彩^reset;色^reset;文本。
 		println(str5)

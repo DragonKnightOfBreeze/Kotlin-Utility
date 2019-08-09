@@ -93,12 +93,16 @@ interface MarkdownDslSuperElement<in T : MarkdownDslElement> : MarkdownDslElemen
 interface MarkdownDslInlineSuperElement : MarkdownDslSuperElement<MarkdownDslInlineElement> {
 	operator fun String.unaryPlus() = this@MarkdownDslInlineSuperElement.text(this)
 	
+	operator fun String.unaryMinus() = this@MarkdownDslInlineSuperElement.text(this, true)
+	
 	operator fun XmlDslElement.plus(text: String) = (+text)
 }
 
 /**Markdown领域专用语言的全局父级元素。*/
 interface MarkdownDslAllSuperElement : MarkdownDslSuperElement<MarkdownDslElement> {
 	operator fun String.unaryPlus() = this@MarkdownDslAllSuperElement.text(this)
+	
+	operator fun String.unaryMinus() = this@MarkdownDslAllSuperElement.text(this, true)
 	
 	operator fun XmlDslElement.plus(text: String) = (+text)
 }
@@ -760,6 +764,9 @@ fun DslConfig.Companion.markdown(config: MarkdownDslConfig.() -> Unit) {
 
 //TODO Dsl构建方法
 /**创建Xml文本。*/
-fun MarkdownDslSuperElement<MarkdownText>.text(text: String): MarkdownText {
-	return MarkdownText(text).also { this.content += it }
+fun MarkdownDslSuperElement<MarkdownText>.text(text: String, clearContent: Boolean = false): MarkdownText {
+	return MarkdownText(text).also {
+		if(clearContent) this.content.clear()
+		this.content += it
+	}
 }

@@ -23,6 +23,8 @@ interface StarBoundTextDslSuperElement : StarBoundTextDslElement {
 	
 	operator fun String.unaryPlus() = this@StarBoundTextDslSuperElement.t(this)
 	
+	operator fun String.unaryMinus() = this@StarBoundTextDslSuperElement.t(this, true)
+	
 	operator fun StarBoundTextDslElement.plus(text: String) = (+text)
 	
 	operator fun StarBoundTextDslElement.plus(element: StarBoundTextDslElement) = element
@@ -81,8 +83,11 @@ fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> Unit): StarBound
 
 
 /**创建StarBound文本。*/
-fun StarBoundTextDslSuperElement.t(text: String): StarBoundText {
-	return StarBoundText(text).also { this.content += it }
+fun StarBoundTextDslSuperElement.t(text: String, clearContent: Boolean = false): StarBoundText {
+	return StarBoundText(text).also {
+		if(clearContent) this.content.clear()
+		this.content += it
+	}
 }
 
 /**创建StarBound占位文本。*/
