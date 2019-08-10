@@ -148,7 +148,7 @@ fun JsonDsl.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }
 fun JsonDsl.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.collection = it }
 
 
-fun JsonArray.item() = run { this.value += null }
+fun JsonArray.item() = run { this.value.add(null) }
 
 fun JsonArray.item(value: Boolean) = JsonBoolean(value).also { this.value += it }
 

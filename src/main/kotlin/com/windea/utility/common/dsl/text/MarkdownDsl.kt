@@ -660,9 +660,9 @@ data class MarkdownInlineCode(
 data class MarkdownCodeFence(
 	val language: String,
 	@ExtendedMarkdownFeature
-	val classes: MarkdownAttributeClasses = MarkdownAttributeClasses.empty,
+	val classes: MarkdownAttributeClasses = MarkdownAttributeClasses(),
 	@ExtendedMarkdownFeature
-	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty,
+	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties(),
 	override val code: String
 ) : MarkdownCode(code), MarkdownDslBlockElement {
 	override fun toString(): String {
@@ -763,7 +763,7 @@ class MarkdownToc : MarkdownDslLineElement {
 @ExtendedMarkdownFeature
 data class MarkdownImport(
 	val path: String,
-	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties.empty
+	val properties: MarkdownAttributeProperties = MarkdownAttributeProperties()
 ) : MarkdownDslLineElement {
 	override fun toString(): String {
 		val propertiesSnippet = properties.toString().ifNotEmpty { " $it" }
