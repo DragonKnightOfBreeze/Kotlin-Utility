@@ -8,6 +8,8 @@ import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.dsl.text.*
 
+//Xml是Html的超集，这里不实现两者之间的继承关系
+
 /**Xml的领域专用语言。*/
 data class XmlDsl(
 	override val content: MutableList<XmlDslElement> = mutableListOf()
@@ -104,7 +106,7 @@ data class XmlText(
 
 
 /**构建Xml的领域专用语言。*/
-fun Dsl.Companion.xml(content: XmlDsl.() -> XmlDslElement): XmlDsl {
+fun Dsl.Companion.xml(content: XmlDsl.() -> Unit): XmlDsl {
 	return XmlDsl().also { it.content() }
 }
 
@@ -125,7 +127,7 @@ fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any
 }
 
 /**创建Xml元素。默认缩进子元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> XmlDslElement): XmlElement {
+fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit): XmlElement {
 	return XmlElement(name, attributes.toMap(), newLine = true).also { it.content() }.also { this.content += it }
 }
 
@@ -136,6 +138,7 @@ fun XmlDslSuperElement.text(text: String, clearContent: Boolean = false): XmlTex
 		this.content += it
 	}
 }
+
 
 /**对可换行元素进行换行。例如，对注释文本、标签的子标签进行换行。*/
 fun <T : XmlDslNewLineElement> T.n(): T {
