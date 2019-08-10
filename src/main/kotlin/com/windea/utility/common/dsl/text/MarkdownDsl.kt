@@ -16,11 +16,8 @@ import com.windea.utility.common.dsl.text.MarkdownDslConfig.truncated
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
-//Markdown是Html的超集，这里不实现两者之间的继承关系
-//泛型问题是一个大问题
-//结构问题也是一个大问题——如何确保text只能是textBlock的子元素？
-
 //TODO 关联Html标签
+//TODO 确保text只能是textBlock的子元素
 
 @NotTested
 /**Markdown的领域专用语言。*/

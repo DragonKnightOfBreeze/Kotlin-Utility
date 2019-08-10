@@ -9,8 +9,6 @@ import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.dsl.text.*
 import java.lang.annotation.*
 
-//Xml是Html的超集，这里不实现两者之间的继承关系
-
 /**Xml的领域专用语言。*/
 data class XmlDsl(
 	override val content: MutableList<XmlDslElement> = mutableListOf()
