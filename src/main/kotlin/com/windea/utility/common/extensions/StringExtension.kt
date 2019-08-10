@@ -121,16 +121,6 @@ fun CharSequence?.isNullOrBlank(): Boolean {
 }
 
 
-/**如果当前字符串为空，则返回转化后的值。*/
-inline fun <C : CharSequence> C.ifEmpty(transform: (C) -> C): C {
-	return if(this.isEmpty()) transform(this) else this
-}
-
-/**如果当前字符串为空白，则返回转化后的值。*/
-inline fun <C : CharSequence> C.ifBlank(transform: (C) -> C): C {
-	return if(this.isBlank()) transform(this) else this
-}
-
 /**如果当前字符串不为空，则返回转换后的值。*/
 inline fun <C : CharSequence> C.ifNotEmpty(transform: (C) -> C): C {
 	return if(this.isEmpty()) this else transform(this)

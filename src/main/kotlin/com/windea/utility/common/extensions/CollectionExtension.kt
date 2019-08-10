@@ -88,6 +88,23 @@ infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean {
 }
 
 
+/**如果当前数组不为空，则返回转换后的值。*/
+@Suppress("UPPER_BOUND_CANNOT_BE_ARRAY")
+inline fun <C : Array<*>> C.ifNotEmpty(transform: (C) -> C): C {
+	return if(this.isEmpty()) this else transform(this)
+}
+
+/**如果当前集合不为空，则返回转换后的值。*/
+inline fun <C : Collection<*>> C.ifNotEmpty(transform: (C) -> C): C {
+	return if(this.isEmpty()) this else transform(this)
+}
+
+/**如果当前映射不为空，则返回转换后的值。*/
+inline fun <C : Map<*, *>> C.ifNotEmpty(transform: (C) -> C): C {
+	return if(this.isEmpty()) this else transform(this)
+}
+
+
 /**得到指定索引的元素，发生异常则得到默认值。*/
 fun <T> Array<T>.getOrDefault(index: Int, defaultValue: T): T {
 	return this.getOrElse(index) { defaultValue }
