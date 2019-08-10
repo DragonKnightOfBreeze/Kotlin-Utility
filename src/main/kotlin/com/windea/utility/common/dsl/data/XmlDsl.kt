@@ -7,6 +7,7 @@ import com.windea.utility.common.dsl.data.XmlDslConfig.indent
 import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.dsl.text.*
+import java.lang.annotation.*
 
 //Xml是Html的超集，这里不实现两者之间的继承关系
 
@@ -33,6 +34,12 @@ object XmlDslConfig : DslConfig {
 }
 
 
+/**扩展的Xml功能。*/
+@MustBeDocumented
+@Inherited
+annotation class ExtendedXmlFeature
+
+
 /**Xml领域专用语言的元素。*/
 interface XmlDslElement
 
@@ -54,6 +61,11 @@ interface XmlDslNewLineElement : XmlDslElement {
 	var newLine: Boolean
 }
 
+/**Xml领域专用语言的可以空行分割内容的元素。*/
+interface XmlDslBlankLineElement : XmlDslElement {
+	var blankLineSize: Int
+}
+
 
 /**Xml注释。*/
 data class XmlComment(
@@ -72,9 +84,9 @@ data class XmlElement(
 	val attributes: Map<String, Any?>,
 	val text: String? = null,
 	override val content: MutableList<XmlDslElement> = mutableListOf(),
-	override var newLine: Boolean = false,
-	val blankLineSize: Int = 0
-) : XmlDslSuperElement, XmlDslNewLineElement {
+	override var newLine: Boolean = true,
+	override var blankLineSize: Int = 0
+) : XmlDslSuperElement, XmlDslNewLineElement, XmlDslBlankLineElement {
 	override fun toString(): String {
 		val attributesSnippet = when {
 			attributes.isEmpty() -> ""
@@ -96,7 +108,7 @@ data class XmlElement(
 }
 
 /**Xml文本。*/
-data class XmlText(
+inline class XmlText(
 	val text: String
 ) : XmlDslElement {
 	override fun toString(): String {
@@ -106,46 +118,30 @@ data class XmlText(
 
 
 /**构建Xml的领域专用语言。*/
-fun Dsl.Companion.xml(content: XmlDsl.() -> Unit): XmlDsl {
-	return XmlDsl().also { it.content() }
-}
+fun Dsl.Companion.xml(content: XmlDsl.() -> Unit) = XmlDsl().also { it.content() }
 
 /**配置xml的领域专用语言。*/
-fun DslConfig.Companion.xml(config: XmlDslConfig.() -> Unit) {
-	XmlDslConfig.config()
-}
+fun DslConfig.Companion.xml(config: XmlDslConfig.() -> Unit) = XmlDslConfig.config()
 
 
 /**创建Xml注释。*/
-fun XmlDslSuperElement.comment(comment: String): XmlComment {
-	return XmlComment(comment).also { this.content += it }
-}
+fun XmlDslSuperElement.comment(comment: String) = XmlComment(comment).also { this.content += it }
 
 /**创建Xml元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>): XmlElement {
-	return XmlElement(name, attributes.toMap()).also { this.content += it }
-}
+fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>) =
+	XmlElement(name, attributes.toMap(), newLine = false).also { this.content += it }
 
 /**创建Xml元素。默认缩进子元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit): XmlElement {
-	return XmlElement(name, attributes.toMap(), newLine = true).also { it.content() }.also { this.content += it }
-}
+fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
+	XmlElement(name, attributes.toMap()).also { it.content() }.also { this.content += it }
 
 /**创建Xml文本。*/
-fun XmlDslSuperElement.text(text: String, clearContent: Boolean = false): XmlText {
-	return XmlText(text).also {
-		if(clearContent) this.content.clear()
-		this.content += it
-	}
-}
+fun XmlDslSuperElement.text(text: String, clearContent: Boolean = false) =
+	XmlText(text).also { if(clearContent) this.content.clear() }.also { this.content += it }
 
 
-/**对可换行元素进行换行。例如，对注释文本、标签的子标签进行换行。*/
-fun <T : XmlDslNewLineElement> T.n(): T {
-	return this.also { it.newLine = true }
-}
+/**配置当前元素的换行。默认换行。*/
+fun <T : XmlDslNewLineElement> T.n(newLine: Boolean = true) = this.also { it.newLine = newLine }
 
-/**对可换行元素取消换行。例如，对注释文本、标签的子标签取消换行。*/
-fun <T : XmlDslNewLineElement> T.un(): T {
-	return this.also { it.newLine = false }
-}
+/**配置当前元素的内容间空行数量。默认为1。*/
+fun <T : XmlDslBlankLineElement> T.bn(blankLineSize: Int = 1) = this.also { it.blankLineSize = blankLineSize }

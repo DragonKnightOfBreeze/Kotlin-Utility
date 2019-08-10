@@ -12,7 +12,7 @@ class DslTests {
 				comment("333").n()
 				element("abc")
 				element("a") { text("text") }
-				element("a") { +"text2" }.un()
+				element("a") { +"text2" }.n(false)
 			}
 		}.toString()
 		//<!--123456-->

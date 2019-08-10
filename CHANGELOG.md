@@ -51,6 +51,7 @@
 * 1.4.8 完成Xml、StarBound富文本的Dsl，更新Markdown的Dsl中。
 * 1.4.9 初步完成Markdown的Dsl的元素结构和字符串转化逻辑，更新字符串扩展。
 * 1.4.10 初步完成Markdown的Dsl。更新集合扩展。
+* 1.4.11 完成Json的Dsl。未测试。搁置Yaml的Dsl（因为需要考虑如何继承自Json的Dsl）。
 
 # TODO
 
