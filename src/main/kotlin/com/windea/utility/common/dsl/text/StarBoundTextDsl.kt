@@ -21,13 +21,14 @@ interface StarBoundTextDslElement
 interface StarBoundTextDslSuperElement : StarBoundTextDslElement {
 	val content: MutableList<StarBoundTextDslElement>
 	
+	operator fun StarBoundTextDslElement.plus(element: StarBoundTextDslElement) = element
+	
 	operator fun String.unaryPlus() = this@StarBoundTextDslSuperElement.t(this)
 	
 	operator fun String.unaryMinus() = this@StarBoundTextDslSuperElement.t(this, true)
 	
 	operator fun StarBoundTextDslElement.plus(text: String) = (+text)
 	
-	operator fun StarBoundTextDslElement.plus(element: StarBoundTextDslElement) = element
 }
 
 

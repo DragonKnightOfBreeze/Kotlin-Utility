@@ -6,7 +6,6 @@ import com.windea.utility.common.dsl.*
 import com.windea.utility.common.dsl.data.XmlDslConfig.indent
 import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
-import com.windea.utility.common.dsl.text.*
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
@@ -46,13 +45,13 @@ interface XmlDslElement
 interface XmlDslSuperElement : XmlDslElement {
 	val content: MutableList<XmlDslElement>
 	
+	operator fun XmlDslElement.plus(element: XmlDslElement) = element
+	
 	operator fun String.unaryPlus() = this@XmlDslSuperElement.text(this)
 	
 	operator fun String.unaryMinus() = this@XmlDslSuperElement.text(this, true)
 	
-	operator fun XmlDslElement.plus(text: String) = (+text)
-	
-	operator fun XmlDslElement.plus(element: StarBoundTextDslElement) = element
+	operator fun XmlDslElement.plus(text: String) = +text
 }
 
 /**Xml领域专用语言的可换行元素。*/

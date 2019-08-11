@@ -45,16 +45,21 @@ interface JsonDslNewLineElement : JsonDslElement {
 	var newLine: Boolean
 }
 
+/**Json领域专用语言的项元素。*/
+interface JsonItem<T> : JsonDslElement {
+	val value: T
+}
+
+/**Json领域专用语言的集合元素。*/
+interface JsonCollection<T : MutableList<*>> : JsonItem<T> {
+	operator fun T.plus(item: T) = item
+}
+
 /**Json领域专用语言的可以空行分割内容的元素。*/
 interface JsonDslBlankLineElement : JsonDslElement {
 	var blankLineSize: Int
 }
 
-
-/**Json领域专用语言的项元素。*/
-interface JsonItem<T> : JsonDslElement {
-	val value: T
-}
 
 /**Json布尔项。*/
 inline class JsonBoolean(
@@ -92,7 +97,6 @@ inline class JsonString(
 	}
 }
 
-
 /**Json属性。*/
 data class JsonProperty<T>(
 	val key: String,
@@ -103,9 +107,6 @@ data class JsonProperty<T>(
 	}
 }
 
-
-/**Json领域专用语言的集合元素。*/
-interface JsonCollection<T> : JsonItem<MutableList<*>>
 
 /**Json数组。*/
 data class JsonArray(

@@ -90,7 +90,7 @@ object MarkdownDslConfig : DslConfig {
 	}
 	
 	internal fun String.addTrailingBreakSpaces(): String {
-		//为了性能考虑，不将字符串细分为每一行，然后只为非空行添加尾随空格。使用正则表达式。
+		//为了性能考虑，不将字符串细分为每一行，只为非空行添加尾随空格，而改为使用正则表达式。
 		return if(addTrailingBreakSpaces) this.replace("\n([^\n])".toRegex(), "  \n$1") else this
 	}
 }
@@ -136,7 +136,7 @@ interface MarkdownDslInlineSuperElement : MarkdownDslElement {
 	
 	operator fun String.unaryMinus() = this@MarkdownDslInlineSuperElement.text(this, true)
 	
-	operator fun XmlDslElement.plus(text: String) = (+text)
+	operator fun XmlDslElement.plus(text: String) = +text
 }
 
 /**Markdown领域专用语言的可以空行分割内容的元素。*/
