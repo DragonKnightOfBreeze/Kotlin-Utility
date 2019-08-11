@@ -12,6 +12,7 @@ import com.windea.utility.common.dsl.text.MarkdownDslConfig.quote
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.quoteIndentSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.repeatableMarkerSize
 import com.windea.utility.common.dsl.text.MarkdownDslConfig.truncated
+import com.windea.utility.common.dsl.text.StarBoundTextDslConfig.defaultName
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
@@ -21,6 +22,7 @@ import java.lang.annotation.*
 /**Markdown Dsl。*/
 @NotTested
 data class MarkdownDsl @PublishedApi internal constructor(
+	override val name: String,
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : Dsl, MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownDslElement>, MarkdownDslInlineSuperElement {
 	fun generateToc() {
@@ -47,6 +49,7 @@ data class MarkdownDsl @PublishedApi internal constructor(
 
 /**Markdown Dsl的配置。*/
 object MarkdownDslConfig : DslConfig {
+	const val defaultName: String = "markdown"
 	var indentSize: Int = 4
 		set(value) {
 			field = value.coerceIn(2, 8)
@@ -834,7 +837,7 @@ data class MarkdownAttributeProperties @PublishedApi internal constructor(
 
 
 /**构建Markdown Dsl。*/
-inline fun Dsl.Companion.markdown(content: MarkdownDsl.() -> MarkdownDslElement) = MarkdownDsl().also { it.content() }
+inline fun Dsl.Companion.markdown(name: String = defaultName, content: MarkdownDsl.() -> MarkdownDslElement) = MarkdownDsl(name).also { it.content() }
 
 /**配置Markdown Dsl。*/
 inline fun DslConfig.Companion.markdown(config: MarkdownDslConfig.() -> Unit) = MarkdownDslConfig.config()
@@ -965,11 +968,14 @@ inline fun MarkdownList.ol(order: String, content: MarkdownOrderedListNode.() ->
 inline fun MarkdownList.task(completeStatus: Boolean, content: MarkdownTaskListNode.() -> Unit) =
 	MarkdownTaskListNode(completeStatus).also { it.content() }.also { this.content += it }
 
-inline fun MarkdownListNode.ul(content: MarkdownUnorderedListNode.() -> Unit) = this.list.ul(content)
+inline fun MarkdownListNode.ul(content: MarkdownUnorderedListNode.() -> Unit) =
+	this.list.ul(content)
 
-inline fun MarkdownListNode.ol(order: String, content: MarkdownOrderedListNode.() -> Unit) = this.list.ol(order, content)
+inline fun MarkdownListNode.ol(order: String, content: MarkdownOrderedListNode.() -> Unit) =
+	this.list.ol(order, content)
 
-inline fun MarkdownListNode.task(completeStatus: Boolean, content: MarkdownTaskListNode.() -> Unit) = this.list.task(completeStatus, content)
+inline fun MarkdownListNode.task(completeStatus: Boolean, content: MarkdownTaskListNode.() -> Unit) =
+	this.list.task(completeStatus, content)
 
 
 @ExtendedMarkdownFeature

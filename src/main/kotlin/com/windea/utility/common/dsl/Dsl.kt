@@ -11,6 +11,8 @@ package com.windea.utility.common.dsl
  * * `elem + elem` 在同一行添加多个元素。后添加的文本元素可以用字符串表示。
  */
 interface Dsl {
+	val name: String
+	
 	companion object
 }
 

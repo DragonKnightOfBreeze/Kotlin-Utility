@@ -3,6 +3,8 @@
 package com.windea.utility.common.dsl.data
 
 import com.windea.utility.common.dsl.*
+import com.windea.utility.common.dsl.data.XmlDslConfig.defaultName
+import com.windea.utility.common.dsl.data.XmlDslConfig.defaultRootName
 import com.windea.utility.common.dsl.data.XmlDslConfig.indent
 import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
@@ -11,15 +13,20 @@ import java.lang.annotation.*
 
 /**Xml Dsl。*/
 data class XmlDsl @PublishedApi internal constructor(
-	override val content: MutableList<XmlDslElement> = mutableListOf()
-) : Dsl, XmlDslSuperElement {
+	override val name: String,
+	val comments: MutableList<XmlComment> = mutableListOf(),
+	var root: XmlElement = XmlElement(defaultRootName)
+) : Dsl, XmlDslElement {
 	override fun toString(): String {
-		return if(content.isEmpty()) "" else content.joinToString("\n", "", "\n")
+		val commentsSnippet = this.comments.joinToString("\n")
+		return "$commentsSnippet\n$root"
 	}
 }
 
 /**Xml Dsl的配置。*/
 object XmlDslConfig : DslConfig {
+	const val defaultName: String = "xml"
+	const val defaultRootName: String = "root"
 	var indentSize: Int = 2
 		set(value) {
 			field = value.coerceIn(2, 8)
@@ -46,19 +53,6 @@ internal annotation class ExtendedXmlFeature
 @XmlDslMarker
 interface XmlDslElement
 
-/**Xml Dsl的父级元素。*/
-interface XmlDslSuperElement : XmlDslElement {
-	val content: MutableList<XmlDslElement>
-	
-	operator fun XmlDslElement.plus(element: XmlDslElement) = element
-	
-	operator fun String.unaryPlus() = this@XmlDslSuperElement.text(this)
-	
-	operator fun String.unaryMinus() = this@XmlDslSuperElement.text(this, true)
-	
-	operator fun XmlDslElement.plus(text: String) = this@XmlDslSuperElement.text(text)
-}
-
 /**Xml Dsl的可换行元素。*/
 interface XmlDslNewLineElement : XmlDslElement {
 	var newLine: Boolean
@@ -84,12 +78,12 @@ data class XmlComment @PublishedApi internal constructor(
 /**Xml元素。*/
 data class XmlElement @PublishedApi internal constructor(
 	val name: String,
-	val attributes: Map<String, Any?>,
+	val attributes: Map<String, Any?> = mapOf(),
 	val text: String? = null,
-	override val content: MutableList<XmlDslElement> = mutableListOf(),
+	val content: MutableList<XmlDslElement> = mutableListOf(),
 	override var newLine: Boolean = true,
 	override var blankLineSize: Int = 0
-) : XmlDslSuperElement, XmlDslNewLineElement, XmlDslBlankLineElement {
+) : XmlDslNewLineElement, XmlDslBlankLineElement {
 	override fun toString(): String {
 		val attributesSnippet = when {
 			attributes.isEmpty() -> ""
@@ -108,6 +102,14 @@ data class XmlElement @PublishedApi internal constructor(
 		val suffixMarkers = if(innerTextSnippet.isEmpty() && preferAutoClosedTag) "/>" else "</$name>"
 		return "$prefixMarkers$innerTextSnippet$suffixMarkers"
 	}
+	
+	operator fun String.unaryPlus() = this@XmlElement.text(this)
+	
+	operator fun String.unaryMinus() = this@XmlElement.text(this, true)
+	
+	operator fun XmlDslElement.plus(text: String) = this@XmlElement.text(text)
+	
+	operator fun XmlDslElement.plus(element: XmlDslElement) = element
 }
 
 /**Xml文本。*/
@@ -121,25 +123,38 @@ data class XmlText @PublishedApi internal constructor(
 
 
 /**构建Xml Dsl。*/
-inline fun Dsl.Companion.xml(content: XmlDsl.() -> Unit) = XmlDsl().also { it.content() }
+inline fun Dsl.Companion.xml(name: String = defaultName, content: XmlDsl.() -> Unit) =
+	XmlDsl(name).also { it.content() }
 
 /**配置Xml Dsl。*/
 inline fun DslConfig.Companion.xml(config: XmlDslConfig.() -> Unit) = XmlDslConfig.config()
 
 
 /**创建Xml注释。*/
-fun XmlDslSuperElement.comment(comment: String) = XmlComment(comment).also { this.content += it }
+fun XmlDsl.comment(comment: String) = XmlComment(comment).also { this.comments += it }
 
 /**创建Xml元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>) =
+fun XmlDsl.element(name: String, vararg attributes: Pair<String, Any?>) =
+	XmlElement(name, attributes.toMap(), newLine = false).also { this.root = it }
+
+/**创建Xml元素。默认缩进子元素。*/
+inline fun XmlDsl.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
+	XmlElement(name, attributes.toMap()).also { it.content() }.also { this.root = it }
+
+
+/**创建Xml注释。*/
+fun XmlElement.comment(comment: String) = XmlComment(comment).also { this.content += it }
+
+/**创建Xml元素。*/
+fun XmlElement.element(name: String, vararg attributes: Pair<String, Any?>) =
 	XmlElement(name, attributes.toMap(), newLine = false).also { this.content += it }
 
 /**创建Xml元素。默认缩进子元素。*/
-inline fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
+inline fun XmlElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
 	XmlElement(name, attributes.toMap()).also { it.content() }.also { this.content += it }
 
 /**创建Xml文本。*/
-fun XmlDslSuperElement.text(text: String, clearContent: Boolean = false) =
+fun XmlElement.text(text: String, clearContent: Boolean = false) =
 	XmlText(text).also { if(clearContent) this.content.clear() }.also { this.content += it }
 
 

@@ -2,39 +2,33 @@ package com.windea.utility.common.dsl.text
 
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.dsl.*
+import com.windea.utility.common.dsl.text.StarBoundTextDslConfig.defaultName
 
-/**StarBound富文本的领域专用语言。*/
-@NotSuitable("直接从json/yaml/patch文件生成StarBound富文本时")
+/**StarBound文本的领域专用语言。*/
+@NotSuitable("直接从json/yaml/patch文件生成StarBound文本时")
 data class StarBoundTextDsl @PublishedApi internal constructor(
-	override val content: MutableList<StarBoundTextDslElement> = mutableListOf()
-) : Dsl, StarBoundTextDslSuperElement {
+	override val name: String,
+	override val text: MutableList<StarBoundTextDslElement> = mutableListOf()
+) : Dsl, StarBoundRichText(text) {
 	override fun toString(): String {
-		return content.joinToString("")
+		return text.joinToString("")
 	}
 }
 
+/**StarBound文本的Dsl的配置。*/
+object StarBoundTextDslConfig : DslConfig {
+	const val defaultName = "starBoundText"
+}
 
-/**StarBound富文本的Dsl标记。*/
+
+/**StarBound文本的Dsl标记。*/
 @DslMarker
 internal annotation class StarBoundTextDslMarker
 
 
-/**StarBound富文本的元素。*/
+/**StarBound文本的Dsl的元素。*/
 @StarBoundTextDslMarker
 interface StarBoundTextDslElement
-
-/**StarBound富文本的父级元素。*/
-interface StarBoundTextDslSuperElement : StarBoundTextDslElement {
-	val content: MutableList<StarBoundTextDslElement>
-	
-	operator fun StarBoundTextDslElement.plus(element: StarBoundTextDslElement) = element
-	
-	operator fun String.unaryPlus() = this@StarBoundTextDslSuperElement.t(this)
-	
-	operator fun String.unaryMinus() = this@StarBoundTextDslSuperElement.t(this, true)
-	
-	operator fun StarBoundTextDslElement.plus(text: String) = this@StarBoundTextDslSuperElement.t(text)
-}
 
 
 /**StarBound普通文本。*/
@@ -55,14 +49,28 @@ data class StarBoundPlaceHolderText @PublishedApi internal constructor(
 	}
 }
 
+
+/**StarBound富文本。*/
+abstract class StarBoundRichText(
+	open val text: MutableList<StarBoundTextDslElement> = mutableListOf()
+) : StarBoundTextDslElement {
+	operator fun String.unaryPlus() = this@StarBoundRichText.t(this)
+	
+	operator fun String.unaryMinus() = this@StarBoundRichText.t(this, true)
+	
+	operator fun StarBoundTextDslElement.plus(text: String) = this@StarBoundRichText.t(text)
+	
+	operator fun StarBoundTextDslElement.plus(element: StarBoundTextDslElement) = element
+}
+
 /**StarBound彩色文本。*/
 data class StarBoundColorText @PublishedApi internal constructor(
 	val color: String,
-	override val content: MutableList<StarBoundTextDslElement> = mutableListOf()
-) : StarBoundTextDslSuperElement {
+	override val text: MutableList<StarBoundTextDslElement> = mutableListOf()
+) : StarBoundRichText(text) {
 	override fun toString(): String {
-		val contentSnippet = content.joinToString("")
-		return "^$color;$contentSnippet^reset;"
+		val textSnippet = text.joinToString("")
+		return "^$color;$textSnippet^reset;"
 	}
 }
 
@@ -82,25 +90,28 @@ enum class StarBoundColor(
 }
 
 
-/**构建StarBound富文本的领域专用语言。*/
-inline fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> Unit) = StarBoundTextDsl().also { it.content() }
+/**构建StarBound文本的Dsl。*/
+inline fun Dsl.Companion.starBoundText(name: String = defaultName, text: StarBoundTextDsl.() -> Unit) =
+	StarBoundTextDsl(name).also { it.text() }
+
+/**配置StarBound文本的Dsl。*/
+inline fun DslConfig.Companion.starBoundText(config: StarBoundTextDslConfig.() -> Unit) = StarBoundTextDslConfig.config()
 
 
 /**创建StarBound文本。*/
-fun StarBoundTextDslSuperElement.t(text: String, clearContent: Boolean = false) =
-	StarBoundText(text).also { if(clearContent) this.content.clear() }.also { this.content += it }
+fun StarBoundRichText.t(text: String, cleartext: Boolean = false) =
+	StarBoundText(text).also { if(cleartext) this.text.clear() }.also { this.text += it }
 
 /**创建StarBound占位文本。*/
-fun StarBoundTextDslSuperElement.pht(placeHolder: String) =
-	StarBoundPlaceHolderText(placeHolder).also { this.content += it }
+fun StarBoundRichText.pht(placeHolder: String) =
+	StarBoundPlaceHolderText(placeHolder).also { this.text += it }
 
 /**创建StarBound占位文本。*/
-fun StarBoundTextDslSuperElement.pht(placeHolder: StarBoundPlaceHolder) = this.pht(placeHolder.text)
+fun StarBoundRichText.pht(placeHolder: StarBoundPlaceHolder) = this.pht(placeHolder.text)
 
 /**创建StarBound彩色文本。*/
-inline fun StarBoundTextDslSuperElement.ct(color: String, content: StarBoundColorText.() -> Unit) =
-	StarBoundColorText(color).also { it.content() }.also { this.content += it }
+inline fun StarBoundRichText.ct(color: String, text: StarBoundColorText.() -> Unit) =
+	StarBoundColorText(color).also { it.text() }.also { this.text += it }
 
 /**创建StarBound彩色文本。*/
-inline fun StarBoundTextDslSuperElement.ct(color: StarBoundColor, content: StarBoundColorText.() -> Unit) = this.ct(color.text, content)
-
+inline fun StarBoundRichText.ct(color: StarBoundColor, text: StarBoundColorText.() -> Unit) = this.ct(color.text, text)

@@ -2,6 +2,7 @@ package com.windea.utility.common.dsl.data
 
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.dsl.*
+import com.windea.utility.common.dsl.data.JsonDslConfig.defaultName
 import com.windea.utility.common.dsl.data.JsonDslConfig.indent
 import com.windea.utility.common.dsl.data.JsonDslConfig.quote
 import com.windea.utility.common.extensions.*
@@ -11,15 +12,17 @@ import java.lang.annotation.*
 @NotTested
 @NotRecommended("可以直接从集合结构生成Json文本")
 data class JsonDsl @PublishedApi internal constructor(
-	var collection: JsonCollection<*> = JsonObject()
+	override val name: String,
+	var root: JsonCollection<*> = JsonObject()
 ) : Dsl, JsonDslElement {
 	override fun toString(): String {
-		return collection.toString()
+		return root.toString()
 	}
 }
 
 /**Json Dsl的配置。*/
 object JsonDslConfig {
+	const val defaultName: String = "json"
 	var indentSize: Int = 2
 		set(value) {
 			field = value.coerceIn(2, 8)
@@ -50,26 +53,21 @@ interface JsonDslNewLineElement : JsonDslElement {
 	var newLine: Boolean
 }
 
-/**Json Dsl的项元素。*/
-interface JsonItem<T> : JsonDslElement {
-	val value: T
-}
-
-/**Json Dsl的集合元素。*/
-interface JsonCollection<T : MutableList<*>> : JsonItem<T> {
-	operator fun T.plus(item: T) = item
-}
-
 /**Json Dsl的可以空行分割内容的元素。*/
 interface JsonDslBlankLineElement : JsonDslElement {
 	var blankLineSize: Int
 }
 
 
+/**Json Dsl的项元素。*/
+abstract class JsonItem<T>(
+	open val value: T
+) : JsonDslElement
+
 /**Json布尔项。*/
 data class JsonBoolean @PublishedApi internal constructor(
 	override val value: Boolean
-) : JsonItem<Boolean> {
+) : JsonItem<Boolean>(value) {
 	override fun toString(): String {
 		return value.toString()
 	}
@@ -78,7 +76,7 @@ data class JsonBoolean @PublishedApi internal constructor(
 /**Json整数项。*/
 data class JsonInteger @PublishedApi internal constructor(
 	override val value: Int
-) : JsonItem<Int> {
+) : JsonItem<Int>(value) {
 	override fun toString(): String {
 		return value.toString()
 	}
@@ -87,7 +85,7 @@ data class JsonInteger @PublishedApi internal constructor(
 /**Json数值项。*/
 data class JsonNumber @PublishedApi internal constructor(
 	override val value: Float
-) : JsonItem<Float> {
+) : JsonItem<Float>(value) {
 	override fun toString(): String {
 		return value.toString()
 	}
@@ -96,11 +94,12 @@ data class JsonNumber @PublishedApi internal constructor(
 /**Json字符串项。*/
 data class JsonString @PublishedApi internal constructor(
 	override val value: String
-) : JsonItem<String> {
+) : JsonItem<String>(value) {
 	override fun toString(): String {
 		return "$quote${value.unescape()}$quote"
 	}
 }
+
 
 /**Json属性。*/
 data class JsonProperty<T> @PublishedApi internal constructor(
@@ -113,18 +112,25 @@ data class JsonProperty<T> @PublishedApi internal constructor(
 }
 
 
+/**Json Dsl的集合元素。*/
+abstract class JsonCollection<T : MutableList<*>>(
+	override val value: T
+) : JsonItem<T>(value)
+
 /**Json数组。*/
 data class JsonArray @PublishedApi internal constructor(
 	override val value: MutableList<JsonItem<*>?> = mutableListOf(),
 	override var newLine: Boolean = true,
 	override var blankLineSize: Int = 0
-) : JsonCollection<MutableList<JsonItem<*>?>>, JsonDslNewLineElement, JsonDslBlankLineElement {
+) : JsonCollection<MutableList<JsonItem<*>?>>(value), JsonDslNewLineElement, JsonDslBlankLineElement {
 	override fun toString(): String {
 		val prefix = if(newLine) "[\n" else "["
 		val delimiter = if(newLine) ",\n${"\n".repeat(blankLineSize)}" else ", "
 		val suffix = if(newLine) "\n]" else "]"
 		return value.joinToString(delimiter, prefix, suffix) { "$indent$it" }
 	}
+	
+	operator fun JsonItem<*>?.plus(item: JsonItem<*>?) = item
 }
 
 /**Json对象。*/
@@ -132,28 +138,30 @@ data class JsonObject @PublishedApi internal constructor(
 	override val value: MutableList<JsonProperty<*>> = mutableListOf(),
 	override var newLine: Boolean = true,
 	override var blankLineSize: Int = 0
-) : JsonCollection<MutableList<JsonProperty<*>>>, JsonDslNewLineElement, JsonDslBlankLineElement {
+) : JsonCollection<MutableList<JsonProperty<*>>>(value), JsonDslNewLineElement, JsonDslBlankLineElement {
 	override fun toString(): String {
 		val prefix = if(newLine) "{\n" else "}"
 		val delimiter = if(newLine) ",\n${"\n".repeat(blankLineSize)}" else ", "
 		val suffix = if(newLine) "\n}" else "}"
 		return value.joinToString(delimiter, prefix, suffix) { "$indent$it" }
 	}
+	
+	operator fun JsonProperty<*>?.plus(prop: JsonProperty<*>?) = prop
 }
 
 
 /**构建Json Dsl。*/
-inline fun Dsl.Companion.json(content: JsonDsl.() -> Unit) = JsonDsl().also { it.content() }
+inline fun Dsl.Companion.json(name: String = defaultName, content: JsonDsl.() -> Unit) = JsonDsl(name).also { it.content() }
 
 /**配置Json Dsl。*/
 inline fun DslConfig.Companion.json(config: JsonDslConfig.() -> Unit) = JsonDslConfig.config()
 
 
 /**创建Json数组。*/
-inline fun JsonDsl.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.collection = it }
+inline fun JsonDsl.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.root = it }
 
 /**创建Json对象。*/
-inline fun JsonDsl.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.collection = it }
+inline fun JsonDsl.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.root = it }
 
 
 /**创建Json项。*/
