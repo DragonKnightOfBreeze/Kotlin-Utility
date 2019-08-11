@@ -37,7 +37,9 @@ class DslTests {
 			pht("player_name")
 			+"：这是一段"
 			ct("blue") {
-				ct("green") { +"彩" }
+				ct("green") {
+					+"彩"
+				}
 				+"色"
 			}
 			+"文本。"

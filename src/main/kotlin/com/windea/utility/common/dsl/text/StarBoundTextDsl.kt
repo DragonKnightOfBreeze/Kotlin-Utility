@@ -5,7 +5,7 @@ import com.windea.utility.common.dsl.*
 
 /**StarBound富文本的领域专用语言。*/
 @NotSuitable("直接从json/yaml/patch文件生成StarBound富文本时")
-data class StarBoundTextDsl(
+data class StarBoundTextDsl @PublishedApi internal constructor(
 	override val content: MutableList<StarBoundTextDslElement> = mutableListOf()
 ) : Dsl, StarBoundTextDslSuperElement {
 	override fun toString(): String {
@@ -14,7 +14,13 @@ data class StarBoundTextDsl(
 }
 
 
+/**StarBound富文本的Dsl标记。*/
+@DslMarker
+internal annotation class StarBoundTextDslMarker
+
+
 /**StarBound富文本的元素。*/
+@StarBoundTextDslMarker
 interface StarBoundTextDslElement
 
 /**StarBound富文本的父级元素。*/
@@ -27,13 +33,12 @@ interface StarBoundTextDslSuperElement : StarBoundTextDslElement {
 	
 	operator fun String.unaryMinus() = this@StarBoundTextDslSuperElement.t(this, true)
 	
-	operator fun StarBoundTextDslElement.plus(text: String) = (+text)
-	
+	operator fun StarBoundTextDslElement.plus(text: String) = this@StarBoundTextDslSuperElement.t(text)
 }
 
 
 /**StarBound普通文本。*/
-inline class StarBoundText(
+data class StarBoundText @PublishedApi internal constructor(
 	val text: String
 ) : StarBoundTextDslElement {
 	override fun toString(): String {
@@ -42,7 +47,7 @@ inline class StarBoundText(
 }
 
 /**StarBound占位文本。*/
-data class StarBoundPlaceHolderText(
+data class StarBoundPlaceHolderText @PublishedApi internal constructor(
 	val placeHolder: String
 ) : StarBoundTextDslElement {
 	override fun toString(): String {
@@ -51,7 +56,7 @@ data class StarBoundPlaceHolderText(
 }
 
 /**StarBound彩色文本。*/
-data class StarBoundColorText(
+data class StarBoundColorText @PublishedApi internal constructor(
 	val color: String,
 	override val content: MutableList<StarBoundTextDslElement> = mutableListOf()
 ) : StarBoundTextDslSuperElement {
@@ -78,7 +83,7 @@ enum class StarBoundColor(
 
 
 /**构建StarBound富文本的领域专用语言。*/
-fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> Unit) = StarBoundTextDsl().also { it.content() }
+inline fun Dsl.Companion.starBoundText(content: StarBoundTextDsl.() -> Unit) = StarBoundTextDsl().also { it.content() }
 
 
 /**创建StarBound文本。*/
@@ -93,9 +98,9 @@ fun StarBoundTextDslSuperElement.pht(placeHolder: String) =
 fun StarBoundTextDslSuperElement.pht(placeHolder: StarBoundPlaceHolder) = this.pht(placeHolder.text)
 
 /**创建StarBound彩色文本。*/
-fun StarBoundTextDslSuperElement.ct(color: String, content: StarBoundColorText.() -> Unit) =
+inline fun StarBoundTextDslSuperElement.ct(color: String, content: StarBoundColorText.() -> Unit) =
 	StarBoundColorText(color).also { it.content() }.also { this.content += it }
 
 /**创建StarBound彩色文本。*/
-fun StarBoundTextDslSuperElement.ct(color: StarBoundColor, content: StarBoundColorText.() -> Unit) = this.ct(color.text, content)
+inline fun StarBoundTextDslSuperElement.ct(color: StarBoundColor, content: StarBoundColorText.() -> Unit) = this.ct(color.text, content)
 

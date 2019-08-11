@@ -54,6 +54,7 @@
 * 1.4.11 完成Json的Dsl。未测试。搁置Yaml的Dsl（因为需要考虑如何继承自Json的Dsl）。
 * 1.4.12 修复字符串的转义&反转义扩展方法中的bug，修复生成器的bug。其他更新。
 * 1.4.13 修改一些扩展方法的命名。
+* 1.4.14 加强对Dsl的限制。适用DslMarker和@PublishedApi internal constructor。
 
 # TODO
 

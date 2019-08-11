@@ -7,10 +7,10 @@ import com.windea.utility.common.dsl.data.JsonDslConfig.quote
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
-/**Json的领域专用语言。*/
+/**Json Dsl。*/
 @NotTested
 @NotRecommended("可以直接从集合结构生成Json文本")
-data class JsonDsl(
+data class JsonDsl @PublishedApi internal constructor(
 	var collection: JsonCollection<*> = JsonObject()
 ) : Dsl, JsonDslElement {
 	override fun toString(): String {
@@ -18,7 +18,7 @@ data class JsonDsl(
 	}
 }
 
-/**Json领域专用语言的配置。*/
+/**Json Dsl的配置。*/
 object JsonDslConfig {
 	var indentSize: Int = 2
 		set(value) {
@@ -31,38 +31,43 @@ object JsonDslConfig {
 }
 
 
+/**Json Dsl标记。*/
+@DslMarker
+internal annotation class JsonDslMarker
+
 /**扩展的Json功能。*/
 @MustBeDocumented
 @Inherited
-annotation class ExtendedJsonFeature
+internal annotation class JsonDslExtendedFeature
 
 
-/**Json领域专用语言的元素。*/
+/**Json Dsl的元素。*/
+@JsonDslMarker
 interface JsonDslElement
 
-/**Json领域专用语言的可换行元素。*/
+/**Json Dsl的可换行元素。*/
 interface JsonDslNewLineElement : JsonDslElement {
 	var newLine: Boolean
 }
 
-/**Json领域专用语言的项元素。*/
+/**Json Dsl的项元素。*/
 interface JsonItem<T> : JsonDslElement {
 	val value: T
 }
 
-/**Json领域专用语言的集合元素。*/
+/**Json Dsl的集合元素。*/
 interface JsonCollection<T : MutableList<*>> : JsonItem<T> {
 	operator fun T.plus(item: T) = item
 }
 
-/**Json领域专用语言的可以空行分割内容的元素。*/
+/**Json Dsl的可以空行分割内容的元素。*/
 interface JsonDslBlankLineElement : JsonDslElement {
 	var blankLineSize: Int
 }
 
 
 /**Json布尔项。*/
-inline class JsonBoolean(
+data class JsonBoolean @PublishedApi internal constructor(
 	override val value: Boolean
 ) : JsonItem<Boolean> {
 	override fun toString(): String {
@@ -71,7 +76,7 @@ inline class JsonBoolean(
 }
 
 /**Json整数项。*/
-inline class JsonInteger(
+data class JsonInteger @PublishedApi internal constructor(
 	override val value: Int
 ) : JsonItem<Int> {
 	override fun toString(): String {
@@ -80,7 +85,7 @@ inline class JsonInteger(
 }
 
 /**Json数值项。*/
-inline class JsonNumber(
+data class JsonNumber @PublishedApi internal constructor(
 	override val value: Float
 ) : JsonItem<Float> {
 	override fun toString(): String {
@@ -89,7 +94,7 @@ inline class JsonNumber(
 }
 
 /**Json字符串项。*/
-inline class JsonString(
+data class JsonString @PublishedApi internal constructor(
 	override val value: String
 ) : JsonItem<String> {
 	override fun toString(): String {
@@ -98,7 +103,7 @@ inline class JsonString(
 }
 
 /**Json属性。*/
-data class JsonProperty<T>(
+data class JsonProperty<T> @PublishedApi internal constructor(
 	val key: String,
 	val value: JsonItem<T>?
 ) : JsonDslElement {
@@ -109,7 +114,7 @@ data class JsonProperty<T>(
 
 
 /**Json数组。*/
-data class JsonArray(
+data class JsonArray @PublishedApi internal constructor(
 	override val value: MutableList<JsonItem<*>?> = mutableListOf(),
 	override var newLine: Boolean = true,
 	override var blankLineSize: Int = 0
@@ -123,7 +128,7 @@ data class JsonArray(
 }
 
 /**Json对象。*/
-data class JsonObject(
+data class JsonObject @PublishedApi internal constructor(
 	override val value: MutableList<JsonProperty<*>> = mutableListOf(),
 	override var newLine: Boolean = true,
 	override var blankLineSize: Int = 0
@@ -137,46 +142,62 @@ data class JsonObject(
 }
 
 
-/**构建Xml的领域专用语言。*/
-fun Dsl.Companion.json(content: JsonDsl.() -> Unit) = JsonDsl().also { it.content() }
+/**构建Json Dsl。*/
+inline fun Dsl.Companion.json(content: JsonDsl.() -> Unit) = JsonDsl().also { it.content() }
 
-/**配置xml的领域专用语言。*/
-fun DslConfig.Companion.json(config: JsonDslConfig.() -> Unit) = JsonDslConfig.config()
-
-
-fun JsonDsl.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.collection = it }
-
-fun JsonDsl.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.collection = it }
+/**配置Json Dsl。*/
+inline fun DslConfig.Companion.json(config: JsonDslConfig.() -> Unit) = JsonDslConfig.config()
 
 
+/**创建Json数组。*/
+inline fun JsonDsl.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.collection = it }
+
+/**创建Json对象。*/
+inline fun JsonDsl.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.collection = it }
+
+
+/**创建Json项。*/
 fun JsonArray.item() = run { this.value.add(null) }
 
+/**创建Json项。*/
 fun JsonArray.item(value: Boolean) = JsonBoolean(value).also { this.value += it }
 
+/**创建Json项。*/
 fun JsonArray.item(value: Int) = JsonInteger(value).also { this.value += it }
 
+/**创建Json项。*/
 fun JsonArray.item(value: Float) = JsonNumber(value).also { this.value += it }
 
+/**创建Json项。*/
 fun JsonArray.item(value: String) = JsonString(value).also { this.value += it }
 
-fun JsonArray.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.value += it }
+/**创建Json数组。*/
+inline fun JsonArray.array(value: JsonArray.() -> Unit) = JsonArray().also { it.value() }.also { this.value += it }
 
-fun JsonArray.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.value += it }
+/**创建Json对象。*/
+inline fun JsonArray.obj(value: JsonObject.() -> Unit) = JsonObject().also { it.value() }.also { this.value += it }
 
 
+/**创建Json属性。*/
 fun JsonObject.prop(key: String) = run { this.value += JsonProperty<Any?>(key, null) }
 
+/**创建Json属性。*/
 fun JsonObject.prop(key: String, value: Boolean) = JsonProperty(key, JsonBoolean(value)).also { this.value += it }
 
+/**创建Json属性。*/
 fun JsonObject.prop(key: String, value: Int) = JsonProperty(key, JsonInteger(value)).also { this.value += it }
 
+/**创建Json属性。*/
 fun JsonObject.prop(key: String, value: Float) = JsonProperty(key, JsonNumber(value)).also { this.value += it }
 
+/**创建Json属性。*/
 fun JsonObject.prop(key: String, value: String) = JsonProperty(key, JsonString(value)).also { this.value += it }
 
-fun JsonObject.arrayProp(key: String, value: JsonArray.() -> Unit) = JsonProperty(key, JsonArray().also { it.value() }).also { this.value += it }
+/**创建Json数组属性。*/
+inline fun JsonObject.arrayProp(key: String, value: JsonArray.() -> Unit) = JsonProperty(key, JsonArray().also { it.value() }).also { this.value += it }
 
-fun JsonObject.objProp(key: String, value: JsonObject.() -> Unit) = JsonProperty(key, JsonObject().also { it.value() }).also { this.value += it }
+/**创建Json对象属性。*/
+inline fun JsonObject.objProp(key: String, value: JsonObject.() -> Unit) = JsonProperty(key, JsonObject().also { it.value() }).also { this.value += it }
 
 
 /**配置当前元素的换行。默认换行。*/

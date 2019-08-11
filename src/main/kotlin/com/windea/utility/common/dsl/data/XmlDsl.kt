@@ -9,8 +9,8 @@ import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
-/**Xml的领域专用语言。*/
-data class XmlDsl(
+/**Xml Dsl。*/
+data class XmlDsl @PublishedApi internal constructor(
 	override val content: MutableList<XmlDslElement> = mutableListOf()
 ) : Dsl, XmlDslSuperElement {
 	override fun toString(): String {
@@ -18,7 +18,7 @@ data class XmlDsl(
 	}
 }
 
-/**Xml领域专用语言的配置。*/
+/**Xml Dsl的配置。*/
 object XmlDslConfig : DslConfig {
 	var indentSize: Int = 2
 		set(value) {
@@ -32,16 +32,21 @@ object XmlDslConfig : DslConfig {
 }
 
 
-/**扩展的Xml功能。*/
+/**Xml Dsl标记。*/
+@DslMarker
+internal annotation class XmlDslMarker
+
+/**Xml Dsl的扩展功能。*/
 @MustBeDocumented
 @Inherited
-annotation class ExtendedXmlFeature
+internal annotation class ExtendedXmlFeature
 
 
-/**Xml领域专用语言的元素。*/
+/**Xml Dsl的元素。*/
+@XmlDslMarker
 interface XmlDslElement
 
-/**Xml领域专用语言的父级元素。*/
+/**Xml Dsl的父级元素。*/
 interface XmlDslSuperElement : XmlDslElement {
 	val content: MutableList<XmlDslElement>
 	
@@ -51,22 +56,22 @@ interface XmlDslSuperElement : XmlDslElement {
 	
 	operator fun String.unaryMinus() = this@XmlDslSuperElement.text(this, true)
 	
-	operator fun XmlDslElement.plus(text: String) = +text
+	operator fun XmlDslElement.plus(text: String) = this@XmlDslSuperElement.text(text)
 }
 
-/**Xml领域专用语言的可换行元素。*/
+/**Xml Dsl的可换行元素。*/
 interface XmlDslNewLineElement : XmlDslElement {
 	var newLine: Boolean
 }
 
-/**Xml领域专用语言的可以空行分割内容的元素。*/
+/**Xml Dsl的可以空行分割内容的元素。*/
 interface XmlDslBlankLineElement : XmlDslElement {
 	var blankLineSize: Int
 }
 
 
 /**Xml注释。*/
-data class XmlComment(
+data class XmlComment @PublishedApi internal constructor(
 	val text: String,
 	override var newLine: Boolean = false
 ) : XmlDslNewLineElement {
@@ -77,7 +82,7 @@ data class XmlComment(
 }
 
 /**Xml元素。*/
-data class XmlElement(
+data class XmlElement @PublishedApi internal constructor(
 	val name: String,
 	val attributes: Map<String, Any?>,
 	val text: String? = null,
@@ -106,7 +111,7 @@ data class XmlElement(
 }
 
 /**Xml文本。*/
-inline class XmlText(
+data class XmlText @PublishedApi internal constructor(
 	val text: String
 ) : XmlDslElement {
 	override fun toString(): String {
@@ -115,11 +120,11 @@ inline class XmlText(
 }
 
 
-/**构建Xml的领域专用语言。*/
-fun Dsl.Companion.xml(content: XmlDsl.() -> Unit) = XmlDsl().also { it.content() }
+/**构建Xml Dsl。*/
+inline fun Dsl.Companion.xml(content: XmlDsl.() -> Unit) = XmlDsl().also { it.content() }
 
-/**配置xml的领域专用语言。*/
-fun DslConfig.Companion.xml(config: XmlDslConfig.() -> Unit) = XmlDslConfig.config()
+/**配置Xml Dsl。*/
+inline fun DslConfig.Companion.xml(config: XmlDslConfig.() -> Unit) = XmlDslConfig.config()
 
 
 /**创建Xml注释。*/
@@ -130,7 +135,7 @@ fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any
 	XmlElement(name, attributes.toMap(), newLine = false).also { this.content += it }
 
 /**创建Xml元素。默认缩进子元素。*/
-fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
+inline fun XmlDslSuperElement.element(name: String, vararg attributes: Pair<String, Any?>, content: XmlElement.() -> Unit) =
 	XmlElement(name, attributes.toMap()).also { it.content() }.also { this.content += it }
 
 /**创建Xml文本。*/
