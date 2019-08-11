@@ -22,14 +22,14 @@ object SqlGenerator : TextGenerator {
 		return """
 		use $databaseName;
 		
-		${database.entries.joinToString("\n\n") { (tableName, table) ->
+		${database.joinToString("\n\n") { (tableName, table) ->
 			val columnNamesSnippet = table.first().keys.joinToString()
 			
 			"""
 			insert into $tableName ($columnNamesSnippet) values
 			${table.joinToString(",\n", "", ";\n") { data ->
 				val columnsSnippet = data.values.joinToString {
-					it?.toString()?.wrapQuote('\'')?.unescape() ?: "null"
+					it?.toString()?.wrapQuote("'")?.unescape() ?: "null"
 				}
 				
 				"""  ($columnsSnippet)"""

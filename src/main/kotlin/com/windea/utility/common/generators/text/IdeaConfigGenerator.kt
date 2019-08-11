@@ -20,20 +20,20 @@ object IdeaConfigGenerator : TextGenerator {
 		
 		return """
 		<templateSet group="YamlAnnotation">
-		${definitions.map { (templateName, template) ->
-			val description = template.getOrDefault("description", "")
+		${definitions.joinToString("\n\n") { (templateName, template) ->
+			val description = (template.getOrDefault("description", "") as String).unescape()
 			val params = if("properties" in template) template["properties"] as SchemaMap else mapOf()
-			val paramSnippet = ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
+			val paramSnippet = if(params.isEmpty()) "" else ": {${params.keys.joinToString(", ") { "$it: $$it$" }}}"
 			
 			"""
 			  <template name="@$templateName" value="@$templateName$paramSnippet"
 		                description="$description"
-		                toReformat="true" toShortenFQNames="true" useStaticImport="true">
-			${params.entries.joinToString("\n") { (paramName, param) ->
-				val defaultValue = param.getOrDefault("default", "")
+		                toReformat="true" toShortenFQNames="true" useStaticImport="true">${
+			params.joinToString("\n") { (paramName, param) ->
+				val defaultValue = (param.getOrDefault("default", "") as String).unescape()
 				
 				"""    <variable name="$paramName" expression="" defaultValue="&quot;$defaultValue&quot;" alwaysStopAt="true"/>"""
-			}}
+			}.ifNotEmpty { "\n$it" }}
 			    <context>
 			      <option name="CSS" value="false"/>
 			      <option name="CUCUMBER_FEATURE_FILE" value="false"/>
@@ -57,7 +57,7 @@ object IdeaConfigGenerator : TextGenerator {
 			    </context>
 			  </template>
 			""".toMultilineText()
-		}.joinToString("\n\n")}
+		}}
 		</templateSet>
 		""".toMultilineText()
 	}

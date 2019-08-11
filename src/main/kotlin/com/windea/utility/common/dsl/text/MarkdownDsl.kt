@@ -19,8 +19,8 @@ import java.lang.annotation.*
 //TODO 关联Html标签
 //TODO 确保text只能是textBlock的子元素
 
-@NotTested
 /**Markdown的领域专用语言。*/
+@NotTested
 data class MarkdownDsl(
 	override val content: MutableList<MarkdownDslElement> = mutableListOf()
 ) : Dsl, MarkdownDslBlockElement, MarkdownDslSuperElement<MarkdownDslElement>, MarkdownDslInlineSuperElement {
@@ -821,7 +821,7 @@ inline class MarkdownAttributeProperties(
 	val value: Map<String, Any?> = mapOf()
 ) : MarkdownAttribute {
 	override fun toString(): String {
-		return if(value.isEmpty()) "" else "{${value.entries.joinToString { (k, v) -> "$k=${v.toString()}" }}}"
+		return if(value.isEmpty()) "" else "{${value.joinToString { (k, v) -> "$k=${v.toString()}" }}}"
 	}
 }
 

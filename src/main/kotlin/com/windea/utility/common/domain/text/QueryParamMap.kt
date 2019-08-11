@@ -11,7 +11,7 @@ class QueryParamMap(
 	
 	/**得到指定名字的所用查询参数。*/
 	fun getParams(name: String): List<String> {
-		return this[name]?.let { (it as List<*>).filterIsInstance<String>() } ?: listOf()
+		return this[name]?.let { (it as? List<*>)?.filterIsInstance<String>() } ?: listOf()
 	}
 }
 

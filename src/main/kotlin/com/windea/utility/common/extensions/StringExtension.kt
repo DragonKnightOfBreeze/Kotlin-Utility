@@ -97,10 +97,10 @@ fun <R> Sequence<String>.crossLine(block: (Sequence<String>) -> R): R {
 
 /**判断当前行是否在指定的跨行前后缀之间。在[crossLine]之中调用这个方法。*/
 fun String.crossLineSurroundsWith(prefix: String, suffix: String, ignoreCase: Boolean = false): Boolean {
-	check(enableCrossLine) { "[ERROR] Cross line operations are not enabled. Please enable it in crossLine { ... } block." }
+	check(enableCrossLine) { "[ERROR] Cross line operations are not enabled. They are enabled in crossLine { ... } block." }
 	
-	val isBeginBound = this.startsWith(prefix, ignoreCase)
-	val isEndBound = this.startsWith(suffix, ignoreCase)
+	val isBeginBound = this.contains(prefix, ignoreCase)
+	val isEndBound = this.contains(suffix, ignoreCase)
 	if(isBeginBound && !prepareCrossLineSurroundingWith) prepareCrossLineSurroundingWith = true
 	if(isEndBound) prepareCrossLineSurroundingWith = false
 	return !isBeginBound && prepareCrossLineSurroundingWith
@@ -121,20 +121,20 @@ fun CharSequence?.isNullOrBlank(): Boolean {
 }
 
 
-/**如果当前字符串不为空，则返回转换后的值。*/
+/**如果当前字符串不为空，则返回转换后的值。推荐仅用于长链式方法调用。*/
 inline fun <C : CharSequence> C.ifNotEmpty(transform: (C) -> C): C {
 	return if(this.isEmpty()) this else transform(this)
 }
 
-/**如果当前字符串不为空白，则返回转换后的值。*/
+/**如果当前字符串不为空白，则返回转换后的值。推荐仅用于长链式方法调用。*/
 inline fun <C : CharSequence> C.ifNotBlank(transform: (C) -> C): C {
 	return if(this.isBlank()) this else transform(this)
 }
 
 
-/**根据指定的正则表达式，得到当前字符串的匹配分组列表。不包含索引0的分组，列表可能为空。*/
+/**根据指定的正则表达式，得到当前字符串的匹配结果分组对应的字符串列表。不包含索引0的分组，列表可能为空。*/
 fun String.substring(regex: Regex): List<String> {
-	return regex.matchEntire(this)?.groupValues?.drop(0) ?: listOf()
+	return regex.matchEntire(this)?.groupValues?.drop(1) ?: listOf()
 }
 
 
@@ -144,7 +144,7 @@ fun String.substring(vararg delimiters: String?, defaultValue: (String) -> List<
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入以索引和剩余字符串为参数得到的默认值。*/
 fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
-	require(delimiters.count { it == null } > 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
+	require(delimiters.count { it == null } <= 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
 	
 	var rawString = this
 	val fixedDelimiters = delimiters.filterNotNull()
@@ -219,42 +219,38 @@ fun String.removeBlank(): String {
 }
 
 
-private val escapeChars = arrayOf('\n', '\r', '\b', '\t', '\'', '\"', '\\')
+private val escapes = arrayOf("\n", "\r", "\t", "\'", "\"")
 
-private val unescapeStrings = arrayOf("\\n", "\\r", "\\n", "\\t", "\\'", "\\\"", "\\\\")
+private val unescapes = arrayOf("\\n", "\\r", "\\t", "\\'", "\\\"")
 
 /**转义当前字符串。例如，将`\\n`转换为`\n`。*/
 fun String.escape(): String {
-	return buildString {
-		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(unescapeString.toRegex(), escapeChar.toString())
-		}
+	return (escapes zip unescapes).fold(this) { str, (escape, unescape) ->
+		str.replace(unescape, escape)
 	}
 }
 
 /**反转义当前字符串。例如，将`\n`转换为`\\n`。*/
 fun String.unescape(): String {
-	return buildString {
-		for((escapeChar, unescapeString) in escapeChars zip unescapeStrings) {
-			this.replace(escapeChar.toString().toRegex(), unescapeString)
-		}
+	return (escapes zip unescapes).fold(this) { str, (escape, unescape) ->
+		str.replace(escape, unescape)
 	}
 }
 
 
-private val quoteChars = arrayOf('"', '\'', "`")
+private val quotes = arrayOf("\"", "'", "`")
 
 /**使用双引号/单引号/反引号包围当前字符串。默认使用双引号。*/
-fun String.wrapQuote(quoteChar: Char = '"'): String {
-	if(quoteChar !in quoteChars) return this
-	return this.replace(quoteChar.toString(), "\\$quoteChar").surrounding(quoteChar.toString(), false)
+fun String.wrapQuote(quote: String = "\""): String {
+	if(quote !in quotes) return this
+	return this.replace(quote, "\\$quote").surrounding(quote, false)
 }
 
 /**去除当前字符串两侧的双引号/单引号/反引号。*/
 fun String.unwrapQuote(): String {
-	val quoteChar = this.first()
-	if(quoteChar !in quoteChars) return this
-	return this.removeSurrounding(quoteChar.toString()).replace("\\$quoteChar", quoteChar.toString())
+	val quote = this.first().toString()
+	if(quote !in quotes) return this
+	return this.removeSurrounding(quote).replace("\\$quote", quote)
 }
 
 
@@ -385,12 +381,12 @@ fun String.toBreakLineText(): String {
 	return this.remove("\n").trimEnd()
 }
 
-/**将当前字符串转化为多行文本。（去除首尾空白行，然后基于最后一行的缩进，去除每一行的缩进。）*/
+/**将当前字符串转化为多行文本。（去除首尾空白行，然后基于尾随空白行的缩进，尝试去除每一行的缩进。）*/
 fun String.toMultilineText(): String {
 	val lines = this.lines()
-	val trimmedIndent = lines.last().let { if(it.isBlank()) it.count() else 0 }
-	if(trimmedIndent == 0) return this.trimIndent()
-	return lines.dropBlank().dropLastBlank().joinToString("\n") { it.drop(trimmedIndent) }
+	val trimmedIndent = lines.last().let { if(it.isBlank()) it else "" }
+	if(trimmedIndent.isEmpty()) return this.trimIndent()
+	return lines.dropBlank().dropLastBlank().joinToString("\n") { it.removePrefix(trimmedIndent) }
 }
 
 
@@ -493,9 +489,9 @@ internal fun String.toQueryParamMap(): QueryParamMap {
 fun String.toColor(): Color {
 	return when {
 		//#333
-		this startsWith "#" && this.length == 4 -> Color(this.substring(1).mapPerRepeat(2).toInt(16))
+		this startsWith "#" && this.length == 4 -> Color(this.substring(1).mapPerCharRepeat(2).toInt(16))
 		//#3333
-		this startsWith "#" && this.length == 5 -> Color(this.substring(1).mapPerRepeat(2).toInt(16), true)
+		this startsWith "#" && this.length == 5 -> Color(this.substring(1).mapPerCharRepeat(2).toInt(16), true)
 		//#333333
 		this startsWith "#" && this.length == 7 -> Color(this.substring(1).toInt(16))
 		//#33333333
@@ -515,7 +511,7 @@ fun String.toColor(): Color {
 	}
 }
 
-private fun String.mapPerRepeat(n: Int): String {
+private fun String.mapPerCharRepeat(n: Int): String {
 	return this.chunked(1).joinToString("") { it.repeat(n) }
 }
 

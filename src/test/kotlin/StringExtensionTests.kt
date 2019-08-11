@@ -126,4 +126,21 @@ class StringExtensionTests {
 		- Breath Of Breeze
 		""".toMultilineText().deserialize<Any>(DataType.Yaml))
 	}
+	
+	@Test
+	fun testEscape() {
+		println("123\n123".unescape())
+		println("123\\n123".escape())
+		
+		println("123123".wrapQuote())
+		println("123\"123".wrapQuote())
+		println("123\'123".wrapQuote("'"))
+	}
+	
+	@Test
+	fun testRegexFunction() {
+		println("123abc123abc123".split("abc".toRegex()))
+		println("123abc123abc123".substring(".*(abc).*".toRegex()))
+		println(".*(abc).*".toRegex().matchEntire("123abc123abc123")?.groupValues)
+	}
 }

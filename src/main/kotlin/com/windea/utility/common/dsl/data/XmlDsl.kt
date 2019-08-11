@@ -7,6 +7,7 @@ import com.windea.utility.common.dsl.data.XmlDslConfig.indent
 import com.windea.utility.common.dsl.data.XmlDslConfig.preferAutoClosedTag
 import com.windea.utility.common.dsl.data.XmlDslConfig.quote
 import com.windea.utility.common.dsl.text.*
+import com.windea.utility.common.extensions.*
 import java.lang.annotation.*
 
 /**Xml的领域专用语言。*/
@@ -88,7 +89,7 @@ data class XmlElement(
 	override fun toString(): String {
 		val attributesSnippet = when {
 			attributes.isEmpty() -> ""
-			else -> attributes.entries.joinToString(" ", " ") { (k, v) -> "$k=$quote$v$quote" }
+			else -> attributes.joinToString(" ", " ") { (k, v) -> "$k=$quote$v$quote" }
 		}
 		val textSnippet = text?.let { if(newLine) "\n${it.prependIndent(indent)}\n" else text } ?: ""
 		val innerTextSnippet = when {

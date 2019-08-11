@@ -44,4 +44,8 @@ data class PathInfo(
 		val newFileName = fileShotName + newFileExtension
 		return if(returnFullPath) fileDirectory + "\\" + newFileName else newFileName
 	}
+	
+	override fun toString(): String {
+		return path
+	}
 }

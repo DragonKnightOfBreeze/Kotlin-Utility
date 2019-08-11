@@ -26,4 +26,8 @@ data class UrlInfo(
 	
 	/**查询参数映射。*/
 	val queryParamMap = query.toQueryParamMap()
+	
+	override fun toString(): String {
+		return url
+	}
 }

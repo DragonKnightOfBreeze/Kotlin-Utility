@@ -94,12 +94,12 @@ inline fun <C : Array<*>> C.ifNotEmpty(transform: (C) -> C): C {
 	return if(this.isEmpty()) this else transform(this)
 }
 
-/**如果当前集合不为空，则返回转换后的值。*/
+/**如果当前集合不为空，则返回转换后的值。推荐仅用于长链式方法调用。*/
 inline fun <C : Collection<*>> C.ifNotEmpty(transform: (C) -> C): C {
 	return if(this.isEmpty()) this else transform(this)
 }
 
-/**如果当前映射不为空，则返回转换后的值。*/
+/**如果当前映射不为空，则返回转换后的值。推荐仅用于长链式方法调用。*/
 inline fun <C : Map<*, *>> C.ifNotEmpty(transform: (C) -> C): C {
 	return if(this.isEmpty()) this else transform(this)
 }
@@ -142,6 +142,17 @@ fun <T> MutableList<T>.moveAll(fromIndices: IntRange, toIndex: Int) {
 	val elements = this.slice(fromIndices)
 	this.addAll(toIndex, elements)
 	this.removeAllAt(fromIndices)
+}
+
+
+/**根据指定的转换操作，将映射中的键与值加入到指定的可添加对添加对象。默认转换操作是`$k=$v`。*/
+fun <K, V, A : Appendable> Map<K, V>.joinTo(buffer: A, separator: CharSequence = ", ", prefix: CharSequence = "", postfix: CharSequence = "", limit: Int = -1, truncated: CharSequence = "...", transform: ((Map.Entry<K, V>) -> CharSequence)? = null): A {
+	return this.entries.joinTo(buffer, separator, prefix, postfix, limit, truncated, transform)
+}
+
+/**根据指定的转换操作，将映射中的键与值加入到字符串。默认转换操作是`$k=$v`。*/
+fun <K, V> Map<K, V>.joinToString(separator: CharSequence = ", ", prefix: CharSequence = "", postfix: CharSequence = "", limit: Int = -1, truncated: CharSequence = "...", transform: ((Map.Entry<K, V>) -> CharSequence)? = null): String {
+	return this.joinTo(StringBuilder(), separator, prefix, postfix, limit, truncated, transform).toString()
 }
 
 

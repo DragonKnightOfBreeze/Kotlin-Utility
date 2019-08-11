@@ -31,4 +31,12 @@ class CommonTests {
 	object 前
 	
 	infix fun Int.天(other: 前) = this.days
+	
+	@Test
+	fun test4() {
+		val map = mapOf("a" to 1, "b" to 2)
+		println(map)
+		println(map.entries)
+		println(map.toList())
+	}
 }
