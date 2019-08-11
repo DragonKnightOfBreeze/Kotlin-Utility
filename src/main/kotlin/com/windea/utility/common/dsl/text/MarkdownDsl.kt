@@ -734,7 +734,7 @@ enum class MarkdownAlertBoxQualifier(
 	Info("info", "info"), Todo("info", "todo"),
 	Note("note", "note"), SeeAlso("note", "seealso"),
 	Quote("quote", "quote"), Cite("quote", "cite"),
-	Success("success", "successs"), Check("success", "check"), Done("success", "done"),
+	Success("success", "success"), Check("success", "check"), Done("success", "done"),
 	Tip("tip", "tip"), Hint("tip", "hint"), Important("tip", "important"),
 	Warning("warning", "warning"), Caution("warning", "caution"), Attention("warning", "attention")
 }
@@ -799,6 +799,7 @@ data class MarkdownMacrosSnippet(
 interface MarkdownAttribute : MarkdownDslElement
 
 /**Markdown特性id。*/
+@ExtendedMarkdownFeature
 inline class MarkdownAttributeId(
 	val value: String
 ) : MarkdownAttribute {
@@ -808,6 +809,7 @@ inline class MarkdownAttributeId(
 }
 
 /**Markdown特性类。*/
+@ExtendedMarkdownFeature
 inline class MarkdownAttributeClasses(
 	val value: List<String> = listOf()
 ) : MarkdownAttribute {
@@ -817,6 +819,7 @@ inline class MarkdownAttributeClasses(
 }
 
 /**Markdown特性属性。*/
+@ExtendedMarkdownFeature
 inline class MarkdownAttributeProperties(
 	val value: Map<String, Any?> = mapOf()
 ) : MarkdownAttribute {
