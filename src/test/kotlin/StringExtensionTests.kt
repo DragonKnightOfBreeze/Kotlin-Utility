@@ -143,4 +143,17 @@ class StringExtensionTests {
 		println("123abc123abc123".substring(".*(abc).*".toRegex()))
 		println(".*(abc).*".toRegex().matchEntire("123abc123abc123")?.groupValues)
 	}
+	
+	fun String.removeComment() {}
+	
+	enum class CommentType(val prefix: String, val infix: String? = null, val suffix: String? = null) {
+		JavaLineComment("//"),
+		JavaBlockComment("/*", " *", "*/"),
+		JavaDocumentComment("/**", " *", "*/"),
+		CSharpDocumentComment("///", "///"),
+		LuaLineComment("--"),
+		LuaBlockComment("--[[", "", "]]"),
+		PythonLineComment("#"),
+		PythonBlockComment("'''", "'''")
+	}
 }

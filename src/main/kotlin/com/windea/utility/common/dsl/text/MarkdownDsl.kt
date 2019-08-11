@@ -39,7 +39,7 @@ data class MarkdownDsl(
 	override fun toString(): String {
 		val contentSnippet = content.joinToString("\n\n")
 		//TODO 未测试
-		val trailingSnippet = content.deepFlatMap().values
+		val trailingSnippet = content.deepFlatten().values
 			.filterIsInstance<MarkdownDslReferenceElement>().distinctBy { it.reference }
 			.joinToString("\n") { it.toTrailingString() }.ifNotEmpty { "\n\n\n$it" }
 		return "$contentSnippet$trailingSnippet"

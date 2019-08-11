@@ -1,6 +1,7 @@
 import com.windea.utility.common.extensions.*
 import org.junit.*
 import java.time.*
+import kotlin.reflect.*
 
 class CommonTests {
 	@Test
@@ -39,4 +40,23 @@ class CommonTests {
 		println(map.entries)
 		println(map.toList())
 	}
+	
+	@Test
+	@ExperimentalStdlibApi
+	fun test5() {
+		//源代码显示抛出UnsupportedException，但是的确能够正常工作，为什么？
+		println(typeOf<Int>())
+	}
+	
+	fun test6() {
+		println(1..2)
+		println(1 until 2)
+		println(1 downTo 0)
+		
+	}
 }
+
+annotation class Foo1(
+	val exp: KClass<Function<String>>
+)
+

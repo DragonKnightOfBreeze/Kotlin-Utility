@@ -299,8 +299,8 @@ fun String.switchCase(fromCase: StringCase, toCase: StringCase): String {
 fun String.splitByCase(case: StringCase): List<String> {
 	return when(case) {
 		StringCase.Unknown -> listOf(this)
-		StringCase.CamelCase -> this.firstCharToUpperCase().splitByWhiteSpace().split(" ")
-		StringCase.PascalCase -> this.splitByWhiteSpace().split(" ")
+		StringCase.CamelCase -> this.firstCharToUpperCase().splitWordByWhiteSpace().split(" ")
+		StringCase.PascalCase -> this.splitWordByWhiteSpace().split(" ")
 		StringCase.SnakeCase -> this.split("_")
 		StringCase.ScreamingSnakeCase -> this.split("_")
 		StringCase.KebabCase -> this.split("-")
@@ -325,7 +325,7 @@ fun List<String>.joinByCase(case: StringCase): String {
 	}
 }
 
-private fun String.splitByWhiteSpace(): String {
+private fun String.splitWordByWhiteSpace(): String {
 	return this.replace("\\B([A-Z]+)".toRegex(), " $1")
 }
 

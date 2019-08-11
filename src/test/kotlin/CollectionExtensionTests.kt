@@ -36,7 +36,7 @@ class CollectionExtensionTests {
 		val list = mutableListOf(1, 2, 3, mutableListOf(41, 42, 43), 5)
 		val e1 = list.deepGet("[3][1]")
 		println(e1)
-		println(list.deepFlatMap())
+		println(list.deepFlatten())
 		println(list.deepQuery("#/[]"))
 		println(list.deepQuery("#/3/2"))
 	}

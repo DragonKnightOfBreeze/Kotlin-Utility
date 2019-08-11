@@ -158,51 +158,51 @@ fun <K, V> Map<K, V>.joinToString(separator: CharSequence = ", ", prefix: CharSe
 
 /**根据路径得到当前数组中的元素。使用引用路径[PathCase.ReferencePath]。*/
 fun <T> Array<T>.deepGet(path: String) =
-	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
+	this.toIndexKeyMap().privateDeepGet(path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前列表中的元素。使用引用路径[PathCase.ReferencePath]。*/
 fun <T> List<T>.deepGet(path: String) =
-	privateDeepGet(this.toIndexKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
+	this.toIndexKeyMap().privateDeepGet(path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据路径得到当前映射中的值。使用引用路径[PathCase.ReferencePath]。*/
 fun <K, V> Map<K, V>.deepGet(path: String) =
-	privateDeepGet(this.toStringKeyMap(), path.splitByPathCase(PathCase.ReferencePath))
+	this.toStringKeyMap().privateDeepGet(path.splitByPathCase(PathCase.ReferencePath))
 
-private tailrec fun privateDeepGet(map: Map<String, Any?>, sufSubPaths: List<String>): Any? {
+private tailrec fun Map<String, Any?>.privateDeepGet(sufSubPaths: List<String>): Any? {
 	//如果已递归到最后一个子路径，则从映射中返回对应元素
 	if(sufSubPaths.size == 1) {
-		return map[sufSubPaths.first()]
+		return this[sufSubPaths.first()]
 	}
 	//否则检查递归遍历的值的类型，继续递归调用这个方法
-	val fixedDeepValue = when(val deepValue = map[sufSubPaths.first()]) {
-		is Map<*, *> -> deepValue.toStringKeyMap()
+	val fixedDeepValue = when(val deepValue = this[sufSubPaths.first()]) {
 		is Array<*> -> deepValue.toIndexKeyMap()
 		is Iterable<*> -> deepValue.toIndexKeyMap()
+		is Map<*, *> -> deepValue.toStringKeyMap()
 		else -> throw IllegalArgumentException("[ERROR] There is not a value related to this reference path.")
 	}
 	val fixedSubPaths = sufSubPaths.drop(1)
-	return privateDeepGet(fixedDeepValue, fixedSubPaths)
+	return fixedDeepValue.privateDeepGet(fixedSubPaths)
 }
 
 
 /**递归平滑映射当前数组，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Array<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexKeyMap(), mutableListOf())
+fun <T> Array<T>.deepFlatten() = this.toIndexKeyMap().privateDeepFlatten(mutableListOf())
 
 /**递归平滑映射当前集合，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <T> Iterable<T>.deepFlatMap() = privateDeepFlatMap(this.toIndexKeyMap(), mutableListOf())
+fun <T> Iterable<T>.deepFlatten() = this.toIndexKeyMap().privateDeepFlatten(mutableListOf())
 
 /**递归平滑映射当前映射，返回路径-值映射。使用引用路径[PathCase.ReferencePath]。*/
-fun <K, V> Map<K, V>.deepFlatMap() = privateDeepFlatMap(this.toStringKeyMap(), mutableListOf())
+fun <K, V> Map<K, V>.deepFlatten() = this.toStringKeyMap().privateDeepFlatten(mutableListOf())
 
-private fun privateDeepFlatMap(map: Map<String, Any?>, preSubPaths: MutableList<String>): Map<String, Any?> {
-	return map.flatMap { (key, value) ->
+private fun Map<String, Any?>.privateDeepFlatten(preSubPaths: MutableList<String>): Map<String, Any?> {
+	return this.flatMap { (key, value) ->
 		//每次递归需要创建新的子路径列表
 		val subPaths = (preSubPaths + key).toMutableList()
 		//如果不是集合类型，则拼接成完整路径，与值一同返回
 		when(value) {
-			is Array<*> -> privateDeepFlatMap(value.toIndexKeyMap(), subPaths).toList()
-			is Iterable<*> -> privateDeepFlatMap(value.toIndexKeyMap(), subPaths).toList()
-			is Map<*, *> -> privateDeepFlatMap(value.toStringKeyMap(), subPaths).toList()
+			is Array<*> -> value.toIndexKeyMap().privateDeepFlatten(subPaths).toList()
+			is Iterable<*> -> value.toIndexKeyMap().privateDeepFlatten(subPaths).toList()
+			is Map<*, *> -> value.toStringKeyMap().privateDeepFlatten(subPaths).toList()
 			else -> listOf(subPaths.joinByPathCase(PathCase.ReferencePath) to value)
 		}
 	}.toMap()
@@ -210,17 +210,17 @@ private fun privateDeepFlatMap(map: Map<String, Any?>, preSubPaths: MutableList<
 
 
 /**根据指定路径[path]递归查询当前数组，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <T> Array<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+fun <T> Array<T>.deepQuery(path: String) = this.toList().privateDeepQueryValue(path)
 
 /**根据指定路径[path]递归查询当前集合，返回匹配的元素列表。使用Json路径[PathCase.JsonPath]。*/
-fun <T> Iterable<T>.deepQuery(path: String) = privateDeepQueryValue(this.toList(), path)
+fun <T> Iterable<T>.deepQuery(path: String) = this.toList().privateDeepQueryValue(path)
 
 /**根据指定路径[path]递归查询当前映射，返回匹配的值列表。使用Json路径[PathCase.JsonPath]。*/
-fun <K, V> Map<K, V>.deepQueryValue(path: String) = privateDeepQueryValue(this, path)
+fun <K, V> Map<K, V>.deepQueryValue(path: String) = this.privateDeepQueryValue(path)
 
-private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
+private fun Any.privateDeepQueryValue(path: String): List<Any?> {
 	val subPaths = path.trim().splitByPathCase(PathCase.JsonPath)
-	var valueList = listOf(collection)
+	var valueList = listOf<Any?>(this)
 	for(subPath in subPaths) {
 		valueList = when {
 			//如果子路径表示一个列表，例如："[]"
@@ -239,11 +239,11 @@ private fun privateDeepQueryValue(collection: Any?, path: String): List<Any?> {
 			}
 			//如果子路径表示一个对象，例如："{}"
 			subPath == "{}" -> {
-				valueList.flatMap { (it as Map<*, *>).toStringKeyMap().values }
+				valueList.flatMap { (it as Map<*, *>).values }
 			}
 			//如果子路径表示一个占位符，例如："{Category}"
 			subPath matches "\\{.+}".toRegex() -> {
-				valueList.flatMap { (it as Map<*, *>).toStringKeyMap().values }
+				valueList.flatMap { (it as Map<*, *>).values }
 			}
 			//如果子路径表示一个正则表达式，例如："regex.*Name"
 			subPath startsWith "regex:" -> {
