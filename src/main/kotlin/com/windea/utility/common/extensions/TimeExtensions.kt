@@ -9,10 +9,10 @@ operator fun Duration.times(n: Long): Duration = this.multipliedBy(n)
 operator fun Duration.div(n: Long): Duration = this.dividedBy(n)
 
 /**@see java.time.Duration.getSeconds*/
-operator fun Duration.component1() = this.seconds
+operator fun Duration.component1(): Long = this.seconds
 
 /**@see java.time.Duration.getNano*/
-operator fun Duration.component2() = this.nano
+operator fun Duration.component2(): Int = this.nano
 
 
 operator fun Period.unaryMinus(): Period = this.negated()
@@ -20,13 +20,13 @@ operator fun Period.unaryMinus(): Period = this.negated()
 operator fun Period.times(n: Int): Period = this.multipliedBy(n)
 
 /**@see java.time.Period.getYears*/
-operator fun Period.component1() = this.years
+operator fun Period.component1(): Int = this.years
 
 /**@see java.time.Period.getMonths*/
-operator fun Period.component2() = this.months
+operator fun Period.component2(): Int = this.months
 
 /**@see java.time.Period.getDays*/
-operator fun Period.component3() = this.days
+operator fun Period.component3(): Int = this.days
 
 
 operator fun Year.plus(years: Int): Year = this.plusYears(years.toLong())
