@@ -3,7 +3,7 @@ package com.windea.utility.common.extensions
 import java.util.*
 import kotlin.random.Random
 
-object RandomExtension {
+object RandomExtensions {
 	/**得到随机的uuid。*/
 	fun uuid(): String {
 		return UUID.randomUUID().toString()

@@ -55,6 +55,7 @@
 * 1.4.12 修复字符串的转义&反转义扩展方法中的bug，修复生成器的bug。其他更新。
 * 1.4.13 修改一些扩展方法的命名。
 * 1.4.14 加强对Dsl的限制。适用DslMarker和@PublishedApi internal constructor。
+* 1.4.15 整理与更新。
 
 # TODO
 

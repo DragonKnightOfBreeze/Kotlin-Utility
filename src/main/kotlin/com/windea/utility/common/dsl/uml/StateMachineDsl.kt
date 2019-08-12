@@ -2,6 +2,8 @@ package com.windea.utility.common.dsl.uml
 
 import com.windea.utility.common.dsl.*
 
+//DELAY
+
 data class StateMachineDsl<T> @PublishedApi internal constructor(
 	override val name: String,
 	override val target: T
@@ -25,6 +27,7 @@ annotation class StateMachineDslMarker
 interface StateMachineDslElement<T> {
 	val target: T
 }
+
 
 interface StateMachineScope<T> : StateMachineDslElement<T> {
 	val name: String
