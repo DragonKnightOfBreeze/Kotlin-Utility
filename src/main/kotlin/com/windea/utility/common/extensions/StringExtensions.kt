@@ -402,14 +402,14 @@ fun String.splitByPathCase(case: PathCase): List<String> {
 	}
 }
 
-/**根据路径显示格式连接当前字符串列表，组成完整路径。*/
-fun List<String>.joinByPathCase(case: PathCase, addPrefix: Boolean = true): String {
+/**根据路径显示格式连接当前字符串列表，组成完整路径。可指定是否为绝对路径，默认为true。*/
+fun List<String>.joinByPathCase(case: PathCase, isAbsolutePath: Boolean = true): String {
 	return when(case) {
 		PathCase.Unknown -> this.first()
-		PathCase.WindowsPath -> this.joinToString("\\").let { if(addPrefix) "\\$it" else it }
-		PathCase.UnixPath -> this.joinToString("/").let { if(addPrefix) "/$it" else it }
+		PathCase.WindowsPath -> this.joinToString("\\").let { if(isAbsolutePath) "\\$it" else it }
+		PathCase.UnixPath -> this.joinToString("/").let { if(isAbsolutePath) "/$it" else it }
 		PathCase.ReferencePath -> this.joinToString(".").replace("^(\\d+)$|\\.?(\\d+)\\.?".toRegex(), "[$1$2]")
-		PathCase.JsonPath -> this.joinToString("/").let { if(addPrefix) "#$it" else it }
+		PathCase.JsonPath -> this.joinToString("/", "/")
 	}
 }
 

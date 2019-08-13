@@ -1,3 +1,4 @@
+import com.windea.utility.common.enums.*
 import com.windea.utility.common.extensions.*
 import org.junit.*
 
@@ -34,11 +35,25 @@ class CollectionExtensionTests {
 	@Test
 	fun test4() {
 		val list = mutableListOf(1, 2, 3, mutableListOf(41, 42, 43), 5)
-		val e1 = list.deepGet("[3][1]")
-		println(e1)
+		//TESTED
+		println(list.deepGet("[3][1]"))
+		//TESTED
 		println(list.deepFlatten())
+		println(list.deepFlatten(1))
+		println(list.deepFlatten(2))
+		//TESTED
 		println(list.deepQuery("#/[]"))
+		println(list.deepQuery("#/-"))
+		println(list.deepQuery("#/{}"))
+		println(list.deepQuery("#/1..2"))
+		println(list.deepQuery("#/3"))
 		println(list.deepQuery("#/3/2"))
+		println(list.deepQuery("#/[]", PathCase.JsonPath))
+		println(list.deepQuery("#/-", PathCase.JsonPath))
+		println(list.deepQuery("#/{}", PathCase.JsonPath))
+		println(list.deepQuery("#/1..2", PathCase.JsonPath))
+		println(list.deepQuery("#/3", PathCase.JsonPath))
+		println(list.deepQuery("#/3/2", PathCase.JsonPath))
 	}
 }
 
