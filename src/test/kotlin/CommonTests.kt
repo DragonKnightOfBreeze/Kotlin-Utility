@@ -46,17 +46,29 @@ class CommonTests {
 	fun test5() {
 		//源代码显示抛出UnsupportedException，但是的确能够正常工作，为什么？
 		println(typeOf<Int>())
+		
+		fun func1(param1: Int) {}
+		println(nameOf<Int>())
+		println(nameOf<Foo1>())
+		println(nameOf(Int::class))
+		println(nameOf(CommonTests::test5))
+		println(nameOf(Bar::prop))
+		println(nameOf(Bar::func))
 	}
 	
 	fun test6() {
 		println(1..2)
 		println(1 until 2)
 		println(1 downTo 0)
-		
 	}
 }
 
 annotation class Foo1(
 	val exp: KClass<Function<String>>
 )
+
+class Bar {
+	val prop = 1
+	fun func() {}
+}
 
