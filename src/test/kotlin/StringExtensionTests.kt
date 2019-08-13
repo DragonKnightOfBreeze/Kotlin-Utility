@@ -41,7 +41,7 @@ class StringExtensionTests {
 	@Test
 	fun test5() {
 		val str = "www.github.com"
-		val strList = str.substring("://", ":", "/") { listOf("http", "localhost", "8080", it) }
+		val strList = str.substring("://", ":", "/") { _, s -> listOf("http", "localhost", "8080", s) }
 		println(strList)
 	}
 	

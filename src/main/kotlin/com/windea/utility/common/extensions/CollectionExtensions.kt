@@ -199,8 +199,8 @@ private fun Any.privateDeepQueryValue(path: String): List<Any?> {
 	var valueList = listOf<Any?>(this)
 	for(subPath in subPaths) {
 		valueList = when {
-			//如果子路径表示一个列表，例如："[]"
-			subPath == "[]" -> {
+			//如果子路径表示一个列表，例如："[]"/"-"
+			subPath == "[]" || subPath == "-" -> {
 				valueList.flatMap { it as List<*> }
 			}
 			//如果子路径表示一个范围，例如："1..10"
