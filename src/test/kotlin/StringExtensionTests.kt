@@ -156,4 +156,9 @@ class StringExtensionTests {
 		PythonLineComment("#"),
 		PythonBlockComment("'''", "'''")
 	}
+	
+	fun test14() {
+		val strings = arrayOf("1", "2")
+		println("123".startsWith(strings))
+	}
 }

@@ -41,7 +41,7 @@ infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
 }
 
 /**判断当前字符串是否以任意指定前缀开头。*/
-infix fun CharSequence.startsWith(prefixArray: Array<CharSequence>): Boolean {
+infix fun CharSequence.startsWith(prefixArray: Array<out CharSequence>): Boolean {
 	return prefixArray.any { this.startsWith(it, false) }
 }
 
@@ -51,7 +51,7 @@ infix fun CharSequence.endsWith(suffix: CharSequence): Boolean {
 }
 
 /**判断当前字符串是否以任意指定后缀结尾。*/
-infix fun CharSequence.endsWith(suffixArray: Array<CharSequence>): Boolean {
+infix fun CharSequence.endsWith(suffixArray: Array<out CharSequence>): Boolean {
 	return suffixArray.any { this.endsWith(it, false) }
 }
 
@@ -61,7 +61,7 @@ infix fun CharSequence.startsWithIc(prefix: CharSequence): Boolean {
 }
 
 /**判断当前字符串是否以任意指定前缀开头。忽略大小写。*/
-infix fun CharSequence.startsWithIc(prefixArray: Array<CharSequence>): Boolean {
+infix fun CharSequence.startsWithIc(prefixArray: Array<out CharSequence>): Boolean {
 	return prefixArray.any { this.startsWith(it, true) }
 }
 
@@ -71,7 +71,7 @@ infix fun CharSequence.endsWithIc(suffix: CharSequence): Boolean {
 }
 
 /**判断当前字符串是否以指定后缀结尾。忽略大小写。*/
-infix fun CharSequence.endsWithIc(suffixArray: Array<CharSequence>): Boolean =
+infix fun CharSequence.endsWithIc(suffixArray: Array<out CharSequence>): Boolean =
 	suffixArray.any { this.endsWith(it, true) }
 
 
