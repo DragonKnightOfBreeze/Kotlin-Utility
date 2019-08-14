@@ -157,8 +157,17 @@ class StringExtensionTests {
 		PythonBlockComment("'''", "'''")
 	}
 	
+	@Test
 	fun test14() {
 		val strings = arrayOf("1", "2")
 		println("123".startsWith(strings))
+	}
+	
+	@Test
+	fun test15() {
+		println("123{0}123".messageFormat("a"))
+		println("123{}".customFormat("{}", "a"))
+		println("123{0}".customFormat("{index}", "a"))
+		println("123\${}".customFormat("\${}", "a"))
 	}
 }

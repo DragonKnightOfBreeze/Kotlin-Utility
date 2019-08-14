@@ -214,21 +214,21 @@ fun String.messageFormat(vararg args: Any): String {
 }
 
 /**
- * 基于指定的占位符前后缀格式化当前字符串。可指定是否根据索引格式化[withIndex]，默认为true。
+ * 基于指定的占位符格式化当前字符串。
  *
- * 示例：`{}`, `{\d}`, `${}`, `${\d}`。
+ * 占位符形如：`{}`, `{index}`, `${}`, `${index}`。
  */
-fun String.customFormat(prefix: String, suffix: String, vararg args: Any, withIndex: Boolean = true): String {
-	return if(withIndex) {
-		this.replace("$prefix(\\s+)$suffix".toRegex()) { args.getOrNull(it.groupValues[1].toInt())?.toString() ?: "" }
+fun String.customFormat(placeholder: String, vararg args: Any): String {
+	return if("index" in placeholder) {
+		val (prefix, suffix) = placeholder.split("index")
+		this.splitToSequence(prefix, suffix).map { s ->
+			s.replace("^(\\d+)$".toRegex()) { r ->
+				args.getOrNull(r.groupValues[1].toInt())?.toString() ?: r.groupValues[0]
+			}
+		}.joinToString("")
 	} else {
-		this.replaceIndexed("$prefix$suffix") { args.getOrNull(it)?.toString() ?: "" }
+		this.replaceIndexed(placeholder) { args.getOrNull(it)?.toString() ?: "" }
 	}
-}
-
-private fun Array<String>.mapToInt(): List<Int> {
-	val distinctResult = this.distinct()
-	return this.map { distinctResult.indexOf(it) }
 }
 
 
