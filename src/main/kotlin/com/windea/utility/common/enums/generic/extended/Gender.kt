@@ -11,12 +11,12 @@ enum class Gender {
 	Male,
 	@Name("女性")
 	Female,
-	@Name("泛性别")
-	Generic,
 	@Name("男性（模拟）")
 	SimulateMale,
 	@Name("女性（模拟）")
 	SimulateFemale,
-	@Name("泛性别（模拟）")
-	SimulateGeneric
+	@Name("男性（泛性别）")
+	GenericMale,
+	@Name("女性（泛性别）")
+	GenericFemale
 }
