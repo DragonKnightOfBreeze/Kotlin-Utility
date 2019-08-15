@@ -161,11 +161,11 @@ fun CharSequence.substring(regex: Regex): List<String> {
 	return regex.matchEntire(this)?.groupValues?.drop(1) ?: listOf()
 }
 
-/**根据以null分割的前置和后置的分隔符，按顺序分割字符串。不包含分隔符时，加入根据索引和剩余字符串得到的默认值列表中的对应索引的值。*/
+/**根据以null分割的前置和后置的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值列表中的对应索引的值。*/
 fun String.substring(vararg delimiters: String?, defaultValue: (Int, String) -> List<String>) =
 	substringOrElse(*delimiters) { index, str -> defaultValue(index, str).getOrEmpty(index) }
 
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入根据索引和剩余字符串得到的默认值。*/
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值。*/
 fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
 	require(delimiters.count { it == null } <= 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
 	

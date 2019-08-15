@@ -55,6 +55,14 @@ class CollectionExtensionTests {
 		println(list.deepQuery("#/3", PathCase.JsonPath))
 		println(list.deepQuery("#/3/2", PathCase.JsonPath))
 	}
+	
+	@Test
+	fun testExpand() {
+		val list1 = listOf(1, 3, 5)
+		val list2 = listOf(1, 2, 3, 4, 5, 6)
+		val list3 = list1.expand(list2) { e1, e2 -> e1 >= e2 }
+		println(list3)
+	}
 }
 
 

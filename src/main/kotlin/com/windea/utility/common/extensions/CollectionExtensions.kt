@@ -5,7 +5,6 @@ package com.windea.utility.common.extensions
 import com.windea.utility.common.annotations.marks.*
 import com.windea.utility.common.enums.*
 
-
 /**@see com.windea.utility.common.extensions.repeat*/
 operator fun <T> Iterable<T>.times(n: Int): List<T> = this.repeat(n)
 
@@ -13,7 +12,7 @@ operator fun <T> Iterable<T>.times(n: Int): List<T> = this.repeat(n)
 operator fun <T> Iterable<T>.div(n: Int): List<List<T>> = this.chunked(n)
 
 /**@see kotlin.collections.slice*/
-operator fun <T> Array<T>.get(indexRange: IntRange): List<T> = this.slice(indexRange)
+operator fun <T> Array<out T>.get(indexRange: IntRange): List<T> = this.slice(indexRange)
 
 /**@see kotlin.collections.slice*/
 operator fun <T> List<T>.get(range: IntRange): List<T> = this.slice(range)
@@ -44,16 +43,16 @@ infix fun <T> Iterable<T>.anyIn(other: Iterable<T>): Boolean = this.any { it in 
 
 
 /**判断当前数组是否以指定元素开始。*/
-infix fun <T> Array<T>.startsWith(element: T): Boolean = this.firstOrNull() == element
+infix fun <T> Array<out T>.startsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前数组是否以任意指定元素开始。*/
-infix fun <T> Array<T>.startsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Array<out T>.startsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
 
 /**判断当前数组是否以指定元素结束。*/
-infix fun <T> Array<T>.endsWith(element: T): Boolean = this.firstOrNull() == element
+infix fun <T> Array<out T>.endsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前数组是否以任意指定元素结束。*/
-infix fun <T> Array<T>.endsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Array<out T>.endsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
 
 /**判断当前集合是否以指定元素开始。*/
 infix fun <T> Iterable<T>.startsWith(element: T): Boolean = this.firstOrNull() == element
@@ -86,7 +85,7 @@ inline fun <C : Map<*, *>> C.ifNotEmpty(transform: (C) -> C): C {
 
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
-fun <T> Array<T>.getOrDefault(index: Int, defaultValue: T): T = this.getOrElse(index) { defaultValue }
+fun <T> Array<out T>.getOrDefault(index: Int, defaultValue: T): T = this.getOrElse(index) { defaultValue }
 
 /**得到指定索引的元素，发生异常则得到默认值。*/
 fun <T> List<T>.getOrDefault(index: Int, defaultValue: T): T = this.getOrElse(index) { defaultValue }
@@ -132,8 +131,29 @@ fun <K, V> Map<K, V>.joinToString(separator: CharSequence = ", ", prefix: CharSe
 }
 
 
+/**绑定当前数组中的元素以及另一个数组中满足指定预测的首个元素。*/
+inline fun <T, R : Any> Array<out T>.zipWithFirst(other: Array<out R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
+	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
+}
+
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+inline fun <T, R : Any> Array<out T>.zipWithFirst(other: Iterable<R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
+	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
+}
+
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+inline fun <T, R : Any> Iterable<T>.zipWithFirst(other: Array<out R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
+	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
+}
+
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+inline fun <T, R : Any> Iterable<T>.zipWithFirst(other: Iterable<R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
+	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
+}
+
+
 /**根据指定的引用路径得到当前数组中的元素。*/
-fun <T> Array<T>.deepGet(path: String): Any? =
+fun <T> Array<out T>.deepGet(path: String): Any? =
 	this.toIndexKeyMap().privateDeepGet(path.splitByPathCase(PathCase.ReferencePath))
 
 /**根据指定的引用路径得到当前列表中的元素。*/
@@ -162,7 +182,7 @@ private tailrec fun Map<String, Any?>.privateDeepGet(subPaths: List<String>): An
 
 
 /**递归平滑映射当前数组，返回路径-值映射，默认使用引用路径[PathCase.ReferencePath]。可以指定层级[hierarchy]，默认为全部层级。*/
-fun <T> Array<T>.deepFlatten(hierarchy: Int = -1, pathCase: PathCase = PathCase.ReferencePath): Map<String, Any?> =
+fun <T> Array<out T>.deepFlatten(hierarchy: Int = -1, pathCase: PathCase = PathCase.ReferencePath): Map<String, Any?> =
 	this.toIndexKeyMap().privateDeepFlatten(hierarchy, listOf(), pathCase)
 
 /**递归平滑映射当前集合，返回路径-值映射，默认使用引用路径[PathCase.ReferencePath]。可以指定层级[hierarchy]，默认为全部层级。*/
@@ -192,7 +212,7 @@ private fun Map<String, Any?>.privateDeepFlatten(hierarchy: Int = -1, preSubPath
 
 
 /**根据指定的Json路径[PathCase.JsonPath]递归查询当前数组，返回匹配的路径-值映射，默认使用引用路径[PathCase.ReferencePath]*/
-fun <T> Array<T>.deepQuery(path: String, pathCase: PathCase = PathCase.ReferencePath): Map<String, Any?> =
+fun <T> Array<out T>.deepQuery(path: String, pathCase: PathCase = PathCase.ReferencePath): Map<String, Any?> =
 	this.toIndexKeyMap().privateDeepQuery(path.splitByPathCase(PathCase.JsonPath), listOf(), pathCase)
 
 /**根据指定的Json路径[PathCase.JsonPath]递归查询当前集合，返回匹配的路径-值映射，默认使用引用路径[PathCase.ReferencePath]*/
@@ -238,7 +258,7 @@ private fun Map<String, Any?>.privateDeepQuery(subPaths: List<String>, preSubPat
 
 
 /**将当前数组转化成以键为值的映射。*/
-fun <T> Array<T>.toIndexKeyMap(): Map<String, T> {
+fun <T> Array<out T>.toIndexKeyMap(): Map<String, T> {
 	return this.withIndex().associate { (i, e) -> i.toString() to e }
 }
 
@@ -308,10 +328,10 @@ fun List<String>.getOrEmpty(index: Int): String = this.getOrElse(index) { "" }
 
 
 /**去除第一行空白行。*/
-fun <C : CharSequence> Array<C>.dropBlank(): List<C> = this.dropWhile { it.isBlank() }
+fun <C : CharSequence> Array<out C>.dropBlank(): List<C> = this.dropWhile { it.isBlank() }
 
 /**去除最后一行空白行。*/
-fun <C : CharSequence> Array<C>.dropLastBlank(): List<C> = this.dropLastWhile { it.isBlank() }
+fun <C : CharSequence> Array<out C>.dropLastBlank(): List<C> = this.dropLastWhile { it.isBlank() }
 
 /**去除第一行空白行。*/
 fun <C : CharSequence> Iterable<C>.dropBlank(): List<C> = this.dropWhile { it.isBlank() }
@@ -321,10 +341,10 @@ fun <C : CharSequence> List<C>.dropLastBlank(): List<C> = this.dropLastWhile { i
 
 
 /**过滤空字符串。*/
-fun <C : CharSequence> Array<C>.filterNotEmpty(): List<C> = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Array<out C>.filterNotEmpty(): List<C> = this.filter { it.isNotEmpty() }
 
 /**过滤空白字符串。*/
-fun <C : CharSequence> Array<C>.filterNotBlank(): List<C> = this.filter { it.isNotEmpty() }
+fun <C : CharSequence> Array<out C>.filterNotBlank(): List<C> = this.filter { it.isNotEmpty() }
 
 /**过滤空字符串。*/
 fun <C : CharSequence> Iterable<C>.filterNotEmpty(): List<C> = this.filter { it.isNotEmpty() }
