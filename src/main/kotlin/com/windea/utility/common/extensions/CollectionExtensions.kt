@@ -131,22 +131,22 @@ fun <K, V> Map<K, V>.joinToString(separator: CharSequence = ", ", prefix: CharSe
 }
 
 
-/**绑定当前数组中的元素以及另一个数组中满足指定预测的首个元素。*/
+/**绑定当前数组中的元素以及另一个数组中满足指定预测的首个元素。过滤总是不满足的情况。*/
 inline fun <T, R : Any> Array<out T>.zipWithFirst(other: Array<out R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
 	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
 }
 
-/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。过滤总是不满足的情况。*/
 inline fun <T, R : Any> Array<out T>.zipWithFirst(other: Iterable<R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
 	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
 }
 
-/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。过滤总是不满足的情况。*/
 inline fun <T, R : Any> Iterable<T>.zipWithFirst(other: Array<out R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
 	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
 }
 
-/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。*/
+/**绑定当前集合中的元素以及另一个集合中满足指定预测的首个元素。过滤总是不满足的情况。*/
 inline fun <T, R : Any> Iterable<T>.zipWithFirst(other: Iterable<R>, predicate: (T, R) -> Boolean): List<Pair<T, R>> {
 	return this.mapNotNull { e1 -> other.firstOrNull { e2 -> predicate(e1, e2) }?.let { e1 to it } }
 }
