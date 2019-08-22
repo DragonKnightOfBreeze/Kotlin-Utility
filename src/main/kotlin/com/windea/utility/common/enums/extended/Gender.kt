@@ -1,4 +1,4 @@
-package com.windea.utility.common.enums.generic.extended
+package com.windea.utility.common.enums.extended
 
 import com.windea.utility.common.annotations.messages.*
 

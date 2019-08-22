@@ -426,9 +426,9 @@ inline fun <reified T : Any> String.deserialize(dataType: DataType): T {
 }
 
 
-/**将当前字符串转为折行文本。（去除所有换行符以及尾随空白。）*/
+/**将当前字符串转为折行文本。（去除所有换行符以及每行的首尾空白。）*/
 fun String.toBreakLineText(): String {
-	return this.remove("\n").trimEnd()
+	return this.remove("\\s*\\n\\s*".toRegex())
 }
 
 /**将当前字符串转化为多行文本。（去除首尾空白行，然后基于尾随空白行的缩进，尝试去除每一行的缩进。）*/
