@@ -15,12 +15,6 @@ infix fun <A, B, C> Pair<A, B>.with(third: C): Triple<A, B, C> {
 }
 
 
-/**抛出一个[IllegalArgumentException]，带有懒加载的信息。*/
-inline fun require(lazyMessage: () -> Any) = require(false, lazyMessage)
-
-/**抛出一个[IllegalStateException]，带有懒加载的信息。*/
-inline fun check(lazyMessage: () -> Any) = check(false, lazyMessage)
-
 /**如果判定失败，则抛出一个[UnsupportedOperationException]。*/
 @ExperimentalContracts
 inline fun reject(value: Boolean) {
@@ -41,8 +35,3 @@ inline fun reject(value: Boolean, lazyMessage: () -> Any) {
 		throw UnsupportedOperationException(message.toString())
 	}
 }
-
-/**抛出一个[UnsupportedOperationException]，带有懒加载的信息。*/
-@ExperimentalContracts
-inline fun reject(lazyMessage: () -> Any) = reject(false, lazyMessage)
-

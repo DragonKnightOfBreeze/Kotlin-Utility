@@ -134,23 +134,23 @@ inline fun <C : CharSequence> C.ifNotBlank(transform: (C) -> C): C {
 
 
 /**将字符串中的指定字符替换成根据索引得到的字符。*/
-fun String.replaceIndexed(oldChar: Char, ignoreCase: Boolean = false, transform: (Int) -> Char): String {
+fun String.replaceIndexed(oldChar: Char, ignoreCase: Boolean = false, newChar: (Int) -> Char): String {
 	return buildString {
 		val splitStrings = this@replaceIndexed.splitToSequence(oldChar, ignoreCase = ignoreCase)
 		for((i, s) in splitStrings.withIndex()) {
 			this.append(s)
-			if(i < splitStrings.count() - 1) this.append(transform(i))
+			if(i < splitStrings.count() - 1) this.append(newChar(i))
 		}
 	}
 }
 
 /**将字符串中的指定值替换成根据索引得到的字符串。*/
-fun String.replaceIndexed(oldValue: String, ignoreCase: Boolean = false, transform: (Int) -> String): String {
+fun String.replaceIndexed(oldValue: String, ignoreCase: Boolean = false, newValue: (Int) -> String): String {
 	return buildString {
 		val splitStrings = this@replaceIndexed.splitToSequence(oldValue, ignoreCase = ignoreCase)
 		for((i, s) in splitStrings.withIndex()) {
 			this.append(s)
-			if(i < splitStrings.count() - 1) this.append(transform(i))
+			if(i < splitStrings.count() - 1) this.append(newValue(i))
 		}
 	}
 }
@@ -162,7 +162,7 @@ fun CharSequence.substring(regex: Regex): List<String> {
 }
 
 /**根据以null分割的前置和后置的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值列表中的对应索引的值。*/
-fun String.substring(vararg delimiters: String?, defaultValue: (Int, String) -> List<String>) =
+fun String.substring(vararg delimiters: String?, defaultValue: (Int, String) -> List<String>): List<String> =
 	substringOrElse(*delimiters) { index, str -> defaultValue(index, str).getOrEmpty(index) }
 
 /**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值。*/
@@ -219,15 +219,16 @@ fun String.messageFormat(vararg args: Any): String {
  * 占位符形如：`{}`, `{index}`, `${}`, `${index}`。
  */
 fun String.customFormat(placeholder: String, vararg args: Any): String {
-	return if("index" in placeholder) {
-		val (prefix, suffix) = placeholder.split("index")
-		this.splitToSequence(prefix, suffix).map { s ->
-			s.replace("^(\\d+)$".toRegex()) { r ->
-				args.getOrNull(r.groupValues[1].toInt())?.toString() ?: r.groupValues[0]
-			}
-		}.joinToString("")
-	} else {
-		this.replaceIndexed(placeholder) { args.getOrNull(it)?.toString() ?: "" }
+	return when {
+		"index" in placeholder -> {
+			val (prefix, suffix) = placeholder.split("index")
+			this.splitToSequence(prefix, suffix).map { s ->
+				s.replace("^(\\d+)$".toRegex()) { r ->
+					args.getOrNull(r.groupValues[1].toInt())?.toString() ?: r.groupValues[0]
+				}
+			}.joinToString("")
+		}
+		else -> this.replaceIndexed(placeholder) { args.getOrNull(it)?.toString() ?: "" }
 	}
 }
 
@@ -241,6 +242,11 @@ fun String.surrounding(prefix: String, suffix: String, ignoreEmpty: Boolean = tr
 fun String.surrounding(delimiter: String, ignoreEmpty: Boolean = true): String =
 	surrounding(delimiter, delimiter, ignoreEmpty)
 
+
+/**去除指定字符。*/
+fun String.remove(oldChar: Char, ignoreCase: Boolean = false): String {
+	return this.replace(oldChar.toString(), "", ignoreCase)
+}
 
 /**去除指定字符串。*/
 fun String.remove(oldValue: String, ignoreCase: Boolean = false): String {
@@ -259,7 +265,7 @@ fun String.removeWhiteSpace(): String {
 
 /**去除所有空白。*/
 fun String.removeBlank(): String {
-	return this.replace("[\\s\\n\\r\\t]+".toRegex(), "")
+	return this.replace("\\s+".toRegex(), "")
 }
 
 
@@ -492,7 +498,7 @@ fun String.toUrl(content: URL? = null, handler: URLStreamHandler? = null): URL =
 fun String.toUri(): URI = URI.create(this)
 
 
-/**得到当前字符串对应的路径信息。*/
+/**将当前字符串转化为路径信息。*/
 fun String.toPathInfo(): PathInfo {
 	val path = this.replace("/", "\\")
 	val rootPath = path.substringBefore("\\")
@@ -501,7 +507,7 @@ fun String.toPathInfo(): PathInfo {
 	return PathInfo(path, rootPath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
-/**得到当前字符串对应的的地址信息。*/
+/**将当前字符串转化为地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val url = this
 	val (fullPath, query) = url.substring("?") { _, s -> listOf(s, "") }
@@ -510,7 +516,7 @@ fun String.toUrlInfo(): UrlInfo {
 	return UrlInfo(url, fullPath, protocol, host, port, path, query)
 }
 
-/**得到当前字符串对应的查询参数映射。*/
+/**将当前字符串转化为查询参数映射。*/
 internal fun String.toQueryParamMap(): QueryParamMap {
 	val map = when {
 		this.isEmpty() -> mapOf()
@@ -521,12 +527,15 @@ internal fun String.toQueryParamMap(): QueryParamMap {
 }
 
 
+/**将当前字符串转化为本地日期。*/
 fun CharSequence.toLocalDate(formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE): LocalDate =
 	LocalDate.parse(this, formatter)
 
+/**将当前字符串转化为本地日期时间。*/
 fun CharSequence.toLocalDateTime(formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_DATE_TIME): LocalDateTime =
 	LocalDateTime.parse(this, formatter)
 
+/**将当前字符串转化为本地时间。*/
 fun CharSequence.toLocalTime(formatter: DateTimeFormatter = DateTimeFormatter.ISO_LOCAL_TIME): LocalDateTime =
 	LocalDateTime.parse(this, formatter)
 
