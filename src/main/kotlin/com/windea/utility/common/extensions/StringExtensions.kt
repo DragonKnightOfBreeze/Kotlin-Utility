@@ -434,7 +434,7 @@ fun String.toBreakLineText(): String {
 /**将当前字符串转化为多行文本。（去除首尾空白行，然后基于尾随空白行的缩进，尝试去除每一行的缩进。）*/
 fun String.toMultilineText(): String {
 	val lines = this.lines()
-	val trimmedIndent = lines.last().let { if(it.isBlank()) it else "" }
+	val trimmedIndent = lines.last().ifBlank { "" }
 	if(trimmedIndent.isEmpty()) return this.trimIndent()
 	return lines.dropBlank().dropLastBlank().joinToString("\n") { it.removePrefix(trimmedIndent) }
 }
@@ -443,13 +443,13 @@ fun String.toMultilineText(): String {
 /**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
 fun String.toIntOrDefault(defaultValue: Int = 0): Int = this.toIntOrDefault(10, defaultValue)
 
-/**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制，默认为十进制。*/
+/**去空白后，将当前字符串转化为对应的整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制[radix]，默认为十进制。*/
 fun String.toIntOrDefault(radix: Int = 10, defaultValue: Int = 0): Int = this.toIntOrNull(radix) ?: defaultValue
 
 /**去空白后，将当前字符串转化为对应的长整数，发生异常则转化为默认值[defaultValue]，默认为0。*/
 fun String.toLongOrDefault(defaultValue: Long = 0): Long = this.toLongOrDefault(10, defaultValue)
 
-/**去空白后，将当前字符串转化为对应的长整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制，默认为十进制。*/
+/**去空白后，将当前字符串转化为对应的长整数，发生异常则转化为默认值[defaultValue]，默认为0。可指定进制[radix]，默认为十进制。*/
 fun String.toLongOrDefault(radix: Int = 10, defaultValue: Long = 0): Long = this.toLongOrNull(radix) ?: defaultValue
 
 /**去空白后，将当前字符串转化为对应的单精度浮点数，发生异常则转化为默认值[defaultValue]，默认为0.0f。*/

@@ -99,6 +99,14 @@ class StringExtensionTests {
 		  abc"
 		""".toMultilineText()
 		println(str2)
+		
+		val str3 = """
+		  "abc
+		  abc
+		    abc
+		  abc"
+		""".toBreakLineText()
+		println(str3)
 	}
 	
 	enum class Abc { A, B, C }
@@ -166,6 +174,7 @@ class StringExtensionTests {
 	@Test
 	fun test15() {
 		println("123{0}123".messageFormat("a"))
+		println("1'2'3{0}123".messageFormat("a"))
 		println("123{}".customFormat("{}", "a"))
 		println("123{0}".customFormat("{index}", "a"))
 		println("123\${}".customFormat("\${}", "a"))
