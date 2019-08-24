@@ -1,6 +1,6 @@
 package com.windea.utility.common.extensions
 
-object SystemExtension {
+object SystemExtensions {
 	/**项目的实际工作路径。*/
 	val workDirectory: String? get() = System.getProperty("user.dir")
 	

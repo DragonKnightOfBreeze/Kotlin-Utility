@@ -74,21 +74,6 @@ data class StarBoundColorText @PublishedApi internal constructor(
 	}
 }
 
-/**StarBound占位符。*/
-enum class StarBoundPlaceHolder(
-	val text: String
-) {
-	PlayerName("player_name")
-}
-
-/**StarBound颜色。*/
-enum class StarBoundColor(
-	val text: String
-) {
-	White("white"), Grey("grey"), Black("black"), Red("red"), Yellow("yellow"), Blue("blue"),
-	Green("green"), Cyan("cyan"), Purple("purple")
-}
-
 
 /**构建StarBound文本的Dsl。*/
 inline fun Dsl.Companion.starBoundText(name: String = defaultName, text: StarBoundTextDsl.() -> Unit) =
@@ -106,12 +91,6 @@ fun StarBoundRichText.t(text: String, cleartext: Boolean = false) =
 fun StarBoundRichText.pht(placeHolder: String) =
 	StarBoundPlaceHolderText(placeHolder).also { this.text += it }
 
-/**创建StarBound占位文本。*/
-fun StarBoundRichText.pht(placeHolder: StarBoundPlaceHolder) = this.pht(placeHolder.text)
-
 /**创建StarBound彩色文本。*/
 inline fun StarBoundRichText.ct(color: String, text: StarBoundColorText.() -> Unit) =
 	StarBoundColorText(color).also { it.text() }.also { this.text += it }
-
-/**创建StarBound彩色文本。*/
-inline fun StarBoundRichText.ct(color: StarBoundColor, text: StarBoundColorText.() -> Unit) = this.ct(color.text, text)

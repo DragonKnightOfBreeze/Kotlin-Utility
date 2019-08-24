@@ -569,4 +569,3 @@ fun String.toColor(): Color {
 private fun String.mapPerCharRepeat(n: Int): String {
 	return this.chunked(1).joinToString("") { it.repeat(n) }
 }
-

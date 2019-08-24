@@ -179,4 +179,10 @@ class StringExtensionTests {
 		println("123{0}".customFormat("{index}", "a"))
 		println("123\${}".customFormat("\${}", "a"))
 	}
+	
+	@Test
+	fun test16() {
+		println(listOf("  ", "123", "123").dropWhile { it.isBlank() })
+		println(listOf("123", "   ", "123").dropWhile { it.isBlank() })
+	}
 }
