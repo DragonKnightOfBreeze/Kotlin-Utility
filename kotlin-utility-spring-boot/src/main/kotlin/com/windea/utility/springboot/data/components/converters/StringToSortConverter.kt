@@ -1,7 +1,8 @@
-package com.windea.utility.springboot.components.converters
+package com.windea.utility.springboot.data.components.converters
 
 import org.springframework.core.convert.converter.*
 import org.springframework.data.domain.*
+import org.springframework.stereotype.*
 
 /**
  * 字符串到排序对象的转换器。
@@ -11,6 +12,7 @@ import org.springframework.data.domain.*
  * * 示例："", "+name", "+name,-age", "name,age"。
  * * 默认值：""。
  */
+@Component
 class StringToSortConverter : Converter<String, Sort> {
 	override fun convert(string: String): Sort {
 		val splitStrings = string.split(",").map { it.trim() }

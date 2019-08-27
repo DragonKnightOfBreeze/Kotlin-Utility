@@ -39,6 +39,19 @@
       <artifactId>kotlin-utility-common</artifactId>
       <version>1.5.1</version>
     </dependency>
+
+
+    <!--QueryDSL支持-->
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-apt</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <!--QueryDSL支持-->
+    <dependency>
+      <groupId>com.querydsl</groupId>
+      <artifactId>querydsl-jpa</artifactId>
+    </dependency>
   </dependencies>
 
   <dependencyManagement>
