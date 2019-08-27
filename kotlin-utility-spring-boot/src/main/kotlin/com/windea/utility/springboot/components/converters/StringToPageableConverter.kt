@@ -1,4 +1,4 @@
-package com.windea.utility.springboot.converters
+package com.windea.utility.springboot.components.converters
 
 import com.windea.utility.common.extensions.*
 import org.springframework.core.convert.converter.*
@@ -16,8 +16,8 @@ class StringToPageableConverter(
 ) : Converter<String, Pageable> {
 	override fun convert(string: String): Pageable {
 		val splitStrings = string.split(",", limit = 3).map { it.trim() }
-		val page = splitStrings.getOrDefault(0, "1").toIntOrDefault(1)
-		val size = splitStrings.getOrDefault(1, "10").toIntOrDefault(10)
+		val page = splitStrings.getOrDefault(0, "1").toInt()
+		val size = splitStrings.getOrDefault(1, "10").toInt()
 		val sort = stringToSortConverter.convert(splitStrings.getOrDefault(2, ""))
 		return PageRequest.of(page - 1, size, sort)
 	}

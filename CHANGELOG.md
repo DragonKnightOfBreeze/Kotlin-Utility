@@ -72,3 +72,5 @@
 * [ ] 更多被广泛使用的枚举以及对应的本地化文本？
 * [ ] 更多稀奇古怪的枚举和注解（主要用于游戏）？例如：龙的分类，移动方式，感知方式。
 * [X] 模块化项目，新增用于spring boot的模块。
+	* StringToRangeConverter
+	* [cache] MethodNameArgsKeyGenerator

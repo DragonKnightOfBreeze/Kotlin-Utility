@@ -56,10 +56,19 @@ class CommonTests {
 		println(nameOf(Bar::func))
 	}
 	
+	@Test
 	fun test6() {
 		println(1..2)
 		println(1 until 2)
 		println(1 downTo 0)
+	}
+	
+	@Test
+	fun test7() {
+		println("123".toInt())
+		//println("123L".toLong())
+		println("123.0".toFloat())
+		println("123.0".toDouble())
 	}
 }
 

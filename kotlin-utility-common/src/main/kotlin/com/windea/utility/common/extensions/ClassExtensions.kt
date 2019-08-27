@@ -1,38 +1,24 @@
 package com.windea.utility.common.extensions
 
-import java.io.*
 import java.lang.reflect.*
 
 /**判断是否是字符序列。*/
-val <T> Class<T>.isCharSequence: Boolean get() = this.checkInterface(CharSequence::class.java)
+val <T> Class<T>.isCharSequence: Boolean get() = CharSequence::class.java.isAssignableFrom(this::class.java)
 
 /**判断是否是字符串。*/
-val <T> Class<T>.isString: Boolean get() = this == String::class.java
+val <T> Class<T>.isString: Boolean get() = String::class.java.isAssignableFrom(this::class.java)
 
 /**判断是否是可迭代类/接口。*/
-val <T> Class<T>.isIterable: Boolean get() = this.checkInterface(Iterable::class.java)
+val <T> Class<T>.isIterable: Boolean get() = Iterable::class.java.isAssignableFrom(this::class.java)
 
 /**判断是否是列表。*/
-val <T> Class<T>.isList: Boolean get() = this.checkInterface(List::class.java)
+val <T> Class<T>.isList: Boolean get() = List::class.java.isAssignableFrom(this::class.java)
 
 /**判断是否是集。*/
-val <T> Class<T>.isSet: Boolean get() = this.checkInterface(Set::class.java)
+val <T> Class<T>.isSet: Boolean get() = Set::class.java.isAssignableFrom(this::class.java)
 
 /**判断是否是映射。*/
-val <T> Class<T>.isMap: Boolean get() = this.checkInterface(Map::class.java)
-
-/**判断是否是可序列类/接口。*/
-val <T> Class<T>.isSerializable: Boolean get() = this.checkInterface(Serializable::class.java)
-
-private tailrec fun Class<*>.checkClass(clazz: Class<*>): Boolean {
-	if(this != clazz || this.superclass == null) return false
-	return superclass.checkClass(clazz)
-}
-
-private fun Class<*>.checkInterface(clazz: Class<*>): Boolean {
-	if(this != clazz || this.superclass == null) return false
-	return this.interfaces.any { it.checkInterface(clazz) } || superclass.checkInterface(clazz)
-}
+val <T> Class<T>.isMap: Boolean get() = Map::class.java.isAssignableFrom(this::class.java)
 
 
 /**得到类型的属性名-取值方法映射。*/
