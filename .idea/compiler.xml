@@ -6,7 +6,9 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="kotlin-utility" />
+        <module name="kotlin-utility-common" />
+        <module name="kotlin-utility-dream" />
+        <module name="kotlin-utility-spring-boot" />
       </profile>
     </annotationProcessing>
   </component>

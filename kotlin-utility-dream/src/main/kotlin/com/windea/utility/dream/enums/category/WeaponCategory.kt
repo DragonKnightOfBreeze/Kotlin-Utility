@@ -1,6 +1,5 @@
 package com.windea.utility.dream.enums.category
 
-import com.windea.utility.common.annotations.messages.*
 import com.windea.utility.dream.enums.category.WeaponSuperCategory.*
 
 /**武器分类。*/
