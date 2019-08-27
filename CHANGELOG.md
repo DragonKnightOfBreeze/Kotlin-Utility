@@ -57,6 +57,10 @@
 * 1.4.14 加强对Dsl的限制。适用DslMarker和@PublishedApi internal constructor。
 * 1.4.15 整理与更新。
 
+## 1.5.x
+
+* 1.5.0 重新整理目录，划分为不同的模块。 
+
 # TODO
 
 * [X] Vector的相关扩展？
