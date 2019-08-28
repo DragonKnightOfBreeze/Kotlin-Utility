@@ -17,10 +17,6 @@ inline fun <reified A : Annotation> KAnnotatedElement.findAnnotations(predicate:
 	this.annotations.filterIsInstance<A>().filter(predicate)
 
 
-/**得到目标的本地化描述。*/
-fun Any.annotatedDescription(locale: String = "Chs"): String? =
-	this::class.findAnnotation<Description> { it.locale == locale }?.text ?: this.annotatedSummary(locale)
-
 /**得到目标的本地化名字。*/
 fun Any.annotatedName(locale: String = "Chs"): String? =
 	this::class.findAnnotation<Name> { it.locale == locale }?.text
@@ -28,3 +24,7 @@ fun Any.annotatedName(locale: String = "Chs"): String? =
 /**得到目标的本地化概述。*/
 fun Any.annotatedSummary(locale: String = "Chs"): String? =
 	this::class.findAnnotation<Summary> { it.locale == locale }?.text
+
+/**得到目标的本地化描述。*/
+fun Any.annotatedDescription(locale: String = "Chs"): String? =
+	this::class.findAnnotation<Description> { it.locale == locale }?.text

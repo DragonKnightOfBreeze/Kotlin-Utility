@@ -113,7 +113,7 @@ class StringExtensionTests {
 	
 	@Test
 	fun test11() {
-		println("A".toEnumConst<Abc>().name)
+		println("A".toEnumValue<Abc>().name)
 	}
 	
 	@Test

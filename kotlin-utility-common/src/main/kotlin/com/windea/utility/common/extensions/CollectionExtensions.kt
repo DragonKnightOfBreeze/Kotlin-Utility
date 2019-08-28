@@ -306,7 +306,7 @@ fun <T> Map<String, Any?>.toObject(type: Class<T>, recursive: Boolean = true): T
 private fun convertProperty(propertyType: Class<*>, propertyValue: Any?, recursive: Boolean = false): Any? {
 	return when {
 		propertyType.isPrimitive || propertyType.isCharSequence -> propertyValue
-		propertyType.isEnum -> propertyValue.toString().toEnumConst(propertyType)
+		propertyType.isEnum -> propertyValue.toString().toEnumValue(propertyType)
 		//使用高阶函数后，无法直接得到运行时泛型
 		propertyType.isArray -> (propertyValue as Array<*>)
 		propertyType.isList -> (propertyValue as List<*>).map {

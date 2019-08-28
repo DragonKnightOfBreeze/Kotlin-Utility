@@ -468,27 +468,16 @@ fun String.toDoubleOrDefault(defaultValue: Double = 0.0): Double = this.toDouble
 
 
 /**将当前字符串转化为对应的枚举常量。*/
-inline fun <reified E : Enum<E>> String.toEnumConst(): E = this.toEnumConst(E::class.java)
+inline fun <reified T : Enum<T>> String.toEnumValue(): T = enumValueOf<T>(this)
 
 /**将当前字符串转化为对应的枚举常量。*/
-fun <E : Enum<E>> String.toEnumConst(type: Class<E>): E {
+fun String.toEnumValue(type: Class<*>): Any {
+	requireNotNull(type.isEnum) { "[ERROR] $type is not an enum class!" }
 	return try {
 		type.enumConstants.first { it.toString() == this }
 	} catch(e: Exception) {
 		println("[WARN] No matched enum const found. Convert to default.")
 		type.enumConstants.first()
-	}
-}
-
-/**将当前字符串转化为对应的枚举常量。*/
-fun String.toEnumConst(type: Class<*>): Any {
-	val enumConsts = type.enumConstants
-	requireNotNull(enumConsts) { "[ERROR] $type is not an enum class!" }
-	return try {
-		enumConsts.first { it.toString() == this }
-	} catch(e: Exception) {
-		println("[WARN] No matched enum const found. Convert to default.")
-		enumConsts.first()
 	}
 }
 
