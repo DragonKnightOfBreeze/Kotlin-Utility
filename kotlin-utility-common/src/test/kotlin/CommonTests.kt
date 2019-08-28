@@ -1,3 +1,4 @@
+import com.windea.utility.common.domain.*
 import com.windea.utility.common.extensions.*
 import org.junit.*
 import java.time.*
@@ -70,6 +71,15 @@ class CommonTests {
 		println("123.0".toFloat())
 		println("123.0".toDouble())
 	}
+	
+	@Test
+	fun test8() {
+		println(EntityA(1L) == EntityB(1L))
+		println(EntityA(1L) == EntityA(1L))
+		println(EntityA(1L) == EntityB(2L))
+		println(EntityA(1L) == EntityA(2L))
+		println(EntityA(3L))
+	}
 }
 
 annotation class Foo1(
@@ -81,3 +91,6 @@ class Bar {
 	fun func() {}
 }
 
+open class EntityA(override var id: Long?) : TEntity<Long>()
+
+open class EntityB(override var id: Long?) : TEntity<Long>()
