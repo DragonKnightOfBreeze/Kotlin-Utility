@@ -35,6 +35,13 @@ infix fun String?.equalsIsc(other: String?): Boolean {
 }
 
 
+/**判断当前字符串中的任意字符是否被另一字符串包含。*/
+infix fun String.anyIn(other: String): Boolean = this.any { it in other }
+
+/**判断当前字符串是否与另一字符串相像。即，判断是否存在共同的以空格分隔的单词。*/
+infix fun String.like(other: String): Boolean = this.splitByCase(StringCase.WhiteSpaceCase) anyIn other.splitByCase(StringCase.WhiteSpaceCase)
+
+
 /**判断当前字符串是否以指定前缀开头。*/
 infix fun CharSequence.startsWith(prefix: CharSequence): Boolean {
 	return this.startsWith(prefix, false)
@@ -154,54 +161,6 @@ fun String.replaceIndexed(oldValue: String, ignoreCase: Boolean = false, newValu
 		}
 	}
 }
-
-
-/**根据指定的正则表达式，得到当前字符串的匹配结果分组对应的字符串列表。不包含索引0的分组，列表可能为空。*/
-fun CharSequence.substring(regex: Regex): List<String> {
-	return regex.matchEntire(this)?.groupValues?.drop(1) ?: listOf()
-}
-
-/**根据以null分割的前置和后置的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值列表中的对应索引的值。*/
-fun String.substring(vararg delimiters: String?, defaultValue: (Int, String) -> List<String>): List<String> =
-	substringOrElse(*delimiters) { index, str -> defaultValue(index, str).getOrEmpty(index) }
-
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值。*/
-fun String.substringOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
-	require(delimiters.count { it == null } <= 1) { "[ERROR] There should be at most one null value for separator in delimiters!" }
-	
-	var rawString = this
-	val fixedDelimiters = delimiters.filterNotNull()
-	val size = fixedDelimiters.size
-	val indexOfNull = delimiters.indexOf(null).let { if(it == -1) size else it }
-	val result = mutableListOf<String>()
-	
-	for((index, delimiter) in fixedDelimiters.withIndex()) {
-		if(index < indexOfNull) {
-			result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
-			if(index == size - 1) {
-				result += rawString.substringAfter(delimiter, defaultValue(index, rawString))
-			} else {
-				rawString = rawString.substringAfter(delimiter, defaultValue(index, rawString))
-			}
-		} else {
-			result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
-			if(index == size - 1) {
-				result += rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
-			} else {
-				rawString = rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
-			}
-		}
-	}
-	return result
-}
-
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
-fun String.substringOrEmpty(vararg delimiters: String?): List<String> =
-	this.substringOrElse(*delimiters) { _, _ -> "" }
-
-/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入剩余字符串。*/
-fun String.substringOrRemain(vararg delimiters: String?): List<String> =
-	this.substringOrElse(*delimiters) { _, str -> str }
 
 
 /**
@@ -356,7 +315,7 @@ fun String.splitByCase(case: StringCase): List<String> {
 		StringCase.KebabCase -> this.split("-")
 		StringCase.KebabUpperCase -> this.split("-")
 		StringCase.DotCase -> this.split(".")
-		StringCase.WhiteSpaceCase -> this.split(" ")
+		StringCase.WhiteSpaceCase -> this.split("\\s+".toRegex())
 	}
 }
 
@@ -376,7 +335,7 @@ fun List<String>.joinByCase(case: StringCase): String {
 }
 
 private fun String.splitWordByWhiteSpace(): String {
-	return this.replace("\\B([A-Z]+)".toRegex(), " $1")
+	return this.replace("\\B([A-Z][a-z_$])".toRegex(), " $1")
 }
 
 
@@ -418,6 +377,55 @@ fun List<String>.joinByPathCase(case: PathCase, isAbsolutePath: Boolean = true):
 		PathCase.JsonPath -> this.joinToString("/", "/")
 	}
 }
+
+
+/**根据指定的正则表达式，得到当前字符串的匹配结果分组对应的字符串列表。不包含索引0的分组，列表可能为空。*/
+fun CharSequence.substrings(regex: Regex): List<String> {
+	return regex.matchEntire(this)?.groupValues?.drop(1) ?: listOf()
+}
+
+
+/**根据以null分割的前置和后置的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值列表中的对应索引的值。*/
+fun String.substrings(vararg delimiters: String?, defaultValue: (Int, String) -> List<String>): List<String> =
+	substringsOrElse(*delimiters) { index, str -> defaultValue(index, str).getOrEmpty(index) }
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入基于索引和剩余字符串得到的默认值。*/
+inline fun String.substringsOrElse(vararg delimiters: String?, defaultValue: (Int, String) -> String): List<String> {
+	require(delimiters.count { it == null } <= 1) { "[ERROR] There should be at most one null value as separator in delimiters." }
+	
+	var rawString = this
+	val fixedDelimiters = delimiters.filterNotNull()
+	val size = fixedDelimiters.size
+	val indexOfNull = delimiters.indexOf(null).let { if(it == -1) size else it }
+	val result = mutableListOf<String>()
+	
+	for((index, delimiter) in fixedDelimiters.withIndex()) {
+		if(index < indexOfNull) {
+			result += rawString.substringBefore(delimiter, defaultValue(index, rawString))
+			if(index == size - 1) {
+				result += rawString.substringAfter(delimiter, defaultValue(index, rawString))
+			} else {
+				rawString = rawString.substringAfter(delimiter, defaultValue(index, rawString))
+			}
+		} else {
+			result += rawString.substringBeforeLast(delimiter, defaultValue(index, rawString))
+			if(index == size - 1) {
+				result += rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
+			} else {
+				rawString = rawString.substringAfterLast(delimiter, defaultValue(index, rawString))
+			}
+		}
+	}
+	return result
+}
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入空字符串。*/
+fun String.substringsOrEmpty(vararg delimiters: String?): List<String> =
+	this.substringsOrElse(*delimiters) { _, _ -> "" }
+
+/**根据以null隔离的从前往后和从后往前的分隔符，按顺序分割字符串。不包含分隔符时，加入剩余字符串。*/
+fun String.substringsOrRemain(vararg delimiters: String?): List<String> =
+	this.substringsOrElse(*delimiters) { _, str -> str }
 
 
 /**反序列化当前字符串，返回指定泛型的对象。*/
@@ -502,17 +510,17 @@ fun String.toUri(): URI = URI.create(this)
 fun String.toPathInfo(): PathInfo {
 	val path = this.replace("/", "\\")
 	val rootPath = path.substringBefore("\\")
-	val (fileDirectory, fileName) = path.substring(null, "\\") { _, s -> listOf("", s) }
-	val (fileShotName, fileExtension) = fileName.substring(null, ".") { _, s -> listOf(s, "") }
+	val (fileDirectory, fileName) = path.substrings(null, "\\") { _, s -> listOf("", s) }
+	val (fileShotName, fileExtension) = fileName.substrings(null, ".") { _, s -> listOf(s, "") }
 	return PathInfo(path, rootPath, fileDirectory, fileName, fileShotName, fileExtension)
 }
 
 /**将当前字符串转化为地址信息。*/
 fun String.toUrlInfo(): UrlInfo {
 	val url = this
-	val (fullPath, query) = url.substring("?") { _, s -> listOf(s, "") }
-	val (protocol, hostAndPort, path) = fullPath.substring("://", "/") { _, s -> listOf("http", "", s) }
-	val (host, port) = hostAndPort.substring(":") { _, s -> listOf(s, "") }
+	val (fullPath, query) = url.substrings("?") { _, s -> listOf(s, "") }
+	val (protocol, hostAndPort, path) = fullPath.substrings("://", "/") { _, s -> listOf("http", "", s) }
+	val (host, port) = hostAndPort.substrings(":") { _, s -> listOf(s, "") }
 	return UrlInfo(url, fullPath, protocol, host, port, path, query)
 }
 

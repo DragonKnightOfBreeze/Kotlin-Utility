@@ -9,7 +9,7 @@ class StringExtensionTests {
 	@Test
 	fun test1() {
 		val str = "http://localhost:8080/www.github.com/DragonKnightOfBreeze"
-		val strList = str.substringOrEmpty("://", ":", "/")
+		val strList = str.substringsOrEmpty("://", ":", "/")
 		println(strList)
 	}
 	
@@ -17,7 +17,7 @@ class StringExtensionTests {
 	@Test
 	fun test2() {
 		val str = "http://www.github.com/DragonKnightOfBreeze"
-		val strList = str.substringOrEmpty("://", ":", "/")
+		val strList = str.substringsOrEmpty("://", ":", "/")
 		println(strList)
 	}
 	
@@ -25,7 +25,7 @@ class StringExtensionTests {
 	@Test
 	fun test3() {
 		val str = "www.github.com/DragonKnightOfBreeze"
-		val strList = str.substringOrEmpty("://", ":", "/")
+		val strList = str.substringsOrEmpty("://", ":", "/")
 		println(strList)
 	}
 	
@@ -33,7 +33,7 @@ class StringExtensionTests {
 	@Test
 	fun test4() {
 		val str = "http://localhost:8080/www.github.com/DragonKnightOfBreeze"
-		val strList = str.substringOrEmpty(":", "/", "://")
+		val strList = str.substringsOrEmpty(":", "/", "://")
 		println(strList)
 	}
 	
@@ -41,7 +41,7 @@ class StringExtensionTests {
 	@Test
 	fun test5() {
 		val str = "www.github.com"
-		val strList = str.substring("://", ":", "/") { _, s -> listOf("http", "localhost", "8080", s) }
+		val strList = str.substrings("://", ":", "/") { _, s -> listOf("http", "localhost", "8080", s) }
 		println(strList)
 	}
 	
@@ -148,7 +148,7 @@ class StringExtensionTests {
 	@Test
 	fun testRegexFunction() {
 		println("123abc123abc123".split("abc".toRegex()))
-		println("123abc123abc123".substring(".*(abc).*".toRegex()))
+		println("123abc123abc123".substrings(".*(abc).*".toRegex()))
 		println(".*(abc).*".toRegex().matchEntire("123abc123abc123")?.groupValues)
 	}
 	

@@ -36,7 +36,13 @@ infix fun <T> List<T>.contentDeepEquals(other: List<T>): Boolean {
 
 
 /**判断当前数组中的任意元素是否被另一数组包含。*/
-infix fun <T> Array<T>.anyIn(other: Array<T>): Boolean = this.any { it in other }
+infix fun <T> Array<out T>.anyIn(other: Array<out T>): Boolean = this.any { it in other }
+
+/**判断当前数组中的任意元素是否被另一集合包含。*/
+infix fun <T> Array<out T>.anyIn(other: Iterable<T>): Boolean = this.any { it in other }
+
+/**判断当前集合中的任意元素是否被另一数组包含。*/
+infix fun <T> Iterable<T>.anyIn(other: Array<out T>): Boolean = this.any { it in other }
 
 /**判断当前集合中的任意元素是否被另一集合包含。*/
 infix fun <T> Iterable<T>.anyIn(other: Iterable<T>): Boolean = this.any { it in other }
@@ -46,25 +52,25 @@ infix fun <T> Iterable<T>.anyIn(other: Iterable<T>): Boolean = this.any { it in 
 infix fun <T> Array<out T>.startsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前数组是否以任意指定元素开始。*/
-infix fun <T> Array<out T>.startsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Array<out T>.startsWith(elements: Array<out T>): Boolean = this.firstOrNull() in elements
 
 /**判断当前数组是否以指定元素结束。*/
 infix fun <T> Array<out T>.endsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前数组是否以任意指定元素结束。*/
-infix fun <T> Array<out T>.endsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Array<out T>.endsWith(elements: Array<out T>): Boolean = this.firstOrNull() in elements
 
 /**判断当前集合是否以指定元素开始。*/
 infix fun <T> Iterable<T>.startsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前集合是否以任意指定元素开始。*/
-infix fun <T> Iterable<T>.startsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Iterable<T>.startsWith(elements: Array<out T>): Boolean = this.firstOrNull() in elements
 
 /**判断当前集合是否以指定元素结束。*/
 infix fun <T> Iterable<T>.endsWith(element: T): Boolean = this.firstOrNull() == element
 
 /**判断当前可迭代对象是否以任意指定元素结束。*/
-infix fun <T> Iterable<T>.endsWith(elements: Array<T>): Boolean = this.firstOrNull() in elements
+infix fun <T> Iterable<T>.endsWith(elements: Array<out T>): Boolean = this.firstOrNull() in elements
 
 
 /**如果当前数组不为空，则返回转换后的值。*/
