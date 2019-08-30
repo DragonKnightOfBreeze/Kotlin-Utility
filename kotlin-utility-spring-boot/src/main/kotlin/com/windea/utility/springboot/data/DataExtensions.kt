@@ -1,4 +1,4 @@
-package com.windea.utility.springboot.data.extensions
+package com.windea.utility.springboot.data
 
 import com.querydsl.core.types.*
 import org.springframework.data.domain.*

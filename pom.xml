@@ -7,7 +7,7 @@
 
   <groupId>com.windea</groupId>
   <artifactId>kotlin-utility</artifactId>
-  <version>1.5.2</version>
+  <version>1.5.3</version>
 
   <name>Kotlin Utility</name>
   <description>Kotlin实用代码整理。</description>
@@ -51,6 +51,12 @@
       <artifactId>kotlin-test-junit</artifactId>
       <version>${kotlin.version}</version>
       <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>io.github.microutils</groupId>
+      <artifactId>kotlin-logging</artifactId>
+      <version>1.6.26</version>
     </dependency>
   </dependencies>
 

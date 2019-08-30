@@ -3,7 +3,6 @@ package com.windea.utility.springboot.data.components.converters
 import com.windea.utility.common.extensions.*
 import org.springframework.core.convert.converter.*
 import org.springframework.data.domain.*
-import org.springframework.stereotype.*
 
 /**
  * 字符串到分页对象的转换器。
@@ -12,8 +11,7 @@ import org.springframework.stereotype.*
  * * 示例："", "1", "1,10", "1,10,+name"。
  * * 默认值："1,10"。
  */
-@Component
-class StringToPageableConverter(
+open class StringToPageableConverter(
 	private val stringToSortConverter: StringToSortConverter
 ) : Converter<String, Pageable> {
 	override fun convert(string: String): Pageable {

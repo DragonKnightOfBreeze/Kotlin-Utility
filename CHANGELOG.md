@@ -62,16 +62,4 @@
 * 1.5.0 重新整理目录，划分为不同的模块。 
 * 1.5.1 添加一些自定义的Spring Boot组件。
 * 1.5.2 更新字符串扩展。
-
-# TODO
-
-* [X] Vector的相关扩展？
-* [X] Color的相关扩展？
-* [ ] 更多类型的字符串生成器以及实现？例如：Markdown片段，html片段。
-* [ ] 更多类型的文本生成器以及实现？例如：Uml生成器，Mermaid生成器。
-* [ ] 一些通用的Dsl。
-* [ ] 更多被广泛使用的枚举以及对应的本地化文本？
-* [ ] 更多稀奇古怪的枚举和注解（主要用于游戏）？例如：龙的分类，移动方式，感知方式。
-* [X] 模块化项目，新增用于spring boot的模块。
-	* StringToRangeConverter
-	* [cache] MethodNameArgsKeyGenerator
+* 1.5.3 添加一些SpringBoot AutoConfiguration，添加对Jwt的自动配置。
